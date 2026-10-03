@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>NUKE Mods</title>
+    <style>
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0e0a0a; color: #fff; font-family: system-ui, "Segoe UI", Tahoma, sans-serif; text-align: center; padding: 24px; box-sizing: border-box; }
+      .card { max-width: 380px; border: 1px solid rgba(255,255,255,.1); background: #171213; border-radius: 24px; padding: 32px 24px; }
+      .icon { font-size: 56px; line-height: 1; }
+      h1 { margin: 14px 0 8px; font-size: 22px; }
+      p { margin: 0; opacity: .7; line-height: 1.7; font-size: 15px; }
+    </style>
+  </head>
+  <body>
+    <div class="card"><div class="icon" id="i">⏳</div><h1 id="t">لحظة…</h1><p id="p"></p></div>
+    <script>
+      // NUKE Mods admin sign-in: the e-mailed link lands here (on a phone or a PC). The session goes
+      // to the waiting app through the owner's database, under the one-time key in this address.
+      (async () => {
+        const show = (i, t, p) => { document.getElementById("i").textContent = i; document.getElementById("t").textContent = t; document.getElementById("p").textContent = p; };
+        const k = new URLSearchParams(location.search).get("k") || "";
+        const h = new URLSearchParams(location.hash.slice(1));
+        history.replaceState(null, "", location.pathname); // the session never stays in the address bar
+        const access = h.get("access_token"), refresh = h.get("refresh_token");
+        if (!/^[0-9a-f]{64}$/.test(k) || !access || !refresh) return show("↩️", "الرابط ما يشتغل", h.get("error_description") || "ارجع للتطبيق واطلب رابط جديد.");
+        try {
+          const key = "sb_publishable_vpnc3OKWBjuOhz7HgCFh3Q_rnUv8wZP";
+          const r = await fetch("https://yiujxcmynjauwwpbikxl.supabase.co/rest/v1/rpc/admin_handoff_put", {
+            method: "POST",
+            headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" },
+            body: JSON.stringify({ k, access_token: access, refresh_token: refresh }),
+          });
+          if (!r.ok) throw new Error(String(r.status));
+          show("✅", "تم التحقق", "ارجع لتطبيق NUKE Mods على الكمبيوتر، لوحة التحكم بتفتح بروحها. تقدر تسكّر هالصفحة.");
+        } catch {
+          show("⚠️", "ما ضبط", "تأكد من الإنترنت وارجع للتطبيق واطلب رابط جديد.");
+        }
+      })();
+    </script>
+  </body>
+</html>
