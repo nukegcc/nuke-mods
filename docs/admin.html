@@ -24,7 +24,11 @@
         const h = new URLSearchParams(location.hash.slice(1));
         history.replaceState(null, "", location.pathname); // the session never stays in the address bar
         const access = h.get("access_token"), refresh = h.get("refresh_token");
-        if (!/^[0-9a-f]{64}$/.test(k) || !access || !refresh) return show("↩️", "الرابط ما يشتغل", h.get("error_description") || "ارجع للتطبيق واطلب رابط جديد.");
+        const err = h.get("error_code") || h.get("error") || new URLSearchParams(location.search).get("error_code");
+        // an older e-mail (each new one cancels the ones before), or one already pressed
+        if (err) return show("⌛", "هذا رابط قديم", "كل ما تطلب رابط جديد، القديم يبطل. افتح آخر إيميل وصلك (الأحدث)، أو اطلب رابط جديد من التطبيق.");
+        if (!/^[0-9a-f]{64}$/.test(k)) return show("⌛", "هذا رابط قديم", "هذا من إيميل قديم. افتح آخر إيميل وصلك (الأحدث)، أو اطلب رابط جديد من التطبيق.");
+        if (!access || !refresh) return show("↩️", "الرابط ما يشتغل", "ارجع للتطبيق واطلب رابط جديد.");
         try {
           const key = "sb_publishable_vpnc3OKWBjuOhz7HgCFh3Q_rnUv8wZP";
           const r = await fetch("https://yiujxcmynjauwwpbikxl.supabase.co/rest/v1/rpc/admin_handoff_put", {
