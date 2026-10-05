@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -16,7 +16,7 @@
 <style>
   :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --text:#fff; --dim:rgba(255,255,255,.55); --red:#ef3b2d; --gold:#ffc93c; --green:#34d399; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
   body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
   body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(239,59,45,.18), transparent 70%); }
   .wrap { position: relative; max-width: 460px; margin: 0 auto; }
@@ -31,7 +31,7 @@
   section h2 { margin: 2px 4px 12px; font-size: 13px; color: var(--dim); font-weight: 600; }
   .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
   .grid.three { grid-template-columns: repeat(3, 1fr); }
-  button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 86px; border-radius: 18px; background: var(--card2); border: 1px solid var(--line); font-size: 14px; font-weight: 600; transition: transform .12s, background .2s; }
   .b:active { transform: scale(.95); background: #2a2122; }
   .b svg { width: 26px; height: 26px; }
@@ -244,18 +244,36 @@ async function start() {
       intro("انفصل الجوال", "البيسي فصل هالجوال. تقدر تربطه مرة ثانية من الإعدادات.");
     }
   });
-  ping();
-  setInterval(ping, 20e3);
-  setInterval(paint, 5e3);
-  document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && ping());
+  let lastPing = 0;
+  const tick = () => {
+    const connected = Date.now() - lastPong < 150e3;
+    // on screen: every 3 s until connected, then every 60 s; in the background: once a minute until
+    // connected, then nothing (the PC isn't asked for nothing)
+    const shown = document.visibilityState === "visible";
+    const every = shown ? (connected ? 60e3 : 3e3) : connected ? Infinity : 60e3;
+    if (Date.now() - lastPing >= every) {
+      lastPing = Date.now();
+      ping();
+    }
+    paint();
+  };
+  tick();
+  setInterval(tick, 1000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      lastPong = 0; // back on screen: check again right away
+      lastPing = 0;
+      tick();
+    }
+  });
   paintPush();
 }
 const send = async (obj) => ch?.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
 const ping = () => send({ t: "ping" });
 function paint() {
-  const on = Date.now() - lastPong < 45e3;
+  const on = Date.now() - lastPong < 150e3;
   $("dot").className = "dot" + (on ? " on" : "");
-  $("status").textContent = on ? "متصل" : "البيسي مو متصل (افتح NUKE Mods عليه)";
+  $("status").textContent = on ? "متصل" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
 }
 function cmd(action) {
   const id = crypto.randomUUID();
@@ -293,7 +311,12 @@ document.querySelectorAll("[data-a]").forEach((b) =>
   b.addEventListener("click", async () => {
     const a = b.dataset.a;
     if (b.dataset.confirm && !confirm(b.dataset.confirm)) return;
-    b.classList.add("busy");
+    // volume and music take every tap (tap fast, it goes up fast); the PC's power buttons wait for the answer
+    const quick = a.startsWith("vol.") || a.startsWith("media.");
+    if (quick) {
+      if (navigator.vibrate) navigator.vibrate(10);
+      b.animate?.([{ transform: "scale(.94)" }, { transform: "scale(1)" }], { duration: 160 });
+    } else b.classList.add("busy");
     const r = await cmd(a);
     b.classList.remove("busy");
     if (!r.ok) return toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
@@ -353,6 +376,9 @@ $("pushBtn").addEventListener("click", async () => {
     toast("ما قدرنا نفعّل التنبيهات", true);
   }
 });
+
+// iOS pinch: ignored (the page is a remote, not a document)
+document.addEventListener("gesturestart", (e) => e.preventDefault());
 
 // ---- start ----
 const hash = new URLSearchParams(location.hash.slice(1));
