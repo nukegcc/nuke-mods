@@ -1,0 +1,12 @@
+{
+  "name": "NUKE Remote",
+  "short_name": "NUKE Remote",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "remote.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e0a0a",
+  "theme_color": "#0e0a0a",
+  "icons": [{ "src": "remote-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
+}
