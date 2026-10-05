@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0e0a0a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="NUKE Remote" />
+<link rel="manifest" href="remote.webmanifest" />
+<link rel="icon" href="remote-icon.png" />
+<link rel="apple-touch-icon" href="remote-icon.png" />
+<title>NUKE Remote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --text:#fff; --dim:rgba(255,255,255,.55); --red:#ef3b2d; --gold:#ffc93c; --green:#34d399; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(239,59,45,.18), transparent 70%); }
+  .wrap { position: relative; max-width: 460px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; margin: 4px 0 18px; }
+  header img { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 0 24px rgba(239,59,45,.4); }
+  header .t { flex: 1; min-width: 0; }
+  header h1 { margin: 0; font-size: 19px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  header p { margin: 2px 0 0; font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); flex-shrink: 0; }
+  .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 14px; margin-bottom: 12px; }
+  section h2 { margin: 2px 4px 12px; font-size: 13px; color: var(--dim); font-weight: 600; }
+  .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+  .b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 86px; border-radius: 18px; background: var(--card2); border: 1px solid var(--line); font-size: 14px; font-weight: 600; transition: transform .12s, background .2s; }
+  .b:active { transform: scale(.95); background: #2a2122; }
+  .b svg { width: 26px; height: 26px; }
+  .b.red { background: rgba(239,59,45,.12); border-color: rgba(239,59,45,.35); color: #ffb4ad; }
+  .b.busy { opacity: .55; pointer-events: none; }
+  .wide { width: 100%; min-height: 54px; border-radius: 18px; background: var(--red); font-weight: 700; font-size: 15px; box-shadow: 0 10px 30px -10px rgba(239,59,45,.8); }
+  .wide.ghost { background: transparent; box-shadow: none; color: var(--dim); border: 1px solid var(--line); }
+  .center { text-align: center; padding: 40px 10px; }
+  .center h2 { font-size: 22px; margin: 18px 0 8px; color: #fff; }
+  .center p { color: var(--dim); line-height: 1.7; margin: 0 0 20px; }
+  .big { width: 84px; height: 84px; border-radius: 26px; box-shadow: 0 0 40px rgba(239,59,45,.45); }
+  .spin { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); border-radius: 50%; animation: s 0.8s linear infinite; margin: 0 auto; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  .banner { display: none; align-items: center; gap: 12px; background: rgba(255,201,60,.1); border: 1px solid rgba(255,201,60,.35); color: var(--gold); border-radius: 18px; padding: 12px 14px; margin-bottom: 12px; font-weight: 600; font-size: 14px; }
+  .banner.show { display: flex; }
+  .banner span { flex: 1; }
+  .banner button { background: var(--gold); color: #1a1205; border-radius: 12px; padding: 8px 14px; font-weight: 700; }
+  .hint { font-size: 12.5px; color: var(--dim); line-height: 1.7; margin: 10px 4px 0; }
+  .toast { position: fixed; inset-inline: 16px; bottom: max(20px, env(safe-area-inset-bottom)); max-width: 460px; margin: 0 auto; background: #241b1c; border: 1px solid var(--line); border-radius: 16px; padding: 13px 16px; font-size: 14px; font-weight: 600; text-align: center; opacity: 0; transform: translateY(12px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.bad { color: #ffb4ad; border-color: rgba(239,59,45,.4); }
+  .hidden { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- pairing / waiting / errors -->
+  <div id="intro" class="center">
+    <img class="big" src="remote-icon.png" alt="" />
+    <h2 id="introTitle">NUKE Remote</h2>
+    <p id="introText">افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.</p>
+    <div id="introSpin" class="spin hidden"></div>
+  </div>
+
+  <!-- the remote -->
+  <div id="app" class="hidden">
+    <header>
+      <img src="remote-icon.png" alt="" />
+      <div class="t">
+        <h1 id="pcName">البيسي</h1>
+        <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
+      </div>
+    </header>
+
+    <div id="banner" class="banner"><span id="bannerText"></span><button id="cancelBtn">ألغِ</button></div>
+
+    <section>
+      <h2>البيسي</h2>
+      <div class="grid">
+        <button class="b" data-a="power.lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>قفل الشاشة</button>
+        <button class="b" data-a="power.sleep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>نوم</button>
+        <button class="b" data-a="power.restart" data-confirm="نعيد تشغيل البيسي؟ أي شي مو محفوظ ممكن يروح."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>إعادة تشغيل</button>
+        <button class="b red" data-a="power.shutdown" data-confirm="نطفي البيسي؟ أي شي مو محفوظ ممكن يروح."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>إطفاء</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>الصوت</h2>
+      <div class="grid three">
+        <button class="b" data-a="vol.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/></svg>أقل</button>
+        <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>كتم</button>
+        <button class="b" data-a="vol.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/><path d="M19 9v6"/></svg>أعلى</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>الأغاني والفيديو</h2>
+      <div class="grid three" dir="ltr">
+        <button class="b" data-a="media.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg><span dir="rtl">اللي قبل</span></button>
+        <button class="b" data-a="media.play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 13 9-13 9V3Z"/></svg><span dir="rtl">شغّل / وقّف</span></button>
+        <button class="b" data-a="media.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg><span dir="rtl">الجاية</span></button>
+      </div>
+    </section>
+
+    <section>
+      <h2>التنبيهات</h2>
+      <button id="pushBtn" class="wide">فعّل التنبيهات</button>
+      <p id="pushHint" class="hint">يوصلك على جوالك نفس تنبيهات البيسي: خلص التنزيل، لعبة صارت مجانية، نزل سعر لعبة.</p>
+    </section>
+
+    <button id="byeBtn" class="wide ghost">افصل الجوال</button>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm";
+
+const SB_URL = "https://yiujxcmynjauwwpbikxl.supabase.co";
+const SB_KEY = "sb_publishable_vpnc3OKWBjuOhz7HgCFh3Q_rnUv8wZP";
+const STORE = "nk-remote";
+const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+const $ = (id) => document.getElementById(id);
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+// ---- sealing (same as the PC: AES-256-GCM, iv 12 bytes, tag at the end) ----
+const b64u = (u8) => btoa(String.fromCharCode(...u8)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const fromB64u = (s) => Uint8Array.from(atob(String(s).replace(/-/g, "+").replace(/_/g, "/") + "===".slice((String(s).length + 3) % 4)), (c) => c.charCodeAt(0));
+async function channelName(raw) {
+  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", raw));
+  return "nk-" + [...h].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 40);
+}
+const importKey = (raw) => crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+async function seal(key, obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify({ ...obj, ts: Date.now(), n: b64u(crypto.getRandomValues(new Uint8Array(9))) }))));
+  return { iv: b64u(iv), ct: b64u(ct) };
+}
+async function unseal(key, m) {
+  try {
+    return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64u(m.iv) }, key, fromB64u(m.ct))));
+  } catch {
+    return null;
+  }
+}
+
+// ---- small things ----
+let toastTimer;
+function toast(text, bad = false) {
+  const t = $("toast");
+  t.textContent = text;
+  t.className = "toast show" + (bad ? " bad" : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (t.className = "toast" + (bad ? " bad" : "")), 2600);
+}
+const saved = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STORE) || "null");
+  } catch {
+    return null;
+  }
+};
+const phoneName = () => (/iPhone/i.test(navigator.userAgent) ? "iPhone" : /iPad/i.test(navigator.userAgent) ? "iPad" : /Android/i.test(navigator.userAgent) ? "جوال Android" : "جوال");
+function intro(title, text, spin = false) {
+  $("app").classList.add("hidden");
+  $("intro").classList.remove("hidden");
+  $("introTitle").textContent = title;
+  $("introText").textContent = text;
+  $("introSpin").classList.toggle("hidden", !spin);
+}
+const listen = (name, onMsg) =>
+  new Promise((resolve) => {
+    const ch = sb.channel(name, { config: { broadcast: { self: false } } });
+    ch.on("broadcast", { event: "m" }, ({ payload }) => onMsg(payload));
+    ch.subscribe((s) => s === "SUBSCRIBED" && resolve(ch));
+  });
+
+// ---- pairing: the QR's one-time key ----
+async function pairWith(rawKey, pc) {
+  intro("نربط جوالك…", `مع ${pc || "البيسي"}`, true);
+  const key = await importKey(rawKey);
+  let done = false;
+  const ch = await listen(await channelName(rawKey), async (payload) => {
+    const m = await unseal(key, payload);
+    if (!m || done) return;
+    if (m.t === "welcome") {
+      done = true;
+      localStorage.setItem(STORE, JSON.stringify({ k: m.key, pc: m.pc, vapid: m.vapid }));
+      history.replaceState(null, "", location.pathname);
+      sb.removeChannel(ch);
+      toast("انربط جوالك ✓");
+      start();
+    } else if (m.t === "no") {
+      done = true;
+      sb.removeChannel(ch);
+      intro("ما انربط", "الربط انرفض من البيسي. إذا كنت أنت، اطلب QR جديد وجرّب مرة ثانية.");
+    }
+  });
+  let phoneId = localStorage.getItem("nk-phone-id");
+  if (!phoneId) localStorage.setItem("nk-phone-id", (phoneId = crypto.randomUUID()));
+  const hello = async () => !done && ch.send({ type: "broadcast", event: "m", payload: await seal(key, { t: "hello", phoneId, name: phoneName() }) });
+  await hello();
+  intro("وافق من البيسي ✋", "طلع على شاشة البيسي سؤال: «جوال يبي يتحكم، توافق؟». اضغط «وافق».", true);
+  const again = setInterval(() => (done ? clearInterval(again) : hello()), 3000);
+  setTimeout(() => {
+    if (!done) {
+      clearInterval(again);
+      intro("انتهى وقت الربط", "الـ QR يشتغل 5 دقايق بس. اطلب واحد جديد من البيسي.");
+    }
+  }, 5 * 60e3);
+}
+
+// ---- the remote ----
+let key, ch, lastPong = 0;
+const pending = new Map();
+async function start() {
+  const s = saved();
+  if (!s) return intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.");
+  $("intro").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("pcName").textContent = s.pc || "البيسي";
+  const raw = fromB64u(s.k);
+  key = await importKey(raw);
+  ch = await listen(await channelName(raw), async (payload) => {
+    const m = await unseal(key, payload);
+    if (!m) return;
+    if (m.t === "pong") {
+      lastPong = Date.now();
+      if (m.pc) $("pcName").textContent = m.pc;
+      paint();
+    } else if (m.t === "ack") {
+      lastPong = Date.now();
+      paint();
+      pending.get(m.id)?.(m);
+      pending.delete(m.id);
+    } else if (m.t === "unpaired") {
+      localStorage.removeItem(STORE);
+      intro("انفصل الجوال", "البيسي فصل هالجوال. تقدر تربطه مرة ثانية من الإعدادات.");
+    }
+  });
+  ping();
+  setInterval(ping, 20e3);
+  setInterval(paint, 5e3);
+  document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && ping());
+  paintPush();
+}
+const send = async (obj) => ch?.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
+const ping = () => send({ t: "ping" });
+function paint() {
+  const on = Date.now() - lastPong < 45e3;
+  $("dot").className = "dot" + (on ? " on" : "");
+  $("status").textContent = on ? "متصل" : "البيسي مو متصل (افتح NUKE Mods عليه)";
+}
+function cmd(action) {
+  const id = crypto.randomUUID();
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      resolve({ ok: false, error: "TIMEOUT" });
+    }, 8000);
+    pending.set(id, (m) => {
+      clearTimeout(timer);
+      resolve(m);
+    });
+    send({ t: "cmd", id, action });
+  });
+}
+const DONE = { "power.lock": "قفلنا الشاشة 🔒", "power.sleep": "البيسي نام 😴", "power.cancel": "لغينا ✓" };
+const ERR = { TIMEOUT: "البيسي ما رد. تأكد إن NUKE Mods مفتوح عليه.", REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.", REMOTE_NOT_ALLOWED: "هذا الأمر مو مسموح.", REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية." };
+let countdown;
+function shutdownBanner(action) {
+  let left = 15;
+  const word = action === "power.restart" ? "يعيد التشغيل" : "يطفي";
+  $("banner").classList.add("show");
+  const tick = () => ($("bannerText").textContent = `البيسي ${word} بعد ${left} ثانية`);
+  tick();
+  clearInterval(countdown);
+  countdown = setInterval(() => {
+    left -= 1;
+    if (left <= 0) {
+      clearInterval(countdown);
+      $("banner").classList.remove("show");
+    } else tick();
+  }, 1000);
+}
+document.querySelectorAll("[data-a]").forEach((b) =>
+  b.addEventListener("click", async () => {
+    const a = b.dataset.a;
+    if (b.dataset.confirm && !confirm(b.dataset.confirm)) return;
+    b.classList.add("busy");
+    const r = await cmd(a);
+    b.classList.remove("busy");
+    if (!r.ok) return toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
+    if (navigator.vibrate) navigator.vibrate(15);
+    if (a === "power.shutdown" || a === "power.restart") shutdownBanner(a);
+    else if (DONE[a]) toast(DONE[a]);
+  }),
+);
+$("cancelBtn").addEventListener("click", async () => {
+  const r = await cmd("power.cancel");
+  if (r.ok) {
+    clearInterval(countdown);
+    $("banner").classList.remove("show");
+    toast("لغينا ✓");
+  } else toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
+});
+$("byeBtn").addEventListener("click", async () => {
+  if (!confirm("نفصل هالجوال عن البيسي؟")) return;
+  await send({ t: "bye" });
+  localStorage.removeItem(STORE);
+  intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
+});
+
+// ---- notifications (Web Push, sent by the PC itself) ----
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+const isIos = /iPhone|iPad/i.test(navigator.userAgent);
+function paintPush() {
+  const btn = $("pushBtn");
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    btn.classList.add("hidden");
+    $("pushHint").textContent = isIos && !standalone ? "عشان توصلك التنبيهات على الآيفون: اضغط زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية»، وافتحها من هناك." : "متصفحك ما يدعم التنبيهات.";
+    return;
+  }
+  if (Notification.permission === "granted" && localStorage.getItem("nk-push")) {
+    btn.textContent = "التنبيهات شغّالة ✓";
+    btn.classList.add("ghost");
+  }
+}
+$("pushBtn").addEventListener("click", async () => {
+  try {
+    const s = saved();
+    if ((await Notification.requestPermission()) !== "granted") return toast("ما سمحت بالتنبيهات", true);
+    const reg = await navigator.serviceWorker.register("remote-sw.js");
+    await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: fromB64u(s.vapid) }));
+    const id = crypto.randomUUID();
+    const ok = await new Promise((resolve) => {
+      const timer = setTimeout(() => resolve(false), 8000);
+      pending.set(id, (m) => (clearTimeout(timer), resolve(m.ok)));
+      send({ t: "push", id, sub: sub.toJSON() });
+    });
+    if (!ok) return toast(ERR.TIMEOUT, true);
+    localStorage.setItem("nk-push", "1");
+    toast("تمام! التنبيهات بتوصلك 🔔");
+    paintPush();
+  } catch {
+    toast("ما قدرنا نفعّل التنبيهات", true);
+  }
+});
+
+// ---- start ----
+const hash = new URLSearchParams(location.hash.slice(1));
+if (hash.get("p")) pairWith(fromB64u(hash.get("p")), hash.get("n"));
+else start();
+</script>
+</body>
+</html>
