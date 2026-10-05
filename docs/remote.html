@@ -18,7 +18,7 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
   body { min-height: 100dvh; padding: max(14px, env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom)); overscroll-behavior: none; }
-  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(239,59,45,.18), transparent 70%); }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 75% 28% at 50% 26%, rgba(239,59,45,.13), transparent 72%); }
   .wrap { position: relative; max-width: 480px; margin: 0 auto; }
   header { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
   header img { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 0 24px rgba(239,59,45,.4); }
@@ -127,6 +127,12 @@
   .setrow div { flex: 1; }
   .setrow b { display: block; font-size: 14px; }
   .setrow small { color: var(--dim); font-size: 12px; line-height: 1.6; }
+  .scan { position: fixed; inset: 0; z-index: 50; background: #000; display: flex; flex-direction: column; }
+  .scan video { flex: 1; width: 100%; object-fit: cover; }
+  .scan .frame { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .scan .frame div { width: 68vw; max-width: 300px; aspect-ratio: 1; border-radius: 28px; box-shadow: 0 0 0 9999px rgba(0,0,0,.55); border: 3px solid var(--red); }
+  .scan .bar2 { position: absolute; inset-inline: 0; bottom: 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; align-items: center; background: linear-gradient(transparent, rgba(0,0,0,.85)); }
+  .scan .bar2 p { margin: 0; color: #fff; font-weight: 600; text-align: center; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -137,6 +143,12 @@
     <h2 id="introTitle">NUKE Remote</h2>
     <p id="introText">افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.</p>
     <div id="introSpin" class="spin hidden"></div>
+    <button id="scanBtn" class="wide hidden" style="max-width:320px;margin:0 auto">📷 صوّر الـ QR من هنا</button>
+  </div>
+  <div id="scan" class="scan hidden">
+    <video id="scanVideo" playsinline muted></video>
+    <div class="frame"><div></div></div>
+    <div class="bar2"><p>وجّه الكاميرا على الـ QR اللي بشاشة البيسي</p><button id="scanClose" class="wide ghost" style="max-width:320px;color:#fff">إلغاء</button></div>
   </div>
 
   <div id="app" class="hidden">
@@ -306,7 +318,80 @@ function intro(title, text, spin = false) {
   $("introTitle").textContent = title;
   $("introText").textContent = text;
   $("introSpin").classList.toggle("hidden", !spin);
+  $("scanBtn").classList.toggle("hidden", spin); // waiting for the PC: nothing to scan
 }
+
+// ---- the in-page QR scanner ----
+let scanStream = null, scanOn = false;
+const loadJsQR = () =>
+  window.jsQR
+    ? Promise.resolve(window.jsQR)
+    : new Promise((resolve, reject) => {
+        const sc = document.createElement("script");
+        sc.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+        sc.onload = () => resolve(window.jsQR);
+        sc.onerror = reject;
+        document.head.appendChild(sc);
+      });
+function stopScan() {
+  scanOn = false;
+  scanStream?.getTracks().forEach((t) => t.stop());
+  scanStream = null;
+  $("scan").classList.add("hidden");
+}
+async function startScan() {
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+  } catch {
+    return toast("ما قدرنا نفتح الكاميرا. اسمح للصفحة تستخدمها وجرّب مرة ثانية.", true);
+  }
+  const v = $("scanVideo");
+  v.srcObject = scanStream;
+  await v.play().catch(() => {});
+  $("scan").classList.remove("hidden");
+  scanOn = true;
+  const det = "BarcodeDetector" in window ? new window.BarcodeDetector({ formats: ["qr_code"] }) : null;
+  const jsqr = det ? null : await loadJsQR().catch(() => null);
+  const canvas = document.createElement("canvas");
+  const g = canvas.getContext("2d", { willReadFrequently: true });
+  const found = (text) => {
+    try {
+      const u = new URL(text);
+      const p = new URLSearchParams(u.hash.slice(1));
+      if (!p.get("p")) return false;
+      stopScan();
+      buzz(30);
+      pairWith(fromB64u(p.get("p")), p.get("n"));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const look = async () => {
+    if (!scanOn) return;
+    if (v.readyState >= 2) {
+      try {
+        if (det) {
+          const codes = await det.detect(v);
+          if (codes.some((c) => found(c.rawValue))) return;
+        } else if (jsqr) {
+          const w = 480, h = Math.round((480 * v.videoHeight) / Math.max(1, v.videoWidth));
+          canvas.width = w;
+          canvas.height = h;
+          g.drawImage(v, 0, 0, w, h);
+          const code = jsqr(g.getImageData(0, 0, w, h).data, w, h);
+          if (code && found(code.data)) return;
+        }
+      } catch {
+        // a frame that couldn't be read: the next one
+      }
+    }
+    setTimeout(look, 180);
+  };
+  look();
+}
+$("scanBtn").addEventListener("click", startScan);
+$("scanClose").addEventListener("click", stopScan);
 const listen = (name, onMsg) =>
   new Promise((resolve) => {
     const c = sb.channel(name, { config: { broadcast: { self: false } } });
@@ -356,7 +441,7 @@ let key, ch, lastPong = 0, prefs = {};
 const pending = new Map();
 async function start() {
   const s = saved();
-  if (!s) return intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.");
+  if (!s) return intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال»، وبعدين اضغط الزر تحت وصوّر الـ QR.");
   $("intro").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("nav").classList.remove("hidden");
