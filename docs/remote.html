@@ -17,49 +17,121 @@
   :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --text:#fff; --dim:rgba(255,255,255,.55); --red:#ef3b2d; --gold:#ffc93c; --green:#34d399; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
-  body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+  body { min-height: 100dvh; padding: max(14px, env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom)); overscroll-behavior: none; }
   body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(239,59,45,.18), transparent 70%); }
-  .wrap { position: relative; max-width: 460px; margin: 0 auto; }
-  header { display: flex; align-items: center; gap: 12px; margin: 4px 0 18px; }
+  .wrap { position: relative; max-width: 480px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
   header img { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 0 24px rgba(239,59,45,.4); }
   header .t { flex: 1; min-width: 0; }
   header h1 { margin: 0; font-size: 19px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   header p { margin: 2px 0 0; font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); flex-shrink: 0; }
-  .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 2px var(--green); } }
   section { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 14px; margin-bottom: 12px; }
-  section h2 { margin: 2px 4px 12px; font-size: 13px; color: var(--dim); font-weight: 600; }
+  section h2 { margin: 2px 4px 12px; font-size: 13px; color: var(--dim); font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
   .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
   .grid.three { grid-template-columns: repeat(3, 1fr); }
   button { font: inherit; color: inherit; border: 0; cursor: pointer; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-  .b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 86px; border-radius: 18px; background: var(--card2); border: 1px solid var(--line); font-size: 14px; font-weight: 600; transition: transform .12s, background .2s; }
+  .b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 82px; border-radius: 18px; background: var(--card2); border: 1px solid var(--line); font-size: 14px; font-weight: 600; transition: transform .12s, background .2s; }
   .b:active { transform: scale(.95); background: #2a2122; }
   .b svg { width: 26px; height: 26px; }
-  .b.red { background: rgba(239,59,45,.12); border-color: rgba(239,59,45,.35); color: #ffb4ad; }
   .b.busy { opacity: .55; pointer-events: none; }
-  .wide { width: 100%; min-height: 54px; border-radius: 18px; background: var(--red); font-weight: 700; font-size: 15px; box-shadow: 0 10px 30px -10px rgba(239,59,45,.8); }
+  .wide { width: 100%; min-height: 52px; border-radius: 18px; background: var(--red); font-weight: 700; font-size: 15px; box-shadow: 0 10px 30px -10px rgba(239,59,45,.8); }
   .wide.ghost { background: transparent; box-shadow: none; color: var(--dim); border: 1px solid var(--line); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 10px 14px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line); font-weight: 700; font-size: 14px; }
+  .chip:active { transform: scale(.95); }
+  .chip.gold { color: var(--gold); border-color: rgba(255,201,60,.35); background: rgba(255,201,60,.08); }
   .center { text-align: center; padding: 40px 10px; }
   .center h2 { font-size: 22px; margin: 18px 0 8px; color: #fff; }
   .center p { color: var(--dim); line-height: 1.7; margin: 0 0 20px; }
   .big { width: 84px; height: 84px; border-radius: 26px; box-shadow: 0 0 40px rgba(239,59,45,.45); }
-  .spin { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); border-radius: 50%; animation: s 0.8s linear infinite; margin: 0 auto; }
+  .spin { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); border-radius: 50%; animation: s .8s linear infinite; margin: 0 auto; }
   @keyframes s { to { transform: rotate(360deg); } }
   .banner { display: none; align-items: center; gap: 12px; background: rgba(255,201,60,.1); border: 1px solid rgba(255,201,60,.35); color: var(--gold); border-radius: 18px; padding: 12px 14px; margin-bottom: 12px; font-weight: 600; font-size: 14px; }
   .banner.show { display: flex; }
   .banner span { flex: 1; }
   .banner button { background: var(--gold); color: #1a1205; border-radius: 12px; padding: 8px 14px; font-weight: 700; }
   .hint { font-size: 12.5px; color: var(--dim); line-height: 1.7; margin: 10px 4px 0; }
-  .toast { position: fixed; inset-inline: 16px; bottom: max(20px, env(safe-area-inset-bottom)); max-width: 460px; margin: 0 auto; background: #241b1c; border: 1px solid var(--line); border-radius: 16px; padding: 13px 16px; font-size: 14px; font-weight: 600; text-align: center; opacity: 0; transform: translateY(12px); transition: .25s; pointer-events: none; }
+  .muted { color: var(--dim); font-size: 13px; padding: 6px 4px; }
+  .toast { position: fixed; inset-inline: 16px; bottom: calc(86px + env(safe-area-inset-bottom)); max-width: 460px; margin: 0 auto; background: #241b1c; border: 1px solid var(--line); border-radius: 16px; padding: 13px 16px; font-size: 14px; font-weight: 600; text-align: center; opacity: 0; transform: translateY(12px); transition: .25s; pointer-events: none; z-index: 30; }
   .toast.show { opacity: 1; transform: none; }
   .toast.bad { color: #ffb4ad; border-color: rgba(239,59,45,.4); }
   .hidden { display: none !important; }
+  /* tabs */
+  nav { position: fixed; inset-inline: 0; bottom: 0; z-index: 20; display: flex; justify-content: center; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: rgba(14,10,10,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
+  nav .in { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; max-width: 480px; }
+  nav button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border-radius: 14px; background: transparent; color: var(--dim); font-size: 11.5px; font-weight: 700; }
+  nav button svg { width: 23px; height: 23px; }
+  nav button.on { color: #fff; background: rgba(239,59,45,.14); }
+  nav button.on svg { color: var(--red); }
+  .tab { display: none; animation: fade .2s; }
+  .tab.on { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+  /* games */
+  .now { position: relative; overflow: hidden; border-radius: 24px; min-height: 150px; margin-bottom: 12px; border: 1px solid rgba(52,211,153,.35); background: var(--card); }
+  .now img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+  .now .in { position: relative; padding: 16px; background: linear-gradient(to top, rgba(0,0,0,.85), transparent); min-height: 150px; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; }
+  .now b { font-size: 20px; }
+  .now .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .now .live { color: var(--green); font-weight: 700; font-size: 13px; }
+  .now button { background: rgba(239,59,45,.9); border-radius: 12px; padding: 9px 14px; font-weight: 700; font-size: 13px; }
+  .week { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .week div { background: var(--card2); border-radius: 16px; padding: 10px; text-align: center; }
+  .week b { display: block; font-size: 18px; }
+  .week span { font-size: 11.5px; color: var(--dim); }
+  .search { width: 100%; height: 44px; border-radius: 14px; border: 1px solid var(--line); background: var(--card2); color: #fff; padding: 0 14px; font: inherit; font-size: 14px; margin-bottom: 10px; }
+  .games { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .g { background: var(--card2); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+  .g .pic { aspect-ratio: 460/215; background: #241b1c center/cover no-repeat; position: relative; }
+  .g .pic i { position: absolute; inset-inline-start: 6px; top: 6px; font-style: normal; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: rgba(0,0,0,.7); color: var(--green); }
+  .g .meta { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .g .n { font-size: 13px; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .g .s { font-size: 11px; color: var(--dim); }
+  .g button { margin-top: auto; border-radius: 12px; padding: 8px; background: rgba(239,59,45,.15); border: 1px solid rgba(239,59,45,.4); font-weight: 700; font-size: 13px; }
+  .g button:active { background: var(--red); }
+  .g .inst { margin-top: auto; text-align: center; font-size: 12px; font-weight: 700; color: var(--gold); padding: 8px; border-radius: 12px; background: rgba(255,201,60,.08); }
+  /* pc */
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat { background: var(--card2); border-radius: 16px; padding: 10px 12px; }
+  .stat span { font-size: 11.5px; color: var(--dim); display: block; }
+  .stat b { font-size: 17px; }
+  .bar { height: 5px; border-radius: 9px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 6px; }
+  .bar > div { height: 100%; border-radius: 9px; background: linear-gradient(90deg, var(--gold), var(--red)); }
+  .slide { position: relative; height: 58px; border-radius: 18px; background: rgba(239,59,45,.1); border: 1px solid rgba(239,59,45,.35); overflow: hidden; margin-top: 10px; touch-action: none; }
+  .slide span { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: #ffb4ad; pointer-events: none; }
+  .slide .knob { position: absolute; top: 4px; inset-inline-start: 4px; width: 50px; height: 48px; border-radius: 14px; background: var(--red); display: grid; place-items: center; box-shadow: 0 6px 18px -6px rgba(239,59,45,.9); }
+  .slide .knob svg { width: 22px; height: 22px; }
+  .slide.restart { background: rgba(255,255,255,.04); border-color: var(--line); }
+  .slide.restart span { color: rgba(255,255,255,.75); }
+  .slide.restart .knob { background: #3a2d2e; box-shadow: none; }
+  /* mods */
+  .row { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  .row .n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sw { width: 46px; height: 28px; border-radius: 99px; background: rgba(255,255,255,.15); position: relative; flex-shrink: 0; transition: background .2s; }
+  .sw::after { content: ""; position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .25s; }
+  .sw.on { background: var(--red); }
+  .sw.on::after { transform: translateX(-18px); }
+  .dl { padding: 10px 4px; border-top: 1px solid var(--line); }
+  .dl:first-of-type { border-top: 0; }
+  .dl .n { font-size: 13.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+  .dl .n em { font-style: normal; color: var(--dim); font-size: 12px; flex-shrink: 0; }
+  .tr { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-top: 1px solid var(--line); }
+  .tr:first-of-type { border-top: 0; }
+  .tr img, .tr .ph { width: 64px; height: 36px; border-radius: 9px; object-fit: cover; background: #241b1c; flex-shrink: 0; }
+  .tr .n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tr button { border-radius: 12px; padding: 8px 12px; background: rgba(255,201,60,.12); border: 1px solid rgba(255,201,60,.4); color: var(--gold); font-weight: 700; font-size: 13px; }
+  .setrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 4px; }
+  .setrow div { flex: 1; }
+  .setrow b { display: block; font-size: 14px; }
+  .setrow small { color: var(--dim); font-size: 12px; line-height: 1.6; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <!-- pairing / waiting / errors -->
   <div id="intro" class="center">
     <img class="big" src="remote-icon.png" alt="" />
     <h2 id="introTitle">NUKE Remote</h2>
@@ -67,7 +139,6 @@
     <div id="introSpin" class="spin hidden"></div>
   </div>
 
-  <!-- the remote -->
   <div id="app" class="hidden">
     <header>
       <img src="remote-icon.png" alt="" />
@@ -76,46 +147,105 @@
         <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
       </div>
     </header>
-
     <div id="banner" class="banner"><span id="bannerText"></span><button id="cancelBtn">ألغِ</button></div>
 
-    <section>
-      <h2>البيسي</h2>
-      <div class="grid">
-        <button class="b" data-a="power.lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>قفل الشاشة</button>
-        <button class="b" data-a="power.sleep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>نوم</button>
-        <button class="b" data-a="power.restart" data-confirm="نعيد تشغيل البيسي؟ أي شي مو محفوظ ممكن يروح."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>إعادة تشغيل</button>
-        <button class="b red" data-a="power.shutdown" data-confirm="نطفي البيسي؟ أي شي مو محفوظ ممكن يروح."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>إطفاء</button>
-      </div>
-    </section>
+    <!-- 🎮 games -->
+    <div id="tab-games" class="tab on">
+      <div id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div></div></div>
+      <section id="weekBox" class="hidden">
+        <h2><span>أسبوعك</span></h2>
+        <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض 🔥</span></div><div><b id="wLevel">—</b><span>مستواك 👑</span></div></div>
+      </section>
+      <section>
+        <h2><span>ألعابك</span><span id="gCount"></span></h2>
+        <input id="gSearch" class="search" placeholder="دوّر لعبة…" dir="auto" />
+        <div id="games" class="games"><p class="muted">نجيب ألعابك…</p></div>
+      </section>
+    </div>
 
-    <section>
-      <h2>الصوت</h2>
-      <div class="grid three">
-        <button class="b" data-a="vol.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/></svg>أقل</button>
-        <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>كتم</button>
-        <button class="b" data-a="vol.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/><path d="M19 9v6"/></svg>أعلى</button>
-      </div>
-    </section>
+    <!-- 💻 PC -->
+    <div id="tab-pc" class="tab">
+      <section>
+        <h2><span>حالة البيسي</span><span id="upt"></span></h2>
+        <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
+      </section>
+      <section>
+        <h2><span>الصوت</span></h2>
+        <div class="grid three">
+          <button class="b" data-a="vol.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/></svg>أقل</button>
+          <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>كتم</button>
+          <button class="b" data-a="vol.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/><path d="M19 9v6"/></svg>أعلى</button>
+        </div>
+      </section>
+      <section>
+        <h2><span>الأغاني والفيديو</span></h2>
+        <div class="grid three" dir="ltr">
+          <button class="b" data-a="media.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg><span dir="rtl">اللي قبل</span></button>
+          <button class="b" data-a="media.play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 13 9-13 9V3Z"/></svg><span dir="rtl">شغّل / وقّف</span></button>
+          <button class="b" data-a="media.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg><span dir="rtl">الجاية</span></button>
+        </div>
+      </section>
+      <section>
+        <h2><span>البيسي</span></h2>
+        <div class="grid">
+          <button class="b" data-a="power.lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>قفل الشاشة</button>
+          <button class="b" data-a="power.sleep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>نوم</button>
+        </div>
+        <div class="slide restart" data-slide="power.restart"><span>اسحب ← لإعادة التشغيل</span><div class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div></div>
+        <div class="slide" data-slide="power.shutdown"><span>اسحب ← للإطفاء</span><div class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></div></div>
+      </section>
+      <section>
+        <h2><span>طفّ البيسي بعد…</span></h2>
+        <div class="chips">
+          <button class="chip" data-timer="30">نص ساعة</button>
+          <button class="chip" data-timer="60">ساعة</button>
+          <button class="chip" data-timer="120">ساعتين</button>
+          <button class="chip" data-timer="180">3 ساعات</button>
+          <button class="chip gold" id="timerCancel">ألغِ المؤقت</button>
+        </div>
+        <p class="hint">تنام والبيسي يطفي لحاله. تقدر تلغيه متى ما تبي.</p>
+      </section>
+    </div>
 
-    <section>
-      <h2>الأغاني والفيديو</h2>
-      <div class="grid three" dir="ltr">
-        <button class="b" data-a="media.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg><span dir="rtl">اللي قبل</span></button>
-        <button class="b" data-a="media.play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 13 9-13 9V3Z"/></svg><span dir="rtl">شغّل / وقّف</span></button>
-        <button class="b" data-a="media.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg><span dir="rtl">الجاية</span></button>
-      </div>
-    </section>
+    <!-- 🧩 mods -->
+    <div id="tab-mods" class="tab">
+      <section>
+        <h2><span>التنزيلات</span></h2>
+        <div id="downloads"><p class="muted">نجيب التنزيلات…</p></div>
+      </section>
+      <section>
+        <h2><span>موداتك</span></h2>
+        <div id="mods"><p class="muted">نجيب موداتك…</p></div>
+      </section>
+      <section>
+        <h2><span>ترينراتك</span></h2>
+        <div id="trainers"><p class="muted">نجيب ترينراتك…</p></div>
+      </section>
+    </div>
 
-    <section>
-      <h2>التنبيهات</h2>
-      <button id="pushBtn" class="wide">فعّل التنبيهات</button>
-      <p id="pushHint" class="hint">يوصلك على جوالك نفس تنبيهات البيسي: خلص التنزيل، لعبة صارت مجانية، نزل سعر لعبة.</p>
-    </section>
-
-    <button id="byeBtn" class="wide ghost">افصل الجوال</button>
+    <!-- ⚙️ settings -->
+    <div id="tab-set" class="tab">
+      <section>
+        <h2><span>التنبيهات</span></h2>
+        <button id="pushBtn" class="wide">فعّل التنبيهات</button>
+        <p id="pushHint" class="hint">يوصلك على جوالك: خلص التنزيل، انثبّت المود، اللعبة خلصت تنزيل، لعبة صارت مجانية، نزل سعر لعبة.</p>
+        <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
+      </section>
+      <section id="homeHint">
+        <h2><span>حطها على الشاشة الرئيسية</span></h2>
+        <p class="hint" style="margin-top:0">تنفتح مثل تطبيق كامل بدون شريط المتصفح. بالآيفون: زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية». بالأندرويد: القائمة ⋮ ← «إضافة إلى الشاشة الرئيسية».</p>
+      </section>
+      <button id="byeBtn" class="wide ghost">افصل الجوال</button>
+    </div>
   </div>
 </div>
+
+<nav id="nav" class="hidden"><div class="in">
+  <button data-tab="games" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></svg>ألعابي</button>
+  <button data-tab="pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>البيسي</button>
+  <button data-tab="mods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>المودات</button>
+  <button data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>الإعدادات</button>
+</div></nav>
 <div id="toast" class="toast"></div>
 
 <script type="module">
@@ -128,6 +258,8 @@ const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRef
 const $ = (id) => document.getElementById(id);
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const buzz = (ms = 12) => navigator.vibrate?.(ms);
 
 // ---- sealing (same as the PC: AES-256-GCM, iv 12 bytes, tag at the end) ----
 const b64u = (u8) => btoa(String.fromCharCode(...u8)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -169,6 +301,7 @@ const saved = () => {
 const phoneName = () => (/iPhone/i.test(navigator.userAgent) ? "iPhone" : /iPad/i.test(navigator.userAgent) ? "iPad" : /Android/i.test(navigator.userAgent) ? "جوال Android" : "جوال");
 function intro(title, text, spin = false) {
   $("app").classList.add("hidden");
+  $("nav").classList.add("hidden");
   $("intro").classList.remove("hidden");
   $("introTitle").textContent = title;
   $("introText").textContent = text;
@@ -176,35 +309,37 @@ function intro(title, text, spin = false) {
 }
 const listen = (name, onMsg) =>
   new Promise((resolve) => {
-    const ch = sb.channel(name, { config: { broadcast: { self: false } } });
-    ch.on("broadcast", { event: "m" }, ({ payload }) => onMsg(payload));
-    ch.subscribe((s) => s === "SUBSCRIBED" && resolve(ch));
+    const c = sb.channel(name, { config: { broadcast: { self: false } } });
+    c.on("broadcast", { event: "m" }, ({ payload }) => onMsg(payload));
+    c.subscribe((s) => s === "SUBSCRIBED" && resolve(c));
   });
+const hours = (sec) => (sec >= 3600 ? `${Math.round(sec / 360) / 10} س` : sec >= 60 ? `${Math.round(sec / 60)} د` : "—");
+const gb = (b) => `${(b / 1024 ** 3).toFixed(b > 100 * 1024 ** 3 ? 0 : 1)} جيجا`;
 
 // ---- pairing: the QR's one-time key ----
 async function pairWith(rawKey, pc) {
   intro("نربط جوالك…", `مع ${pc || "البيسي"}`, true);
   const key = await importKey(rawKey);
   let done = false;
-  const ch = await listen(await channelName(rawKey), async (payload) => {
+  const c = await listen(await channelName(rawKey), async (payload) => {
     const m = await unseal(key, payload);
     if (!m || done) return;
     if (m.t === "welcome") {
       done = true;
       localStorage.setItem(STORE, JSON.stringify({ k: m.key, pc: m.pc, vapid: m.vapid }));
       history.replaceState(null, "", location.pathname);
-      sb.removeChannel(ch);
+      sb.removeChannel(c);
       toast("انربط جوالك ✓");
       start();
     } else if (m.t === "no") {
       done = true;
-      sb.removeChannel(ch);
+      sb.removeChannel(c);
       intro("ما انربط", "الربط انرفض من البيسي. إذا كنت أنت، اطلب QR جديد وجرّب مرة ثانية.");
     }
   });
   let phoneId = localStorage.getItem("nk-phone-id");
   if (!phoneId) localStorage.setItem("nk-phone-id", (phoneId = crypto.randomUUID()));
-  const hello = async () => !done && ch.send({ type: "broadcast", event: "m", payload: await seal(key, { t: "hello", phoneId, name: phoneName() }) });
+  const hello = async () => !done && c.send({ type: "broadcast", event: "m", payload: await seal(key, { t: "hello", phoneId, name: phoneName() }) });
   await hello();
   intro("وافق من البيسي ✋", "طلع على شاشة البيسي سؤال: «جوال يبي يتحكم، توافق؟». اضغط «وافق».", true);
   const again = setInterval(() => (done ? clearInterval(again) : hello()), 3000);
@@ -217,13 +352,14 @@ async function pairWith(rawKey, pc) {
 }
 
 // ---- the remote ----
-let key, ch, lastPong = 0;
+let key, ch, lastPong = 0, prefs = {};
 const pending = new Map();
 async function start() {
   const s = saved();
   if (!s) return intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.");
   $("intro").classList.add("hidden");
   $("app").classList.remove("hidden");
+  $("nav").classList.remove("hidden");
   $("pcName").textContent = s.pc || "البيسي";
   const raw = fromB64u(s.k);
   key = await importKey(raw);
@@ -231,9 +367,12 @@ async function start() {
     const m = await unseal(key, payload);
     if (!m) return;
     if (m.t === "pong") {
+      const first = Date.now() - lastPong > 150e3;
       lastPong = Date.now();
       if (m.pc) $("pcName").textContent = m.pc;
+      if (m.prefs) paintPrefs((prefs = m.prefs));
       paint();
+      if (first) refresh(); // just connected: fill the open tab
     } else if (m.t === "ack") {
       lastPong = Date.now();
       paint();
@@ -266,6 +405,7 @@ async function start() {
       tick();
     }
   });
+  setInterval(() => document.visibilityState === "visible" && live(), 4000);
   paintPush();
 }
 const send = async (obj) => ch?.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
@@ -275,63 +415,300 @@ function paint() {
   $("dot").className = "dot" + (on ? " on" : "");
   $("status").textContent = on ? "متصل" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
 }
-function cmd(action) {
+function cmd(action, args) {
   const id = crypto.randomUUID();
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       pending.delete(id);
       resolve({ ok: false, error: "TIMEOUT" });
-    }, 8000);
+    }, 9000);
     pending.set(id, (m) => {
       clearTimeout(timer);
       resolve(m);
     });
-    send({ t: "cmd", id, action });
+    send({ t: "cmd", id, action, args });
   });
 }
-const DONE = { "power.lock": "قفلنا الشاشة 🔒", "power.sleep": "البيسي نام 😴", "power.cancel": "لغينا ✓" };
-const ERR = { TIMEOUT: "البيسي ما رد. تأكد إن NUKE Mods مفتوح عليه.", REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.", REMOTE_NOT_ALLOWED: "هذا الأمر مو مسموح.", REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية." };
-let countdown;
-function shutdownBanner(action) {
-  let left = 15;
-  const word = action === "power.restart" ? "يعيد التشغيل" : "يطفي";
-  $("banner").classList.add("show");
-  const tick = () => ($("bannerText").textContent = `البيسي ${word} بعد ${left} ثانية`);
-  tick();
-  clearInterval(countdown);
-  countdown = setInterval(() => {
-    left -= 1;
-    if (left <= 0) {
-      clearInterval(countdown);
-      $("banner").classList.remove("show");
-    } else tick();
-  }, 1000);
+const ERR = {
+  TIMEOUT: "البيسي ما رد. تأكد إن NUKE Mods مفتوح عليه.",
+  REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.",
+  REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE Mods على البيسي.",
+  REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
+  GAME_ALREADY_RUNNING: "اللعبة شغّالة أصلاً على البيسي.",
+  STEAM_DOWN: "Steam ما فتح على البيسي، واللعبة تحتاجه.",
+  GAME_RUNNING: "سكّر اللعبة أول، وبعدين غيّر المودات.",
+  PLAY_XBOX: "ألعاب Xbox تنفتح من تطبيق Xbox على البيسي.",
+};
+const fail = (r) => toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
+
+// ---- tabs ----
+let tab = "games";
+document.querySelectorAll("nav [data-tab]").forEach((b) =>
+  b.addEventListener("click", () => {
+    if (tab === b.dataset.tab) return;
+    buzz(8);
+    tab = b.dataset.tab;
+    document.querySelectorAll("nav [data-tab]").forEach((x) => x.classList.toggle("on", x === b));
+    document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("on", t.id === `tab-${tab}`));
+    scrollTo({ top: 0 });
+    refresh();
+  }),
+);
+function refresh() {
+  if (tab === "games") loadGames();
+  if (tab === "pc") loadStatus();
+  if (tab === "mods") (loadDownloads(), loadMods(), loadTrainers());
+}
+// the parts that move: the game you're playing, the PC's numbers, downloads (only on screen)
+function live() {
+  if (Date.now() - lastPong > 150e3) return;
+  if (tab === "pc") loadStatus();
+  if (tab === "mods") loadDownloads();
+  if (tab === "games" && runningKey) paintNow();
+}
+
+// ---- 🎮 games ----
+let games = [], runningKey = null, runningSince = 0;
+async function loadGames() {
+  const r = await cmd("games.list");
+  if (!r.ok) return r.error === "REMOTE_NOT_ALLOWED" ? ($("games").innerHTML = `<p class="muted">${ERR.REMOTE_NOT_ALLOWED}</p>`) : undefined;
+  games = r.data?.games ?? [];
+  const w = r.data?.week;
+  $("weekBox").classList.toggle("hidden", !w || (!w.total && !w.streak)); // zeros say nothing: shown once there's play
+  if (w) {
+    $("wHours").textContent = hours(w.total);
+    $("wStreak").textContent = w.streak || "0";
+    $("wLevel").textContent = w.level;
+  }
+  const run = games.find((g) => g.running);
+  runningKey = run?.key ?? null;
+  runningSince = run?.running ?? 0;
+  paintNow();
+  paintGames();
+}
+function paintNow() {
+  const g = games.find((x) => x.key === runningKey);
+  $("nowCard").classList.toggle("hidden", !g);
+  if (!g) return;
+  if (g.image) $("nowImg").src = g.image;
+  $("nowName").textContent = g.name;
+  const m = Math.max(0, Math.floor((Date.now() - runningSince) / 60000));
+  $("nowLive").textContent = `● تلعب الحين · ${m >= 60 ? `${Math.floor(m / 60)} س ${m % 60} د` : `${m} د`}`;
+}
+function paintGames() {
+  const q = $("gSearch").value.trim().toLowerCase();
+  const list = games.filter((g) => !q || g.name.toLowerCase().includes(q));
+  $("gCount").textContent = games.length ? `${games.length} لعبة` : "";
+  $("games").innerHTML = list.length
+    ? list
+        .map(
+          (g) => `<div class="g"><div class="pic" style="background-image:url('${esc(g.image || "")}')">${g.running ? "<i>● شغّالة</i>" : ""}</div><div class="meta"><div class="n" dir="auto">${esc(g.name)}</div><div class="s">${g.total ? `لعبت ${hours(g.total)}` : "ما لعبتها للحين"}</div>${
+            g.installing ? `<div class="inst">${g.installing.kind === "update" ? "تتحدّث" : "تنزل"}${g.installing.progress != null ? ` ${Math.floor(g.installing.progress * 100)}%` : ""}</div>` : g.running ? `<button data-close="${esc(g.key)}">سكّرها</button>` : `<button data-play="${esc(g.key)}">▶ العب</button>`
+          }</div></div>`,
+        )
+        .join("")
+    : `<p class="muted">${games.length ? "ما فيه لعبة بهالاسم" : "ما لقينا ألعاب على البيسي"}</p>`;
+}
+$("gSearch").addEventListener("input", paintGames);
+$("games").addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  buzz();
+  b.disabled = true;
+  const playing = b.dataset.play;
+  const r = await cmd(playing ? "games.play" : "games.close", { key: playing || b.dataset.close });
+  b.disabled = false;
+  if (!r.ok) return fail(r);
+  toast(playing ? "تنفتح على البيسي 🎮" : "سكّرنا اللعبة ✓");
+  setTimeout(loadGames, 2500);
+});
+$("nowClose").addEventListener("click", async () => {
+  if (!runningKey || !confirm("نسكّر اللعبة على البيسي؟ أي شي مو محفوظ ممكن يروح.")) return;
+  const r = await cmd("games.close", { key: runningKey });
+  if (!r.ok) return fail(r);
+  toast("سكّرنا اللعبة ✓");
+  setTimeout(loadGames, 1500);
+});
+
+// ---- 💻 PC ----
+async function loadStatus() {
+  const r = await cmd("pc.status");
+  if (!r.ok) return;
+  const s = r.data;
+  const box = (label, value, pct) => `<div class="stat"><span>${label}</span><b>${value}</b>${pct != null ? `<div class="bar"><div style="width:${Math.min(100, Math.max(0, pct))}%"></div></div>` : ""}</div>`;
+  const ram = s.ram ? Math.round((100 * s.ram.used) / s.ram.total) : null;
+  const disk = s.disk ? Math.round((100 * (s.disk.total - s.disk.free)) / s.disk.total) : null;
+  $("stats").innerHTML =
+    box("المعالج", s.cpu != null ? `${s.cpu}%` : "…", s.cpu) +
+    box("الرام", ram != null ? `${ram}%` : "—", ram) +
+    box("كرت الشاشة", s.gpu ? `${s.gpu.use}%${s.gpu.temp ? ` · ${s.gpu.temp}°` : ""}` : "—", s.gpu?.use ?? null) +
+    box("الهارديسك", s.disk ? `باقي ${gb(s.disk.free)}` : "—", disk);
+  const h = Math.floor(s.uptime / 3600);
+  $("upt").textContent = h ? `شغّال من ${h} ساعة` : "شغّال من شوي";
 }
 document.querySelectorAll("[data-a]").forEach((b) =>
   b.addEventListener("click", async () => {
     const a = b.dataset.a;
-    if (b.dataset.confirm && !confirm(b.dataset.confirm)) return;
     // volume and music take every tap (tap fast, it goes up fast); the PC's power buttons wait for the answer
     const quick = a.startsWith("vol.") || a.startsWith("media.");
-    if (quick) {
-      if (navigator.vibrate) navigator.vibrate(10);
-      b.animate?.([{ transform: "scale(.94)" }, { transform: "scale(1)" }], { duration: 160 });
-    } else b.classList.add("busy");
+    buzz(quick ? 10 : 15);
+    if (quick) b.animate?.([{ transform: "scale(.94)" }, { transform: "scale(1)" }], { duration: 160 });
+    else b.classList.add("busy");
     const r = await cmd(a);
     b.classList.remove("busy");
-    if (!r.ok) return toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
-    if (navigator.vibrate) navigator.vibrate(15);
-    if (a === "power.shutdown" || a === "power.restart") shutdownBanner(a);
-    else if (DONE[a]) toast(DONE[a]);
+    if (!r.ok) return fail(r);
+    if (a === "power.lock") toast("قفلنا الشاشة 🔒");
+    if (a === "power.sleep") toast("البيسي نام 😴");
   }),
 );
-$("cancelBtn").addEventListener("click", async () => {
+// shutdown / restart: drag the button to the end (a tap by mistake does nothing)
+document.querySelectorAll("[data-slide]").forEach((el) => {
+  const knob = el.querySelector(".knob");
+  let startX = null, dx = 0;
+  const max = () => el.clientWidth - knob.clientWidth - 8;
+  const set = (v) => (knob.style.transform = `translateX(${-v}px)`); // RTL: it moves to the left
+  el.addEventListener("pointerdown", (e) => {
+    startX = e.clientX;
+    dx = 0;
+    knob.style.transition = "none";
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (startX == null) return;
+    dx = Math.max(0, Math.min(max(), startX - e.clientX));
+    set(dx);
+  });
+  const end = async () => {
+    if (startX == null) return;
+    startX = null;
+    knob.style.transition = "transform .25s";
+    if (dx >= max() - 6) {
+      buzz(30);
+      const a = el.dataset.slide;
+      const r = await cmd(a);
+      if (!r.ok) fail(r);
+      else countdown(15, a === "power.restart" ? "يعيد التشغيل" : "يطفي");
+    }
+    set(0);
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+});
+let countTimer;
+function countdown(sec, word) {
+  let left = sec;
+  $("banner").classList.add("show");
+  const fmt = (s) => (s >= 3600 ? `${Math.floor(s / 3600)} س ${Math.floor((s % 3600) / 60)} د` : s >= 60 ? `${Math.ceil(s / 60)} دقيقة` : `${s} ثانية`);
+  const paintIt = () => ($("bannerText").textContent = `البيسي ${word} بعد ${fmt(left)}`);
+  paintIt();
+  clearInterval(countTimer);
+  countTimer = setInterval(() => {
+    left -= 1;
+    if (left <= 0) {
+      clearInterval(countTimer);
+      $("banner").classList.remove("show");
+    } else paintIt();
+  }, 1000);
+}
+async function cancelPower() {
   const r = await cmd("power.cancel");
-  if (r.ok) {
-    clearInterval(countdown);
-    $("banner").classList.remove("show");
-    toast("لغينا ✓");
-  } else toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
+  if (!r.ok) return fail(r);
+  clearInterval(countTimer);
+  $("banner").classList.remove("show");
+  toast("لغينا ✓");
+}
+$("cancelBtn").addEventListener("click", cancelPower);
+$("timerCancel").addEventListener("click", cancelPower);
+document.querySelectorAll("[data-timer]").forEach((b) =>
+  b.addEventListener("click", async () => {
+    buzz();
+    const min = Number(b.dataset.timer);
+    const r = await cmd("power.timer", { minutes: min });
+    if (!r.ok) return fail(r);
+    toast(`البيسي بيطفي بعد ${b.textContent} 😴`);
+    countdown(min * 60, "يطفي");
+  }),
+);
+
+// ---- 🧩 mods / downloads / trainers ----
+const STATE = { queued: "بالدور", resolving: "نجهّز", downloading: "ينزل", installing: "ينثبّت", done: "خلص ✓", error: "ما زبط", canceled: "انلغى" };
+async function loadDownloads() {
+  const r = await cmd("downloads.list");
+  if (!r.ok) return;
+  const list = r.data ?? [];
+  $("downloads").innerHTML = list.length
+    ? list
+        .map((d) => {
+          const p = d.total ? Math.round((100 * d.received) / d.total) : d.state === "done" ? 100 : 0;
+          const moving = d.state === "downloading";
+          return `<div class="dl"><div class="n"><span dir="auto">${esc(d.name)}</span><em>${STATE[d.state] ?? d.state}${moving ? ` · ${p}%` : ""}</em></div>${moving || d.state === "installing" ? `<div class="bar"><div style="width:${p}%"></div></div>` : ""}</div>`;
+        })
+        .join("")
+    : `<p class="muted">ما فيه شي ينزل الحين.</p>`;
+}
+async function loadMods() {
+  const r = await cmd("mods.list");
+  if (!r.ok) return;
+  const groups = r.data ?? [];
+  $("mods").innerHTML = groups.length
+    ? groups
+        .map((g) => `<p class="muted" style="margin-top:6px"><b style="color:#fff">${esc(g.game)}</b> · ${g.mods.length} مود</p>` + g.mods.map((m) => `<div class="row"><span class="n" dir="auto">${esc(m.name)}</span><button class="sw${m.enabled ? " on" : ""}" data-domain="${esc(g.domain)}" data-key="${esc(m.key)}" aria-label="${esc(m.name)}"></button></div>`).join(""))
+        .join("")
+    : `<p class="muted">ما عندك مودات للحين.</p>`;
+}
+$("mods").addEventListener("click", async (e) => {
+  const b = e.target.closest(".sw");
+  if (!b) return;
+  buzz();
+  const on = !b.classList.contains("on");
+  b.classList.toggle("on", on);
+  b.disabled = true;
+  const r = await cmd("mods.toggle", { domain: b.dataset.domain, key: b.dataset.key, on });
+  b.disabled = false;
+  if (!r.ok) {
+    b.classList.toggle("on", !on);
+    return fail(r);
+  }
+  toast(on ? "شغّلنا المود ✓" : "طفّينا المود ✓");
+});
+async function loadTrainers() {
+  const r = await cmd("trainers.list");
+  if (!r.ok) return;
+  const list = r.data ?? [];
+  $("trainers").innerHTML = list.length
+    ? list.map((t) => `<div class="tr">${t.image ? `<img src="${esc(t.image)}" alt="" />` : `<span class="ph"></span>`}<span class="n" dir="auto">${esc(t.title)}</span><button data-trainer="${t.id}">شغّل</button></div>`).join("")
+    : `<p class="muted">ما ثبّت ترينرات للحين.</p>`;
+}
+$("trainers").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-trainer]");
+  if (!b) return;
+  buzz();
+  b.disabled = true;
+  const r = await cmd("trainers.run", { id: Number(b.dataset.trainer) });
+  b.disabled = false;
+  if (!r.ok) return fail(r);
+  toast("شغّلنا الترينر على البيسي ⚡");
+});
+
+// ---- ⚙️ settings ----
+function paintPrefs(p) {
+  $("unlockSw").classList.toggle("on", Boolean(p?.unlock));
+}
+$("unlockSw").addEventListener("click", async () => {
+  buzz();
+  const on = !$("unlockSw").classList.contains("on");
+  paintPrefs({ unlock: on });
+  const id = crypto.randomUUID();
+  const ok = await new Promise((resolve) => {
+    const t = setTimeout(() => resolve(false), 8000);
+    pending.set(id, (m) => (clearTimeout(t), resolve(m.ok)));
+    send({ t: "prefs", id, prefs: { unlock: on } });
+  });
+  if (!ok) {
+    paintPrefs({ unlock: !on });
+    return toast(ERR.TIMEOUT, true);
+  }
+  toast(on ? "بننبهك إذا انفتح البيسي 🔓" : "شلنا التنبيه");
 });
 $("byeBtn").addEventListener("click", async () => {
   if (!confirm("نفصل هالجوال عن البيسي؟")) return;
@@ -343,6 +720,7 @@ $("byeBtn").addEventListener("click", async () => {
 // ---- notifications (Web Push, sent by the PC itself) ----
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 const isIos = /iPhone|iPad/i.test(navigator.userAgent);
+if (standalone) $("homeHint").classList.add("hidden");
 function paintPush() {
   const btn = $("pushBtn");
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -364,8 +742,8 @@ $("pushBtn").addEventListener("click", async () => {
     const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: fromB64u(s.vapid) }));
     const id = crypto.randomUUID();
     const ok = await new Promise((resolve) => {
-      const timer = setTimeout(() => resolve(false), 8000);
-      pending.set(id, (m) => (clearTimeout(timer), resolve(m.ok)));
+      const t = setTimeout(() => resolve(false), 8000);
+      pending.set(id, (m) => (clearTimeout(t), resolve(m.ok)));
       send({ t: "push", id, sub: sub.toJSON() });
     });
     if (!ok) return toast(ERR.TIMEOUT, true);
