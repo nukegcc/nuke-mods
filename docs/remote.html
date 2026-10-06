@@ -48,6 +48,9 @@
   .center p { color: var(--dim); line-height: 1.7; margin: 0 0 20px; }
   .big { width: 84px; height: 84px; border-radius: 26px; box-shadow: 0 0 40px rgba(239,59,45,.45); }
   .spin { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); border-radius: 50%; animation: s .8s linear infinite; margin: 0 auto; }
+  /* a button that is working: it answers the tap at once (an iPhone page can't vibrate) */
+  button.busy { opacity: .85; pointer-events: none; }
+  .spin.sm { display: inline-block; width: 15px; height: 15px; border-width: 2px; border-top-color: currentColor; vertical-align: -3px; margin: 0 0 0 8px; }
   @keyframes s { to { transform: rotate(360deg); } }
   .banner { display: none; align-items: center; gap: 12px; background: rgba(255,201,60,.1); border: 1px solid rgba(255,201,60,.35); color: var(--gold); border-radius: 18px; padding: 12px 14px; margin-bottom: 12px; font-weight: 600; font-size: 14px; }
   .banner.show { display: flex; }
@@ -1149,9 +1152,9 @@ $("appSheet").addEventListener("click", (e) => e.target === $("appSheet") && $("
 $("asClose").addEventListener("click", async () => {
   const f = sheetFor;
   if (!f) return;
-  $("asClose").classList.add("busy");
+  const done = working($("asClose"), "نسكّره…");
   const ok = await closeFlow("apps.close", f.app ? { id: f.app, mine: true } : { id: f.run }, f.name);
-  $("asClose").classList.remove("busy");
+  done();
   if (ok) $("appSheet").classList.add("hidden");
   setTimeout(loadRunning, 1200);
 });
@@ -1502,9 +1505,9 @@ $("gSearch").addEventListener("input", paintGames);
 async function closeGame(key, b) {
   if (!key || !confirm("نسكّر اللعبة على البيسي؟ أي شي مو محفوظ ممكن يروح.")) return;
   buzz();
-  if (b) b.disabled = true;
+  const done = working(b, "نسكّرها…");
   const r = await cmd("games.close", { key });
-  if (b) b.disabled = false;
+  done();
   if (!r.ok) return fail(r);
   // how many of its processes closed (0: it wasn't running any more)
   const d = r.data;
@@ -1603,7 +1606,19 @@ document.querySelectorAll("[data-sort]").forEach((b) =>
     paintHeavy();
   }),
 );
-// closing a program: asked nicely first; only if it stays open, "by force" after the player says yes
+/** The button shows it's on it right away (a small spinner + a word); the returned function puts it back. */
+function working(b, text) {
+  if (!b) return () => {};
+  const html = b.innerHTML;
+  b.classList.add("busy");
+  b.innerHTML = `<span class="spin sm"></span>${text}`;
+  return () => {
+    b.classList.remove("busy");
+    b.innerHTML = html;
+  };
+}
+// closing a program: asked nicely first; one that hid in the tray closes by itself, one still showing a window
+// (maybe "save changes?") only after the player says yes
 async function closeFlow(action, args, name) {
   buzz();
   let r = await cmd(action, args);
@@ -1611,7 +1626,7 @@ async function closeFlow(action, args, name) {
   // (only that program's own file is closed: another one with the same name stays open)
   if (r.data && r.data.count === 0) return toast(`ما لقينا ${name} مفتوح على البيسي`), true;
   if (r.data && r.data.closed === false) {
-    if (!confirm(`${name} ما تسكّر بالطيب (يمكن يسألك تحفظ شي على البيسي). نسكّره غصب؟ أي شي مو محفوظ فيه يروح.`)) return toast("خلّيناه مفتوح"), false;
+    if (!confirm(`${name} فاتح نافذة على البيسي (يمكن يسألك تحفظ شي). نسكّره غصب؟ اللي مو محفوظ فيه يروح.`)) return toast("خلّيناه مفتوح"), false;
     r = await cmd(action, { ...args, force: true });
     if (!r.ok) return fail(r), false;
     if (r.data && r.data.closed === false) return toast(`${name} ما رضى يتسكّر`, true), false;
@@ -1622,9 +1637,9 @@ async function closeFlow(action, args, name) {
 $("heavy").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-kill]");
   if (!b) return;
-  b.classList.add("busy");
+  const done = working(b, "");
   const ok = await closeFlow("pc.kill", { id: b.dataset.kill }, b.dataset.name);
-  b.classList.remove("busy");
+  done();
   if (ok) setTimeout(loadHeavy, 1200);
 });
 
