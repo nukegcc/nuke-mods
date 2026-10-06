@@ -123,10 +123,42 @@
   .tr img, .tr .ph { width: 64px; height: 36px; border-radius: 9px; object-fit: cover; background: #241b1c; flex-shrink: 0; }
   .tr .n { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tr button { border-radius: 12px; padding: 8px 12px; background: rgba(255,201,60,.12); border: 1px solid rgba(255,201,60,.4); color: var(--gold); font-weight: 700; font-size: 13px; }
+  .vol { display: flex; align-items: center; gap: 12px; margin: 2px 4px 14px; }
+  .vol b { font-size: 26px; min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
+  .vol input { flex: 1; -webkit-appearance: none; appearance: none; height: 34px; background: transparent; direction: ltr; touch-action: none; }
+  .vol input::-webkit-slider-runnable-track { height: 10px; border-radius: 99px; background: linear-gradient(90deg, var(--gold), var(--red)) 0 / var(--p, 0%) 100% no-repeat, rgba(255,255,255,.1); }
+  .vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -9px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
+  .vol.muted b { color: var(--dim); text-decoration: line-through; }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 4px; }
   .setrow div { flex: 1; }
   .setrow b { display: block; font-size: 14px; }
   .setrow small { color: var(--dim); font-size: 12px; line-height: 1.6; }
+  header .pcBtn { flex: 1; min-width: 0; text-align: start; background: transparent; padding: 0; }
+  header h1 .chev { display: inline-block; font-size: 13px; color: var(--dim); margin-inline-start: 6px; vertical-align: 2px; }
+  .sheet { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; animation: fade .15s; }
+  .sheet .in { width: 100%; max-width: 480px; background: var(--card); border: 1px solid var(--line); border-bottom: 0; border-radius: 26px 26px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .sheet h3 { margin: 0 4px 12px; font-size: 15px; }
+  .pcrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; border-radius: 16px; background: var(--card2); border: 1px solid var(--line); margin-bottom: 8px; font-weight: 700; font-size: 14px; text-align: start; }
+  .pcrow.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.1); }
+  .pcrow span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pcrow em { font-style: normal; font-size: 12px; color: var(--red); }
+  .sendbox { height: auto; min-height: 52px; max-height: 140px; padding: 12px 14px; resize: none; line-height: 1.6; display: block; margin-bottom: 8px; }
+  .linkrow { display: flex; gap: 8px; }
+  .linkrow button { min-height: 46px; border-radius: 14px; padding: 0 16px; background: var(--red); font-weight: 700; font-size: 14px; flex: 1; }
+  .linkrow button.ghost { background: var(--card2); border: 1px solid var(--line); flex: 0 0 auto; }
+  .linkrow button:disabled { opacity: .45; }
+  .send3 { margin-top: 10px; }
+  .send3 .b { min-height: 74px; font-size: 13px; }
+  .clip { margin-top: 10px; background: var(--card2); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .clip p { margin: 0 0 10px; max-height: 130px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; line-height: 1.6; -webkit-user-select: text; user-select: text; }
+  .clip a { display: grid; place-items: center; min-height: 46px; border-radius: 14px; padding: 0 16px; background: var(--card); border: 1px solid var(--line); color: #fff; font-weight: 700; font-size: 14px; text-decoration: none; }
+  .sending { margin-top: 10px; }
+  .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .app { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: var(--card2); border: 1px solid var(--line); font-size: 11.5px; font-weight: 600; }
+  .app:active { transform: scale(.95); }
+  .app img, .app .ph { width: 34px; height: 34px; border-radius: 9px; background: #241b1c; object-fit: contain; }
+  .app span { width: 100%; text-align: center; overflow-wrap: anywhere; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .chip.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.14); color: #fff; }
   .scan { position: fixed; inset: 0; z-index: 50; background: #000; display: flex; flex-direction: column; }
   .scan video { flex: 1; width: 100%; object-fit: cover; }
   .scan .frame { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
@@ -145,6 +177,12 @@
     <div id="introSpin" class="spin hidden"></div>
     <button id="scanBtn" class="wide hidden" style="max-width:320px;margin:0 auto">📷 صوّر الـ QR من هنا</button>
   </div>
+  <div id="pcSheet" class="sheet hidden"><div class="in">
+    <h3>أجهزتك</h3>
+    <div id="pcList"></div>
+    <button id="pcAdd" class="wide" style="margin-top:6px">+ أضف بيسي</button>
+    <p class="hint">صوّر الـ QR من البيسي الثاني (الإعدادات ← التطبيق ← «جوالك»)، وتتنقّل بينهم من هنا.</p>
+  </div></div>
   <div id="scan" class="scan hidden">
     <video id="scanVideo" playsinline muted></video>
     <div class="frame"><div></div></div>
@@ -154,10 +192,10 @@
   <div id="app" class="hidden">
     <header>
       <img src="remote-icon.png" alt="" />
-      <div class="t">
-        <h1 id="pcName">البيسي</h1>
+      <button id="pcBtn" class="t pcBtn" aria-label="أجهزتك">
+        <h1><span id="pcName">البيسي</span><span class="chev">▼</span></h1>
         <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
-      </div>
+      </button>
     </header>
     <div id="banner" class="banner"><span id="bannerText"></span><button id="cancelBtn">ألغِ</button></div>
 
@@ -182,7 +220,27 @@
         <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
       </section>
       <section>
-        <h2><span>الصوت</span></h2>
+        <h2><span>أرسل للبيسي</span></h2>
+        <textarea id="sendIn" class="search sendbox" rows="2" dir="auto" placeholder="الصق رابط أو اكتب أي شي…" autocomplete="off"></textarea>
+        <div class="linkrow"><button id="sendPaste" class="ghost">الصق</button><button id="sendGo" disabled>أرسل</button></div>
+        <div class="grid three send3">
+          <button class="b" id="pickPhoto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>صور</button>
+          <button class="b" id="pickFile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l8.6-8.5a4 4 0 0 1 5.6 5.6l-8.6 8.6a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>ملفات</button>
+          <button class="b" id="getClip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11v6M9 14l3 3 3-3"/></svg>خذ المنسوخ</button>
+        </div>
+        <input id="photoIn" type="file" accept="image/*,video/*" multiple hidden />
+        <input id="fileIn" type="file" multiple hidden />
+        <div id="sending" class="sending hidden"><div class="dl"><div class="n"><span id="sendName" dir="auto"></span><em id="sendPct"></em></div><div class="bar"><div id="sendBar" style="width:0%"></div></div></div></div>
+        <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div></div>
+        <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام ينحط بحافظته (الصقه بـ Ctrl+V). الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
+      </section>
+      <section id="appsBox" class="hidden">
+        <h2><span>برامجك</span></h2>
+        <div id="apps" class="apps"></div>
+      </section>
+      <section>
+        <h2><span>الصوت</span><span id="volNote"></span></h2>
+        <div id="volBox" class="vol hidden"><input id="volRange" type="range" min="0" max="100" step="1" value="0" aria-label="مستوى الصوت" /><b id="volNum">—</b></div>
         <div class="grid three">
           <button class="b" data-a="vol.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/></svg>أقل</button>
           <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>كتم</button>
@@ -242,12 +300,14 @@
         <button id="pushBtn" class="wide">فعّل التنبيهات</button>
         <p id="pushHint" class="hint">يوصلك على جوالك: خلص التنزيل، انثبّت المود، اللعبة خلصت تنزيل، لعبة صارت مجانية، نزل سعر لعبة.</p>
         <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
+        <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت NVIDIA).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
+        <div id="heatChips" class="chips" style="margin:0 4px 6px"><button class="chip" data-heat="80">80°</button><button class="chip" data-heat="85">85°</button><button class="chip" data-heat="90">90°</button></div>
       </section>
       <section id="homeHint">
         <h2><span>حطها على الشاشة الرئيسية</span></h2>
         <p class="hint" style="margin-top:0">تنفتح مثل تطبيق كامل بدون شريط المتصفح. بالآيفون: زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية». بالأندرويد: القائمة ⋮ ← «إضافة إلى الشاشة الرئيسية».</p>
       </section>
-      <button id="byeBtn" class="wide ghost">افصل الجوال</button>
+      <button id="byeBtn" class="wide ghost">افصل الجوال عن هالبيسي</button>
     </div>
   </div>
 </div>
@@ -265,7 +325,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SB_URL = "https://yiujxcmynjauwwpbikxl.supabase.co";
 const SB_KEY = "sb_publishable_vpnc3OKWBjuOhz7HgCFh3Q_rnUv8wZP";
-const STORE = "nk-remote";
+const STORE = "nk-remote-pcs"; // [{ id, k, pc, vapid }] — every PC this phone controls
+const CUR = "nk-remote-cur";
 const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 const $ = (id) => document.getElementById(id);
 const enc = new TextEncoder();
@@ -274,7 +335,11 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const buzz = (ms = 12) => navigator.vibrate?.(ms);
 
 // ---- sealing (same as the PC: AES-256-GCM, iv 12 bytes, tag at the end) ----
-const b64u = (u8) => btoa(String.fromCharCode(...u8)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64u = (u8) => {
+  let bin = "";
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode(...u8.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
 const fromB64u = (s) => Uint8Array.from(atob(String(s).replace(/-/g, "+").replace(/_/g, "/") + "===".slice((String(s).length + 3) % 4)), (c) => c.charCodeAt(0));
 async function channelName(raw) {
   const h = new Uint8Array(await crypto.subtle.digest("SHA-256", raw));
@@ -303,12 +368,29 @@ function toast(text, bad = false) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => (t.className = "toast" + (bad ? " bad" : "")), 2600);
 }
-const saved = () => {
+const pcs = () => {
   try {
-    return JSON.parse(localStorage.getItem(STORE) || "null");
-  } catch {
-    return null;
-  }
+    const list = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (Array.isArray(list)) return list;
+    // the first version kept one PC
+    const old = JSON.parse(localStorage.getItem("nk-remote") || "null");
+    if (old?.k) {
+      const one = [{ id: crypto.randomUUID(), k: old.k, pc: old.pc, vapid: old.vapid }];
+      localStorage.setItem(STORE, JSON.stringify(one));
+      localStorage.removeItem("nk-remote");
+      return one;
+    }
+  } catch {}
+  return [];
+};
+const savePcs = (list) => localStorage.setItem(STORE, JSON.stringify(list));
+const saved = () => {
+  const list = pcs();
+  return list.find((p) => p.id === localStorage.getItem(CUR)) || list[0] || null;
+};
+const forget = (id) => {
+  savePcs(pcs().filter((p) => p.id !== id));
+  if (localStorage.getItem(CUR) === id) localStorage.removeItem(CUR);
 };
 const phoneName = () => (/iPhone/i.test(navigator.userAgent) ? "iPhone" : /iPad/i.test(navigator.userAgent) ? "iPad" : /Android/i.test(navigator.userAgent) ? "جوال Android" : "جوال");
 function intro(title, text, spin = false) {
@@ -398,6 +480,8 @@ const listen = (name, onMsg) =>
     c.on("broadcast", { event: "m" }, ({ payload }) => onMsg(payload));
     c.subscribe((s) => s === "SUBSCRIBED" && resolve(c));
   });
+// "20%" inside Arabic text: kept left to right (else it shows as "%20")
+const pct = (n) => `\u2066${Math.floor(n)}%\u2069`;
 const hours = (sec) => (sec >= 3600 ? `${Math.round(sec / 360) / 10} س` : sec >= 60 ? `${Math.round(sec / 60)} د` : "—");
 const gb = (b) => `${(b / 1024 ** 3).toFixed(b > 100 * 1024 ** 3 ? 0 : 1)} جيجا`;
 
@@ -411,7 +495,11 @@ async function pairWith(rawKey, pc) {
     if (!m || done) return;
     if (m.t === "welcome") {
       done = true;
-      localStorage.setItem(STORE, JSON.stringify({ k: m.key, pc: m.pc, vapid: m.vapid }));
+      // the same PC paired again replaces its old entry (same name); a new one is added
+      const id = crypto.randomUUID();
+      savePcs([...pcs().filter((p) => p.pc !== m.pc), { id, k: m.key, pc: m.pc, vapid: m.vapid }]);
+      localStorage.setItem(CUR, id);
+      stopRemote();
       history.replaceState(null, "", location.pathname);
       sb.removeChannel(c);
       toast("انربط جوالك ✓");
@@ -419,7 +507,8 @@ async function pairWith(rawKey, pc) {
     } else if (m.t === "no") {
       done = true;
       sb.removeChannel(c);
-      intro("ما انربط", "الربط انرفض من البيسي. إذا كنت أنت، اطلب QR جديد وجرّب مرة ثانية.");
+      if (pcs().length) (toast("الربط انرفض من البيسي", true), start());
+      else intro("ما انربط", "الربط انرفض من البيسي. إذا كنت أنت، اطلب QR جديد وجرّب مرة ثانية.");
     }
   });
   let phoneId = localStorage.getItem("nk-phone-id");
@@ -431,31 +520,58 @@ async function pairWith(rawKey, pc) {
   setTimeout(() => {
     if (!done) {
       clearInterval(again);
-      intro("انتهى وقت الربط", "الـ QR يشتغل 5 دقايق بس. اطلب واحد جديد من البيسي.");
+      sb.removeChannel(c);
+      if (pcs().length) (toast("انتهى وقت الربط. اطلب QR جديد من البيسي.", true), start());
+      else intro("انتهى وقت الربط", "الـ QR يشتغل 5 دقايق بس. اطلب واحد جديد من البيسي.");
     }
   }, 5 * 60e3);
 }
 
 // ---- the remote ----
-let key, ch, lastPong = 0, prefs = {};
+let key, ch, lastPong = 0, prefs = {}, pushInfo = null, run = 0;
 const pending = new Map();
+function stopRemote() {
+  run++;
+  if (ch) sb.removeChannel(ch);
+  ch = null;
+  key = null;
+  lastPong = 0;
+  pushInfo = null;
+  prefs = {};
+  pending.clear();
+}
 async function start() {
+  stopRemote();
+  const me = run;
   const s = saved();
   if (!s) return intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال»، وبعدين اضغط الزر تحت وصوّر الـ QR.");
   $("intro").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("nav").classList.remove("hidden");
   $("pcName").textContent = s.pc || "البيسي";
+  paint();
+  ["games", "stats", "downloads", "mods", "trainers"].forEach((id) => ($(id).innerHTML = '<p class="muted">نجيب…</p>'));
+  $("appsBox").classList.add("hidden");
+  $("nowCard").classList.add("hidden");
+  $("volBox").classList.add("hidden");
   const raw = fromB64u(s.k);
-  key = await importKey(raw);
-  ch = await listen(await channelName(raw), async (payload) => {
-    const m = await unseal(key, payload);
+  const k = await importKey(raw);
+  const c = await listen(await channelName(raw), async (payload) => {
+    if (me !== run) return;
+    const m = await unseal(k, payload);
     if (!m) return;
     if (m.t === "pong") {
       const first = Date.now() - lastPong > 150e3;
       lastPong = Date.now();
-      if (m.pc) $("pcName").textContent = m.pc;
+      if (m.pc) {
+        $("pcName").textContent = m.pc;
+        if (m.pc !== s.pc) savePcs(pcs().map((p) => (p.id === s.id ? { ...p, pc: m.pc } : p)));
+      }
       if (m.prefs) paintPrefs((prefs = m.prefs));
+      if ("push" in m) {
+        pushInfo = m.push;
+        syncPush(); // notifications on: this PC learns this phone's (one) subscription
+      }
       paint();
       if (first) refresh(); // just connected: fill the open tab
     } else if (m.t === "ack") {
@@ -464,11 +580,20 @@ async function start() {
       pending.get(m.id)?.(m);
       pending.delete(m.id);
     } else if (m.t === "unpaired") {
-      localStorage.removeItem(STORE);
-      intro("انفصل الجوال", "البيسي فصل هالجوال. تقدر تربطه مرة ثانية من الإعدادات.");
+      forget(s.id);
+      if (pcs().length) {
+        toast(`${s.pc || "البيسي"} فصل هالجوال`, true);
+        start();
+      } else intro("انفصل الجوال", "البيسي فصل هالجوال. تقدر تربطه مرة ثانية من الإعدادات.");
     }
   });
-  let lastPing = 0;
+  if (me !== run) return sb.removeChannel(c); // switched to another PC meanwhile
+  key = k;
+  ch = c;
+  lastPing = 0;
+  ping();
+  if (loops) return;
+  loops = true;
   const tick = () => {
     const connected = Date.now() - lastPong < 150e3;
     // on screen: every 3 s until connected, then every 60 s; in the background: once a minute until
@@ -493,7 +618,8 @@ async function start() {
   setInterval(() => document.visibilityState === "visible" && live(), 4000);
   paintPush();
 }
-const send = async (obj) => ch?.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
+let loops = false, lastPing = 0;
+const send = async (obj) => ch && key && ch.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
 const ping = () => send({ t: "ping" });
 function paint() {
   const on = Date.now() - lastPong < 150e3;
@@ -519,12 +645,15 @@ const ERR = {
   REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.",
   REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE Mods على البيسي.",
   REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
+  REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا.",
+  REMOTE_BUSY: "فيه ملفات قاعدة تنرسل. انتظرها تخلص.",
   GAME_ALREADY_RUNNING: "اللعبة شغّالة أصلاً على البيسي.",
   STEAM_DOWN: "Steam ما فتح على البيسي، واللعبة تحتاجه.",
   GAME_RUNNING: "سكّر اللعبة أول، وبعدين غيّر المودات.",
   PLAY_XBOX: "ألعاب Xbox تنفتح من تطبيق Xbox على البيسي.",
 };
-const fail = (r) => toast(ERR[r.error] || ERR.REMOTE_FAILED, true);
+// (only test copies of the app send a "detail")
+const fail = (r) => toast((ERR[r.error] || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
 
 // ---- tabs ----
 let tab = "games";
@@ -541,7 +670,7 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
 );
 function refresh() {
   if (tab === "games") loadGames();
-  if (tab === "pc") loadStatus();
+  if (tab === "pc") (loadStatus(), loadApps());
   if (tab === "mods") (loadDownloads(), loadMods(), loadTrainers());
 }
 // the parts that move: the game you're playing, the PC's numbers, downloads (only on screen)
@@ -551,6 +680,164 @@ function live() {
   if (tab === "mods") loadDownloads();
   if (tab === "games" && runningKey) paintNow();
 }
+
+// ---- several PCs: the name at the top switches ----
+function openPcs() {
+  const cur = saved();
+  $("pcList").innerHTML = pcs()
+    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(p.pc || "البيسي")}</span>${p.id === cur?.id ? "<em>الحين</em>" : ""}</button>`)
+    .join("");
+  $("pcSheet").classList.remove("hidden");
+}
+$("pcBtn").addEventListener("click", () => (buzz(8), openPcs()));
+$("pcSheet").addEventListener("click", (e) => {
+  if (e.target === $("pcSheet")) return $("pcSheet").classList.add("hidden");
+  const b = e.target.closest("[data-pc]");
+  if (!b) return;
+  $("pcSheet").classList.add("hidden");
+  if (b.dataset.pc === saved()?.id) return;
+  buzz();
+  localStorage.setItem(CUR, b.dataset.pc);
+  start();
+});
+$("pcAdd").addEventListener("click", () => {
+  $("pcSheet").classList.add("hidden");
+  startScan();
+});
+
+// ---- 📤 send anything to the PC: a link opens, text goes to its clipboard, photos/files are saved ----
+const isLink = (t) => /^https?:\/\/\S+$/i.test(t.trim());
+function paintSend() {
+  const t = $("sendIn").value.trim();
+  $("sendGo").disabled = !t;
+  $("sendGo").textContent = !t ? "أرسل" : isLink(t) ? "افتحه بالبيسي" : "انسخه بالبيسي";
+  $("sendIn").style.height = "auto";
+  $("sendIn").style.height = `${Math.min(140, $("sendIn").scrollHeight + 2)}px`;
+}
+$("sendIn").addEventListener("input", paintSend);
+$("sendGo").addEventListener("click", async () => {
+  const t = $("sendIn").value.trim();
+  if (!t) return;
+  if (t.length > 20000) return toast("الكلام طويل مرة. أرسل أقل من 20 ألف حرف.", true);
+  buzz();
+  const link = isLink(t);
+  $("sendGo").disabled = true;
+  const r = link ? await cmd("link.open", { url: t }) : await cmd("clip.set", { text: t });
+  paintSend();
+  if (!r.ok) return r.error === "REMOTE_BAD_LINK" ? toast("هذا الرابط ما ينفتح", true) : fail(r);
+  $("sendIn").value = "";
+  paintSend();
+  toast(link ? "فتحناه بمتصفح البيسي ✓" : "انحط بحافظة البيسي ✓ الصقه بـ Ctrl+V");
+});
+$("sendPaste").addEventListener("click", async () => {
+  try {
+    $("sendIn").value = await navigator.clipboard.readText();
+    paintSend();
+  } catch {
+    $("sendIn").focus();
+    toast("اضغط مطوّل بالخانة واختار «لصق»", true);
+  }
+});
+
+// photos and files: in pieces of the size the PC asks, three at a time, each one acknowledged
+const MAX_FILE = 50 * 1024 * 1024;
+const queue = [];
+let sendingFiles = false;
+function paintSending(name, pct) {
+  $("sending").classList.remove("hidden");
+  $("sendName").textContent = name;
+  $("sendPct").textContent = `${Math.round(pct * 100)}%`;
+  $("sendBar").style.width = `${pct * 100}%`;
+}
+async function sendFile(file) {
+  if (file.size > MAX_FILE) {
+    toast(`${file.name} أكبر من 50 ميجا`, true);
+    return true;
+  }
+  paintSending(file.name, 0);
+  const b = await cmd("file.begin", { name: file.name, size: file.size });
+  if (!b.ok) return fail(b), false;
+  const { fid, part } = b.data;
+  const parts = Math.max(1, Math.ceil(file.size / part));
+  let next = 0, done = 0, bad = null;
+  const worker = async () => {
+    while (!bad && next < parts) {
+      const i = next++;
+      const data = b64u(new Uint8Array(await file.slice(i * part, (i + 1) * part).arrayBuffer()));
+      let r;
+      for (let tries = 0; tries < 3 && !r?.ok; tries++) r = await cmd("file.part", { fid, i, data });
+      if (!r.ok) return void (bad = r);
+      paintSending(file.name, ++done / parts);
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  if (bad) {
+    cmd("file.cancel", { fid });
+    return fail(bad), false;
+  }
+  const e = await cmd("file.end", { fid });
+  if (!e.ok) return fail(e), false;
+  toast(`وصل «${e.data?.name ?? file.name}» للبيسي ✓`);
+  return true;
+}
+async function sendFiles(list) {
+  queue.push(...list);
+  if (sendingFiles) return;
+  sendingFiles = true;
+  while (queue.length) if (!(await sendFile(queue.shift()))) queue.length = 0;
+  sendingFiles = false;
+  $("sending").classList.add("hidden");
+}
+for (const [btn, input] of [["pickPhoto", "photoIn"], ["pickFile", "fileIn"]]) {
+  $(btn).addEventListener("click", () => (buzz(8), $(input).click()));
+  $(input).addEventListener("change", () => {
+    const list = [...$(input).files];
+    $(input).value = "";
+    if (list.length) sendFiles(list);
+  });
+}
+
+// the PC's clipboard → here (copying needs a tap on the phone, so it waits in a box)
+$("getClip").addEventListener("click", async () => {
+  buzz();
+  const r = await cmd("clip.get");
+  if (!r.ok) return fail(r);
+  const t = r.data?.text ?? "";
+  if (!t.trim()) return toast("ما فيه كلام منسوخ على البيسي", true);
+  $("clipBox").classList.remove("hidden");
+  $("clipText").textContent = t;
+  $("clipOpen").classList.toggle("hidden", !isLink(t));
+  if (isLink(t)) $("clipOpen").href = t.trim();
+});
+$("clipCopy").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText($("clipText").textContent);
+    buzz();
+    toast("نسخناه بجوالك ✓");
+  } catch {
+    getSelection().selectAllChildren($("clipText"));
+    toast("اضغط مطوّل على الكلام واختار «نسخ»", true);
+  }
+});
+
+// ---- 🧰 your programs (only the ones you chose on the PC) ----
+async function loadApps() {
+  const r = await cmd("apps.list");
+  if (!r.ok) return;
+  const list = r.data ?? [];
+  $("appsBox").classList.toggle("hidden", !list.length);
+  $("apps").innerHTML = list.map((a) => `<button class="app" data-app="${esc(a.id)}">${a.icon ? `<img src="${esc(a.icon)}" alt="" />` : '<span class="ph"></span>'}<span dir="auto">${esc(a.name)}</span></button>`).join("");
+}
+$("apps").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-app]");
+  if (!b) return;
+  buzz();
+  b.classList.add("busy");
+  const r = await cmd("apps.open", { id: b.dataset.app });
+  b.classList.remove("busy");
+  if (!r.ok) return fail(r);
+  toast(`فتحنا ${b.textContent.trim()} على البيسي ✓`);
+});
 
 // ---- 🎮 games ----
 let games = [], runningKey = null, runningSince = 0;
@@ -588,7 +875,7 @@ function paintGames() {
     ? list
         .map(
           (g) => `<div class="g"><div class="pic" style="background-image:url('${esc(g.image || "")}')">${g.running ? "<i>● شغّالة</i>" : ""}</div><div class="meta"><div class="n" dir="auto">${esc(g.name)}</div><div class="s">${g.total ? `لعبت ${hours(g.total)}` : "ما لعبتها للحين"}</div>${
-            g.installing ? `<div class="inst">${g.installing.kind === "update" ? "تتحدّث" : "تنزل"}${g.installing.progress != null ? ` ${Math.floor(g.installing.progress * 100)}%` : ""}</div>` : g.running ? `<button data-close="${esc(g.key)}">سكّرها</button>` : `<button data-play="${esc(g.key)}">▶ العب</button>`
+            g.installing ? `<div class="inst">${g.installing.kind === "update" ? "تتحدّث" : "تنزل"}${g.installing.progress != null ? ` ${pct(g.installing.progress * 100)}` : ""}</div>` : g.running ? `<button data-close="${esc(g.key)}">سكّرها</button>` : `<button data-play="${esc(g.key)}">▶ العب</button>`
           }</div></div>`,
         )
         .join("")
@@ -620,6 +907,7 @@ async function loadStatus() {
   const r = await cmd("pc.status");
   if (!r.ok) return;
   const s = r.data;
+  paintVol(s.volume);
   const box = (label, value, pct) => `<div class="stat"><span>${label}</span><b>${value}</b>${pct != null ? `<div class="bar"><div style="width:${Math.min(100, Math.max(0, pct))}%"></div></div>` : ""}</div>`;
   const ram = s.ram ? Math.round((100 * s.ram.used) / s.ram.total) : null;
   const disk = s.disk ? Math.round((100 * (s.disk.total - s.disk.free)) / s.disk.total) : null;
@@ -642,10 +930,41 @@ document.querySelectorAll("[data-a]").forEach((b) =>
     const r = await cmd(a);
     b.classList.remove("busy");
     if (!r.ok) return fail(r);
+    if (a.startsWith("vol.")) paintVol(r.data);
     if (a === "power.lock") toast("قفلنا الشاشة 🔒");
     if (a === "power.sleep") toast("البيسي نام 😴");
   }),
 );
+let dragging = false;
+function paintVol(v) {
+  if (!v || typeof v.level !== "number") return;
+  $("volBox").classList.remove("hidden");
+  $("volBox").classList.toggle("muted", Boolean(v.muted));
+  $("volNum").textContent = `${v.level}%`;
+  $("volNote").textContent = v.muted ? "مكتوم 🔇" : "";
+  if (!dragging) $("volRange").value = v.level;
+  $("volRange").style.setProperty("--p", `${$("volRange").value}%`);
+}
+let volTimer = null, volLast = 0;
+const sendVol = async () => {
+  volLast = Date.now();
+  const r = await cmd("vol.set", { level: Number($("volRange").value) });
+  if (r.ok) paintVol(r.data);
+};
+$("volRange").addEventListener("input", () => {
+  dragging = true;
+  $("volNum").textContent = `${$("volRange").value}%`;
+  $("volRange").style.setProperty("--p", `${$("volRange").value}%`);
+  clearTimeout(volTimer);
+  if (Date.now() - volLast > 160) sendVol();
+  else volTimer = setTimeout(sendVol, 160);
+});
+$("volRange").addEventListener("change", () => {
+  clearTimeout(volTimer);
+  sendVol().finally(() => (dragging = false));
+  buzz(10);
+});
+
 // shutdown / restart: drag the button to the end (a tap by mistake does nothing)
 document.querySelectorAll("[data-slide]").forEach((el) => {
   const knob = el.querySelector(".knob");
@@ -726,7 +1045,7 @@ async function loadDownloads() {
         .map((d) => {
           const p = d.total ? Math.round((100 * d.received) / d.total) : d.state === "done" ? 100 : 0;
           const moving = d.state === "downloading";
-          return `<div class="dl"><div class="n"><span dir="auto">${esc(d.name)}</span><em>${STATE[d.state] ?? d.state}${moving ? ` · ${p}%` : ""}</em></div>${moving || d.state === "installing" ? `<div class="bar"><div style="width:${p}%"></div></div>` : ""}</div>`;
+          return `<div class="dl"><div class="n"><span dir="auto">${esc(d.name)}</span><em>${STATE[d.state] ?? d.state}${moving ? ` · ${pct(p)}` : ""}</em></div>${moving || d.state === "installing" ? `<div class="bar"><div style="width:${p}%"></div></div>` : ""}</div>`;
         })
         .join("")
     : `<p class="muted">ما فيه شي ينزل الحين.</p>`;
@@ -777,29 +1096,42 @@ $("trainers").addEventListener("click", async (e) => {
 
 // ---- ⚙️ settings ----
 function paintPrefs(p) {
+  const heat = p?.heat !== false;
   $("unlockSw").classList.toggle("on", Boolean(p?.unlock));
+  $("heatSw").classList.toggle("on", heat);
+  $("heatChips").classList.toggle("hidden", !heat);
+  document.querySelectorAll("[data-heat]").forEach((b) => b.classList.toggle("on", Number(b.dataset.heat) === (p?.heatAt ?? 85)));
 }
-$("unlockSw").addEventListener("click", async () => {
+async function setPrefs(next, done) {
   buzz();
-  const on = !$("unlockSw").classList.contains("on");
-  paintPrefs({ unlock: on });
+  const before = { unlock: false, heat: true, heatAt: 85, ...prefs };
+  const want = { ...before, ...next };
+  paintPrefs(want);
   const id = crypto.randomUUID();
-  const ok = await new Promise((resolve) => {
-    const t = setTimeout(() => resolve(false), 8000);
-    pending.set(id, (m) => (clearTimeout(t), resolve(m.ok)));
-    send({ t: "prefs", id, prefs: { unlock: on } });
+  const r = await new Promise((resolve) => {
+    const t = setTimeout(() => resolve(null), 8000);
+    pending.set(id, (m) => (clearTimeout(t), resolve(m)));
+    send({ t: "prefs", id, prefs: want });
   });
-  if (!ok) {
-    paintPrefs({ unlock: !on });
+  if (!r?.ok) {
+    paintPrefs(before);
     return toast(ERR.TIMEOUT, true);
   }
-  toast(on ? "بننبهك إذا انفتح البيسي 🔓" : "شلنا التنبيه");
-});
+  paintPrefs((prefs = r.data ?? want));
+  toast(done(prefs));
+}
+$("unlockSw").addEventListener("click", () => setPrefs({ unlock: !$("unlockSw").classList.contains("on") }, (p) => (p.unlock ? "بننبهك إذا انفتح البيسي 🔓" : "شلنا التنبيه")));
+$("heatSw").addEventListener("click", () => setPrefs({ heat: !$("heatSw").classList.contains("on") }, (p) => (p.heat ? `بننبهك إذا كرت الشاشة وصل ${p.heatAt}° 🔥` : "شلنا تنبيه الحرارة")));
+document.querySelectorAll("[data-heat]").forEach((b) => b.addEventListener("click", () => setPrefs({ heat: true, heatAt: Number(b.dataset.heat) }, (p) => `بننبهك إذا وصل ${p.heatAt}° 🔥`)));
 $("byeBtn").addEventListener("click", async () => {
   if (!confirm("نفصل هالجوال عن البيسي؟")) return;
+  const s = saved();
   await send({ t: "bye" });
-  localStorage.removeItem(STORE);
-  intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
+  forget(s?.id);
+  if (pcs().length) {
+    toast(`فصلنا ${s?.pc || "البيسي"}`);
+    start();
+  } else intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
 });
 
 // ---- notifications (Web Push, sent by the PC itself) ----
@@ -818,20 +1150,66 @@ function paintPush() {
     btn.classList.add("ghost");
   }
 }
+// the phone signs up once with its own keys (ECDSA P-256) and gives them to each of its PCs,
+// so every PC can reach the same subscription
+async function phoneVapid() {
+  try {
+    const v = JSON.parse(localStorage.getItem("nk-vapid") || "null");
+    if (v?.publicKey && v?.privateKey) return v;
+  } catch {}
+  const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  const pub = new Uint8Array(await crypto.subtle.exportKey("raw", pair.publicKey));
+  const v = { publicKey: b64u(pub), privateKey: (await crypto.subtle.exportKey("jwk", pair.privateKey)).d };
+  localStorage.setItem("nk-vapid", JSON.stringify(v));
+  return v;
+}
+async function subscription() {
+  const v = await phoneVapid();
+  const reg = await navigator.serviceWorker.register("remote-sw.js");
+  await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  // which key made it (browsers that don't say: what we wrote down when we made it)
+  const made = sub?.options?.applicationServerKey ? b64u(new Uint8Array(sub.options.applicationServerKey)) : localStorage.getItem("nk-push-key");
+  const same = sub && made === v.publicKey;
+  if (sub && !same) {
+    await sub.unsubscribe(); // made with the first version's (one PC's) key
+    sub = null;
+  }
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: fromB64u(v.publicKey) });
+    localStorage.setItem("nk-push-key", v.publicKey);
+  }
+  return { sub: sub.toJSON(), vapid: v };
+}
+function registerPush({ sub, vapid }) {
+  const id = crypto.randomUUID();
+  return new Promise((resolve) => {
+    const t = setTimeout(() => resolve(false), 8000);
+    pending.set(id, (m) => (clearTimeout(t), resolve(m.ok)));
+    send({ t: "push", id, sub, vapid, multi: pcs().length > 1 });
+  });
+}
+let syncing = false;
+async function syncPush() {
+  if (syncing || !localStorage.getItem("nk-push") || Notification.permission !== "granted") return;
+  syncing = true;
+  try {
+    const s = await subscription();
+    if (pushInfo?.endpoint !== s.sub.endpoint || pushInfo?.multi !== pcs().length > 1) {
+      if (await registerPush(s)) pushInfo = { endpoint: s.sub.endpoint, multi: pcs().length > 1 };
+    }
+  } catch {
+    // the browser said no: the button in the settings tries again
+  } finally {
+    syncing = false;
+  }
+}
 $("pushBtn").addEventListener("click", async () => {
   try {
-    const s = saved();
     if ((await Notification.requestPermission()) !== "granted") return toast("ما سمحت بالتنبيهات", true);
-    const reg = await navigator.serviceWorker.register("remote-sw.js");
-    await navigator.serviceWorker.ready;
-    const sub = (await reg.pushManager.getSubscription()) || (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: fromB64u(s.vapid) }));
-    const id = crypto.randomUUID();
-    const ok = await new Promise((resolve) => {
-      const t = setTimeout(() => resolve(false), 8000);
-      pending.set(id, (m) => (clearTimeout(t), resolve(m.ok)));
-      send({ t: "push", id, sub: sub.toJSON() });
-    });
-    if (!ok) return toast(ERR.TIMEOUT, true);
+    const s = await subscription();
+    if (!(await registerPush(s))) return toast(ERR.TIMEOUT, true);
+    pushInfo = { endpoint: s.sub.endpoint, multi: pcs().length > 1 };
     localStorage.setItem("nk-push", "1");
     toast("تمام! التنبيهات بتوصلك 🔔");
     paintPush();
@@ -845,8 +1223,20 @@ document.addEventListener("gesturestart", (e) => e.preventDefault());
 
 // ---- start ----
 const hash = new URLSearchParams(location.hash.slice(1));
+const q = new URLSearchParams(location.search);
+const shared = q.get("url") || q.get("text") || q.get("title");
 if (hash.get("p")) pairWith(fromB64u(hash.get("p")), hash.get("n"));
-else start();
+else {
+  start();
+  if (shared && saved()) {
+    // "شارك ← NUKE Remote": the link waits in the box on the PC tab; one tap opens it
+    history.replaceState(null, "", location.pathname);
+    document.querySelector('nav [data-tab="pc"]').click();
+    $("sendIn").value = shared;
+    paintSend();
+    toast(`اضغط «${$("sendGo").textContent}» ويوصل للبيسي`);
+  }
+}
 </script>
 </body>
 </html>
