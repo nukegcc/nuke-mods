@@ -212,6 +212,41 @@
   .tpick { height: 54px; min-width: 156px; border-radius: 16px; border: 1px solid var(--line); background: var(--card2); color: #fff; font: inherit; font-size: 22px; font-weight: 700; padding: 0 14px; color-scheme: dark; font-variant-numeric: tabular-nums; text-align: center; }
   .tpick:disabled { opacity: .4; }
   .timerow .muted { flex: 1; padding: 0; line-height: 1.6; }
+  /* «الحالة» */
+  .stat small { display: block; font-size: 11.5px; color: var(--dim); margin-top: 2px; line-height: 1.5; }
+  .stat.wide { grid-column: 1 / -1; }
+  .spark { display: block; width: 100%; height: 30px; margin-top: 8px; }
+  .kv .r { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 9px 4px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .kv .r:first-child { border-top: 0; }
+  .kv .r span { color: var(--dim); flex-shrink: 0; }
+  .kv .r b { font-weight: 600; text-align: end; overflow-wrap: anywhere; }
+  .kv .r b small { display: block; margin-top: 2px; color: var(--dim); font-size: 12px; font-weight: 500; }
+  .seg { display: flex; gap: 4px; }
+  .seg button { padding: 4px 10px; border-radius: 10px; background: var(--card2); border: 1px solid var(--line); font-size: 12px; font-weight: 700; color: var(--dim); }
+  .seg button.on { color: #fff; border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.14); }
+  .pr { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-top: 1px solid var(--line); }
+  .pr:first-child { border-top: 0; }
+  .pr img, .pr .ph { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; background: #241b1c; flex-shrink: 0; }
+  .pr .t { flex: 1; min-width: 0; }
+  .pr .t b { display: block; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pr .t small { font-size: 12px; color: var(--dim); }
+  .pr button { border-radius: 12px; padding: 7px 12px; background: rgba(239,59,45,.14); border: 1px solid rgba(239,59,45,.4); color: #ffb4ad; font-weight: 700; font-size: 12.5px; flex-shrink: 0; }
+  .pr button.busy { opacity: .5; pointer-events: none; }
+  .drv { padding: 9px 4px; border-top: 1px solid var(--line); }
+  .drv:first-child { border-top: 0; }
+  .drv .n { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 600; }
+  .drv .n em { font-style: normal; color: var(--dim); font-size: 12px; }
+  .bar.low > div { background: var(--red); }
+  .tag { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 7px; background: rgba(255,255,255,.08); color: var(--dim); margin-inline-start: 6px; }
+  /* programs open on the PC */
+  .app { position: relative; }
+  .app.open { border-color: rgba(52,211,153,.55); }
+  .app.open::after { content: ""; position: absolute; top: 7px; inset-inline-end: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .arow .live { font-size: 11px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+  .apphead { display: flex; align-items: center; gap: 12px; margin: 0 4px 14px; }
+  .apphead img, .apphead .ph { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: #241b1c; object-fit: contain; font-weight: 700; color: var(--dim); }
+  .apphead b { display: block; font-size: 16px; }
+  .apphead small { color: var(--green); font-size: 12.5px; font-weight: 700; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -245,6 +280,11 @@
     <div class="sheethead"><h3>صور لعبك</h3><button id="shotsClose" class="x" aria-label="سكّر">×</button></div>
     <div id="shotGames" class="chips scrollx"></div>
     <div id="shotGrid" class="sgrid"></div>
+  </div></div>
+  <div id="appSheet" class="sheet hidden"><div class="in">
+    <div class="apphead"><span id="asIcon"></span><div><b id="asName" dir="auto"></b><small>مفتوح على البيسي</small></div></div>
+    <button id="asClose" class="wide">سكّره</button>
+    <button id="asOpen" class="wide ghost" style="margin-top:8px">افتحه مرة ثانية</button>
   </div></div>
   <div id="viewer" class="viewer hidden">
     <div class="vtop"><button id="vClose" class="x" aria-label="سكّر">×</button><div><b id="vGame" dir="auto"></b><small id="vDate"></small></div></div>
@@ -282,10 +322,6 @@
 
     <!-- 💻 PC -->
     <div id="tab-pc" class="tab">
-      <section>
-        <h2><span>حالة البيسي</span><span id="upt"></span></h2>
-        <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
-      </section>
       <section>
         <h2><span>أرسل للبيسي</span></h2>
         <textarea id="sendIn" class="search sendbox" rows="2" dir="auto" placeholder="الصق رابط أو اكتب أي شي…" autocomplete="off"></textarea>
@@ -340,19 +376,27 @@
       </section>
     </div>
 
-    <!-- 🧩 mods -->
-    <div id="tab-mods" class="tab">
+    <!-- 📊 the PC's state -->
+    <div id="tab-stat" class="tab">
       <section>
-        <h2><span>التنزيلات</span></h2>
-        <div id="downloads"><p class="muted">نجيب التنزيلات…</p></div>
+        <h2><span>حالة البيسي</span><span id="upt"></span></h2>
+        <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
+      </section>
+      <section id="gpuBox" class="hidden">
+        <h2><span id="gpuName" dir="auto">كرت الشاشة</span></h2>
+        <div id="gpuKv" class="kv"></div>
       </section>
       <section>
-        <h2><span>موداتك</span></h2>
-        <div id="mods"><p class="muted">نجيب موداتك…</p></div>
+        <h2><span>وش ماكل الجهاز؟</span><span class="seg"><button data-sort="cpu" class="on">المعالج</button><button data-sort="mem">الرام</button></span></h2>
+        <div id="heavy"><p class="muted">نشوف البرامج…</p></div>
       </section>
-      <section>
-        <h2><span>ترينراتك</span></h2>
-        <div id="trainers"><p class="muted">نجيب ترينراتك…</p></div>
+      <section id="drivesBox" class="hidden">
+        <h2><span>الهارديسكات</span></h2>
+        <div id="drives"></div>
+      </section>
+      <section id="specsBox" class="hidden">
+        <h2><span>مواصفات البيسي</span></h2>
+        <div id="specs" class="kv"></div>
       </section>
     </div>
 
@@ -370,6 +414,10 @@
         <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
         <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت NVIDIA).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
         <div id="heatChips" class="chips" style="margin:0 4px 6px"><button class="chip" data-heat="80">80°</button><button class="chip" data-heat="85">85°</button><button class="chip" data-heat="90">90°</button></div>
+        <div class="setrow"><div><b>الرام امتلت</b><small>إذا ظلّت فوق 92%، ونقول لك وش ماكلها.</small></div><button id="ramSw" class="sw" aria-label="الرام امتلت"></button></div>
+        <div class="setrow"><div><b>الهارديسك قرّب يمتلي</b><small>إذا باقي أقل من 10 جيجا (أو أقل من 5%).</small></div><button id="diskSw" class="sw" aria-label="الهارديسك قرّب يمتلي"></button></div>
+        <div class="setrow"><div><b>الويندوز يبي إعادة تشغيل</b><small>بعد تحديثاته، عشان تعيد التشغيل لما تخلص لعب.</small></div><button id="restartSw" class="sw" aria-label="الويندوز يبي إعادة تشغيل"></button></div>
+        <div id="battRow" class="setrow hidden"><div><b>البطارية ضعفت</b><small>إذا وصلت 15% واللابتوب مو على الشاحن.</small></div><button id="battSw" class="sw" aria-label="البطارية ضعفت"></button></div>
       </section>
       <section id="limitBox" class="hidden">
         <h2><span>وقت اللعب</span></h2>
@@ -391,7 +439,7 @@
 <nav id="nav" class="hidden"><div class="in">
   <button data-tab="games" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></svg>ألعابي</button>
   <button data-tab="pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>البيسي</button>
-  <button data-tab="mods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>المودات</button>
+  <button data-tab="stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>الحالة</button>
   <button data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>الإعدادات</button>
 </div></nav>
 <div id="toast" class="toast"></div>
@@ -626,7 +674,11 @@ async function start() {
   $("nav").classList.remove("hidden");
   $("pcName").textContent = s.pc || "البيسي";
   paint();
-  ["games", "stats", "downloads", "mods", "trainers"].forEach((id) => ($(id).innerHTML = '<p class="muted">نجيب…</p>'));
+  ["games", "stats", "heavy"].forEach((id) => ($(id).innerHTML = '<p class="muted">نجيب…</p>'));
+  ["gpuBox", "drivesBox", "specsBox"].forEach((id) => $(id).classList.add("hidden"));
+  specsDone = false;
+  heavyList = [];
+  openIds = new Set();
   $("appsBox").classList.add("hidden");
   $("nowCard").classList.add("hidden");
   $("volBox").classList.add("hidden");
@@ -759,15 +811,22 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
 );
 function refresh() {
   if (tab === "games") (loadGames(), loadShots(), loadLimit());
-  if (tab === "pc") (loadStatus(), loadApps());
-  if (tab === "mods") (loadDownloads(), loadMods(), loadTrainers());
-  if (tab === "set") (loadAlerts(), loadLimit());
+  if (tab === "pc") (loadVol(), loadApps(), loadRunning());
+  if (tab === "stat") (loadStatus(), loadHeavy(), loadDrives(), loadSpecs());
+  if (tab === "set") (loadAlerts(), loadLimit(), loadStatus());
 }
-// the parts that move: the game you're playing, the PC's numbers, downloads (only on screen)
+async function loadVol() {
+  const r = await cmd("vol.get");
+  if (r.ok) paintVol(r.data);
+}
+// the parts that move (only on screen): the game you're playing, the PC's numbers, what's open
 function live() {
   if (Date.now() - lastPong > 150e3) return;
-  if (tab === "pc") loadStatus();
-  if (tab === "mods") loadDownloads();
+  if (tab === "stat") {
+    loadStatus();
+    if (Date.now() - heavyAt > 20e3) loadHeavy();
+  }
+  if (tab === "pc" && Date.now() - runLook > 10e3) loadRunning();
   if (tab === "games" && runningKey) paintNow();
 }
 
@@ -937,7 +996,7 @@ function paintApps() {
   $("appsBox").classList.toggle("hidden", !items.length && !canAll);
   $("appsAllBtn").classList.toggle("hidden", !canAll);
   $("appsEmpty").classList.toggle("hidden", items.length > 0);
-  $("apps").innerHTML = items.map((a) => `<button class="app" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`).join("");
+  $("apps").innerHTML = items.map((a) => `<button class="app${openIds.has(a.mine ? `m:${a.id}` : `a:${a.id}`) ? " open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`).join("");
   const missing = pinned.filter((a) => !appIcons.has(a.id)).map((a) => a.id);
   if (missing.length) iconsFor(missing).then(paintApps);
 }
@@ -949,17 +1008,9 @@ async function iconsFor(ids) {
     for (const id of part) appIcons.set(id, r.ok ? (r.data?.[id] ?? null) : null);
   }
 }
-async function runApp(b, name) {
-  buzz();
-  b.classList.add("busy");
-  const r = b.dataset.app ? await cmd("apps.open", { id: b.dataset.app }) : await cmd("apps.run", { id: b.dataset.run });
-  b.classList.remove("busy");
-  if (!r.ok) return fail(r);
-  toast(`فتحنا ${name} على البيسي ✓`);
-}
 $("apps").addEventListener("click", (e) => {
   const b = e.target.closest("[data-app],[data-run]");
-  if (b) runApp(b, b.textContent.trim());
+  if (b) tapApp(b, b.textContent.trim());
 });
 
 // "كل البرامج": search, tap to open, ☆ to keep it under «برامجك»
@@ -984,7 +1035,7 @@ function paintAllApps() {
     ? list
         .map(
           (a) =>
-            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span></button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${pinned.has(a.id) ? "★" : "☆"}</button></div>`,
+            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span>${openIds.has(`a:${a.id}`) ? '<span class="live">● مفتوح</span>' : ""}</button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${pinned.has(a.id) ? "★" : "☆"}</button></div>`,
         )
         .join("")
     : `<p class="muted">ما فيه برنامج بهالاسم على البيسي.</p>`;
@@ -1022,7 +1073,60 @@ $("appsSheet").addEventListener("click", (e) => {
     return toast(on ? "ثبّتناه تحت «برامجك» ✓" : "شلناه من «برامجك»");
   }
   const b = e.target.closest("[data-run]");
-  if (b) runApp(b, b.querySelector(".n")?.textContent.trim() || "البرنامج");
+  if (b) tapApp(b, b.querySelector(".n")?.textContent.trim() || "البرنامج");
+});
+
+// ---- programs open on the PC: a green dot, and tapping one that's open offers «سكّره» ----
+let openIds = new Set(), runLook = 0, sheetFor = null;
+const openKey = (b) => (b.dataset.app ? `m:${b.dataset.app}` : `a:${b.dataset.run}`);
+async function loadRunning() {
+  runLook = Date.now();
+  const r = await cmd("apps.running");
+  if (!r.ok) return;
+  openIds = new Set([...(r.data?.mine ?? []).map((id) => `m:${id}`), ...(r.data?.all ?? []).map((id) => `a:${id}`)]);
+  paintApps();
+  if (!$("appsSheet").classList.contains("hidden")) {
+    const top = $("appsList").scrollTop;
+    paintAllApps();
+    $("appsList").scrollTop = top;
+  }
+}
+function showAppSheet(b, name) {
+  sheetFor = { app: b.dataset.app, run: b.dataset.run, name };
+  const icon = b.querySelector("img")?.getAttribute("src");
+  $("asIcon").outerHTML = icon ? `<img id="asIcon" src="${esc(icon)}" alt="" />` : `<span id="asIcon" class="ph">${esc(name.charAt(0))}</span>`;
+  $("asName").textContent = name;
+  $("appSheet").classList.remove("hidden");
+}
+async function openApp(f, name, b) {
+  buzz();
+  b?.classList.add("busy");
+  const r = f.app ? await cmd("apps.open", { id: f.app }) : await cmd("apps.run", { id: f.run });
+  b?.classList.remove("busy");
+  if (!r.ok) return fail(r);
+  toast(`فتحنا ${name} على البيسي ✓`);
+  // it takes a moment to start: then it gets its green dot
+  setTimeout(loadRunning, 3000);
+  setTimeout(loadRunning, 8000);
+}
+function tapApp(b, name) {
+  if (openIds.has(openKey(b))) return (buzz(8), showAppSheet(b, name));
+  openApp({ app: b.dataset.app, run: b.dataset.run }, name, b);
+}
+$("appSheet").addEventListener("click", (e) => e.target === $("appSheet") && $("appSheet").classList.add("hidden"));
+$("asClose").addEventListener("click", async () => {
+  const f = sheetFor;
+  if (!f) return;
+  $("asClose").classList.add("busy");
+  const ok = await closeFlow("apps.close", f.app ? { id: f.app, mine: true } : { id: f.run }, f.name);
+  $("asClose").classList.remove("busy");
+  if (ok) $("appSheet").classList.add("hidden");
+  setTimeout(loadRunning, 1200);
+});
+$("asOpen").addEventListener("click", () => {
+  const f = sheetFor;
+  $("appSheet").classList.add("hidden");
+  if (f) openApp(f, f.name);
 });
 
 // ---- 📸 your games' screenshots: a small preview first, the whole picture on a tap ----
@@ -1379,21 +1483,134 @@ $("nowClose").addEventListener("click", async () => {
 });
 
 // ---- 💻 PC ----
+// ---- 📊 «الحالة»: the PC's numbers with the last 10 minutes, the card, the programs using the most, drives, parts ----
+const size = (b) => (b >= 1024 ** 4 ? `${(b / 1024 ** 4).toFixed(1)} تيرا` : b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(b >= 100 * 1024 ** 3 ? 0 : 1)} جيجا` : `${Math.max(1, Math.round(b / 1024 ** 2))} ميجا`);
+const speed = (b) => (b == null ? "…" : b >= 1024 ** 2 ? `${(b / 1024 ** 2).toFixed(1)} ميجا/ث` : `${Math.round(b / 1024)} كيلو/ث`);
+const perc = (n) => `⁦${n < 10 ? Number(n.toFixed(1)) : Math.round(n)}%⁩`;
+const ltr = (t) => `⁦${t}⁩`;
+// a small line of the last 10 minutes: older on the left, now on the right (a chart reads that way here too)
+function spark(ts, values, max) {
+  const now = Date.now();
+  const pts = (ts ?? []).map((t, i) => [t, values?.[i]]).filter(([t, v]) => v != null && now - t <= 10 * 60e3);
+  if (pts.length < 2) return "";
+  const top = max ?? Math.max(1, ...pts.map(([, v]) => v));
+  const win = Math.min(10 * 60e3, Math.max(2 * 60e3, now - pts[0][0]));
+  const xy = pts.map(([t, v]) => [100 - ((now - t) / win) * 100, 28 - Math.min(1, v / top) * 26]);
+  const line = xy.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join("");
+  return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path d="${line}L${xy[xy.length - 1][0].toFixed(1)} 30L${xy[0][0].toFixed(1)} 30Z" fill="rgba(239,59,45,.14)"/><path d="${line}" fill="none" stroke="#ef3b2d" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
 async function loadStatus() {
   const r = await cmd("pc.status");
   if (!r.ok) return;
   const s = r.data;
-  paintVol(s.volume);
-  const box = (label, value, pct) => `<div class="stat"><span>${label}</span><b>${value}</b>${pct != null ? `<div class="bar"><div style="width:${Math.min(100, Math.max(0, pct))}%"></div></div>` : ""}</div>`;
+  const h = s.hist ?? {};
+  const tile = (label, value, sub, line, wide) => `<div class="stat${wide ? " wide" : ""}"><span>${label}</span><b>${value}</b>${sub ? `<small>${sub}</small>` : ""}${line || ""}</div>`;
   const ram = s.ram ? Math.round((100 * s.ram.used) / s.ram.total) : null;
-  const disk = s.disk ? Math.round((100 * (s.disk.total - s.disk.free)) / s.disk.total) : null;
-  $("stats").innerHTML =
-    box("المعالج", s.cpu != null ? `${s.cpu}%` : "…", s.cpu) +
-    box("الرام", ram != null ? `${ram}%` : "—", ram) +
-    box("كرت الشاشة", s.gpu ? `${s.gpu.use}%${s.gpu.temp ? ` · ${s.gpu.temp}°` : ""}` : "—", s.gpu?.use ?? null) +
-    box("الهارديسك", s.disk ? `باقي ${gb(s.disk.free)}` : "—", disk);
-  const h = Math.floor(s.uptime / 3600);
-  $("upt").textContent = h ? `شغّال من ${h} ساعة` : "شغّال من شوي";
+  const net = s.net ?? null;
+  let html =
+    tile("المعالج", s.cpu != null ? perc(s.cpu) : "…", "", spark(h.t, h.cpu, 100)) +
+    tile("الرام", ram != null ? perc(ram) : "—", s.ram ? `${size(s.ram.used)} من ${size(s.ram.total)}` : "", spark(h.t, h.ram, 100)) +
+    tile("كرت الشاشة", s.gpu ? perc(s.gpu.use) : "—", s.gpu ? (s.gpu.temp ? `الحرارة ${s.gpu.temp}°` : "") : "تفاصيله لكروت NVIDIA بس", spark(h.t, h.gpu, 100)) +
+    (net ? tile("النت (التنزيل)", speed(net.down), [net.up != null ? `الرفع ${speed(net.up)}` : "", net.ping != null ? `البنق ${ltr(`${net.ping} ms`)}` : "ما وصلنا للنت"].filter(Boolean).join("، "), spark(h.t, h.down)) : tile("الهارديسك", s.disk ? `باقي ${gb(s.disk.free)}` : "—", "", ""));
+  if (s.battery) html += tile("البطارية", perc(s.battery.percent), s.battery.charging ? "يشحن" : s.battery.plugged ? "على الشاحن" : s.battery.minutesLeft ? `باقي ${span(s.battery.minutesLeft * 60)}` : "", "", true);
+  $("stats").innerHTML = html;
+  $("battRow").classList.toggle("hidden", !s.battery);
+  const up = Math.floor(s.uptime / 3600);
+  const days = Math.floor(up / 24);
+  $("upt").textContent = days >= 2 ? `شغّال من ${days <= 10 ? `${days} أيام` : `${days} يوم`}` : up ? `شغّال من ${hoursAr(up)}` : "شغّال من شوي";
+  paintGpu(s.gpuMore);
+}
+function paintGpu(g) {
+  $("gpuBox").classList.toggle("hidden", !g);
+  if (!g) return;
+  $("gpuName").textContent = g.name;
+  const row = (k, v) => (v == null || v === "" ? "" : `<div class="r"><span>${k}</span><b>${v}</b></div>`);
+  $("gpuKv").innerHTML =
+    row("الاستخدام", perc(g.use)) +
+    row("الحرارة", g.temp != null ? `${g.temp}°` : null) +
+    row("ذاكرة الكرت", g.memUsed != null && g.memTotal ? `${(g.memUsed / 1024).toFixed(1)} من ${Math.round(g.memTotal / 1024)} جيجا` : null) +
+    row("المروحة", g.fan == null ? null : g.fan === 0 ? "واقفة (الكرت بارد)" : perc(g.fan)) +
+    row("الكهرباء", g.power != null ? `${Math.round(g.power)} واط${g.powerLimit ? ` من ${Math.round(g.powerLimit)}` : ""}` : null) +
+    row("السرعة", g.clock != null ? `${g.clock} ميجاهرتز` : null);
+}
+
+// «وش ماكل الجهاز؟»
+let heavyList = [], heavySort = "cpu", heavyAt = 0;
+async function loadHeavy() {
+  heavyAt = Date.now();
+  const r = await cmd("pc.heavy");
+  if (!r.ok) return ($("heavy").innerHTML = `<p class="muted">${r.error === "REMOTE_NOT_ALLOWED" ? ERR.REMOTE_NOT_ALLOWED : "ما قدرنا نشوف البرامج. افتح «الحالة» مرة ثانية."}</p>`);
+  heavyList = r.data ?? [];
+  paintHeavy();
+}
+function paintHeavy() {
+  const list = [...heavyList].sort((a, b) => (heavySort === "cpu" ? b.cpu - a.cpu || b.mem - a.mem : b.mem - a.mem)).slice(0, 8);
+  $("heavy").innerHTML = list.length
+    ? list.map((p) => `<div class="pr">${p.icon ? `<img src="${esc(p.icon)}" alt="" />` : '<span class="ph"></span>'}<div class="t"><b dir="auto">${esc(p.name)}</b><small>${perc(p.cpu)} معالج · ${size(p.mem)} رام</small></div><button data-kill="${esc(p.id)}" data-name="${esc(p.name)}">سكّره</button></div>`).join("")
+    : '<p class="muted">ما فيه برامج تاكل الجهاز الحين.</p>';
+}
+document.querySelectorAll("[data-sort]").forEach((b) =>
+  b.addEventListener("click", () => {
+    buzz(8);
+    heavySort = b.dataset.sort;
+    document.querySelectorAll("[data-sort]").forEach((x) => x.classList.toggle("on", x === b));
+    paintHeavy();
+  }),
+);
+// closing a program: asked nicely first; only if it stays open, "by force" after the player says yes
+async function closeFlow(action, args, name) {
+  buzz();
+  let r = await cmd(action, args);
+  if (!r.ok) return fail(r), false;
+  if (r.data && r.data.closed === false) {
+    if (!confirm(`${name} ما تسكّر بالطيب (يمكن يسألك تحفظ شي على البيسي). نسكّره غصب؟ أي شي مو محفوظ فيه يروح.`)) return toast("خلّيناه مفتوح"), false;
+    r = await cmd(action, { ...args, force: true });
+    if (!r.ok) return fail(r), false;
+    if (r.data && r.data.closed === false) return toast(`${name} ما رضى يتسكّر`, true), false;
+  }
+  toast(`سكّرنا ${name} ✓`);
+  return true;
+}
+$("heavy").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-kill]");
+  if (!b) return;
+  b.classList.add("busy");
+  const ok = await closeFlow("pc.kill", { id: b.dataset.kill }, b.dataset.name);
+  b.classList.remove("busy");
+  if (ok) setTimeout(loadHeavy, 1200);
+});
+
+async function loadDrives() {
+  const r = await cmd("pc.drives");
+  const list = r.ok ? (r.data ?? []) : [];
+  $("drivesBox").classList.toggle("hidden", !list.length);
+  $("drives").innerHTML = list
+    .map((d) => {
+      const used = d.total ? Math.round((100 * (d.total - d.free)) / d.total) : 0;
+      const low = d.free < Math.max(10 * 1024 ** 3, d.total * 0.05);
+      return `<div class="drv"><div class="n"><span><bdi>${esc(d.letter)}</bdi>${d.label ? ` <bdi>${esc(d.label)}</bdi>` : ""}${d.usb ? '<span class="tag">فلاش</span>' : ""}</span><em>باقي ${size(d.free)} من ${size(d.total)}</em></div><div class="bar${low ? " low" : ""}"><div style="width:${used}%"></div></div></div>`;
+    })
+    .join("");
+}
+
+let specsDone = false;
+async function loadSpecs() {
+  if (specsDone) return;
+  const r = await cmd("pc.specs");
+  if (!r.ok || !r.data) return;
+  specsDone = true;
+  const s = r.data;
+  const row = (k, main, sub) => (main ? `<div class="r"><span>${k}</span><b><bdi>${esc(main)}</bdi>${sub ? `<small>${esc(sub)}</small>` : ""}</b></div>` : "");
+  const sticks = (n) => (n === 1 ? "قطعة وحدة" : n === 2 ? "قطعتين" : `${n} قطع`);
+  $("specsBox").classList.remove("hidden");
+  $("specs").innerHTML =
+    row("المعالج", s.cpu?.name, s.cpu?.cores ? `${s.cpu.cores} أنوية، ${s.cpu.threads} خيط` : "") +
+    (s.gpus ?? []).map((g, i) => row(i ? "" : "كرت الشاشة", g, g === s.mainGpu && s.vram ? `${Math.round(s.vram / 1024 ** 3)} جيجا ذاكرة` : "")).join("") +
+    row("الرام", s.ram ? `${Math.round(s.ram.total / 1024 ** 3)} جيجا` : null, [s.ram?.sticks ? sticks(s.ram.sticks) : "", s.ram?.speed ? `${s.ram.speed} ميجاهرتز` : ""].filter(Boolean).join("، ")) +
+    row("اللوحة الأم", s.board) +
+    row("الجهاز", s.model) +
+    row("الويندوز", s.windows) +
+    row("اسم البيسي", s.pcName);
 }
 document.querySelectorAll("[data-a]").forEach((b) =>
   b.addEventListener("click", async () => {
@@ -1525,66 +1742,6 @@ $("offGo").addEventListener("click", async () => {
   countdown(sec, "يطفي");
 });
 
-// ---- 🧩 mods / downloads / trainers ----
-const STATE = { queued: "بالدور", resolving: "نجهّز", downloading: "ينزل", installing: "ينثبّت", done: "خلص ✓", error: "ما زبط", canceled: "انلغى" };
-async function loadDownloads() {
-  const r = await cmd("downloads.list");
-  if (!r.ok) return;
-  const list = r.data ?? [];
-  $("downloads").innerHTML = list.length
-    ? list
-        .map((d) => {
-          const p = d.total ? Math.round((100 * d.received) / d.total) : d.state === "done" ? 100 : 0;
-          const moving = d.state === "downloading";
-          return `<div class="dl"><div class="n"><span dir="auto">${esc(d.name)}</span><em>${STATE[d.state] ?? d.state}${moving ? ` · ${pct(p)}` : ""}</em></div>${moving || d.state === "installing" ? `<div class="bar"><div style="width:${p}%"></div></div>` : ""}</div>`;
-        })
-        .join("")
-    : `<p class="muted">ما فيه شي ينزل الحين.</p>`;
-}
-async function loadMods() {
-  const r = await cmd("mods.list");
-  if (!r.ok) return;
-  const groups = r.data ?? [];
-  $("mods").innerHTML = groups.length
-    ? groups
-        .map((g) => `<p class="muted" style="margin-top:6px"><b style="color:#fff">${esc(g.game)}</b> · ${g.mods.length} مود</p>` + g.mods.map((m) => `<div class="row"><span class="n" dir="auto">${esc(m.name)}</span><button class="sw${m.enabled ? " on" : ""}" data-domain="${esc(g.domain)}" data-key="${esc(m.key)}" aria-label="${esc(m.name)}"></button></div>`).join(""))
-        .join("")
-    : `<p class="muted">ما عندك مودات للحين.</p>`;
-}
-$("mods").addEventListener("click", async (e) => {
-  const b = e.target.closest(".sw");
-  if (!b) return;
-  buzz();
-  const on = !b.classList.contains("on");
-  b.classList.toggle("on", on);
-  b.disabled = true;
-  const r = await cmd("mods.toggle", { domain: b.dataset.domain, key: b.dataset.key, on });
-  b.disabled = false;
-  if (!r.ok) {
-    b.classList.toggle("on", !on);
-    return fail(r);
-  }
-  toast(on ? "شغّلنا المود ✓" : "طفّينا المود ✓");
-});
-async function loadTrainers() {
-  const r = await cmd("trainers.list");
-  if (!r.ok) return;
-  const list = r.data ?? [];
-  $("trainers").innerHTML = list.length
-    ? list.map((t) => `<div class="tr">${t.image ? `<img src="${esc(t.image)}" alt="" />` : `<span class="ph"></span>`}<span class="n" dir="auto">${esc(t.title)}</span><button data-trainer="${t.id}">شغّل</button></div>`).join("")
-    : `<p class="muted">ما ثبّت ترينرات للحين.</p>`;
-}
-$("trainers").addEventListener("click", async (e) => {
-  const b = e.target.closest("[data-trainer]");
-  if (!b) return;
-  buzz();
-  b.disabled = true;
-  const r = await cmd("trainers.run", { id: Number(b.dataset.trainer) });
-  b.disabled = false;
-  if (!r.ok) return fail(r);
-  toast("شغّلنا الترينر على البيسي ⚡");
-});
-
 // ---- ⚙️ settings ----
 function paintPrefs(p) {
   const heat = p?.heat !== false;
@@ -1592,10 +1749,11 @@ function paintPrefs(p) {
   $("heatSw").classList.toggle("on", heat);
   $("heatChips").classList.toggle("hidden", !heat);
   document.querySelectorAll("[data-heat]").forEach((b) => b.classList.toggle("on", Number(b.dataset.heat) === (p?.heatAt ?? 85)));
+  for (const [id, k] of [["ramSw", "ram"], ["diskSw", "disk"], ["restartSw", "restart"], ["battSw", "battery"]]) $(id).classList.toggle("on", p?.[k] !== false);
 }
 async function setPrefs(next, done) {
   buzz();
-  const before = { unlock: false, heat: true, heatAt: 85, ...prefs };
+  const before = { unlock: false, heat: true, heatAt: 85, ram: true, disk: true, restart: true, battery: true, ...prefs };
   const want = { ...before, ...next };
   paintPrefs(want);
   const id = crypto.randomUUID();
@@ -1614,6 +1772,13 @@ async function setPrefs(next, done) {
 $("unlockSw").addEventListener("click", () => setPrefs({ unlock: !$("unlockSw").classList.contains("on") }, (p) => (p.unlock ? "بننبهك إذا انفتح البيسي 🔓" : "شلنا التنبيه")));
 $("heatSw").addEventListener("click", () => setPrefs({ heat: !$("heatSw").classList.contains("on") }, (p) => (p.heat ? `بننبهك إذا كرت الشاشة وصل ${p.heatAt}° 🔥` : "شلنا تنبيه الحرارة")));
 document.querySelectorAll("[data-heat]").forEach((b) => b.addEventListener("click", () => setPrefs({ heat: true, heatAt: Number(b.dataset.heat) }, (p) => `بننبهك إذا وصل ${p.heatAt}° 🔥`)));
+for (const [id, k, said] of [
+  ["ramSw", "ram", "بننبهك إذا الرام امتلت 🧠"],
+  ["diskSw", "disk", "بننبهك إذا الهارديسك قرّب يمتلي 💽"],
+  ["restartSw", "restart", "بننبهك إذا الويندوز يبي إعادة تشغيل 🔄"],
+  ["battSw", "battery", "بننبهك إذا البطارية ضعفت 🔋"],
+])
+  $(id).addEventListener("click", () => setPrefs({ [k]: !$(id).classList.contains("on") }, (p) => (p[k] !== false ? said : "شلنا التنبيه")));
 $("byeBtn").addEventListener("click", async () => {
   if (!confirm("نفصل هالجوال عن البيسي؟")) return;
   const s = saved();
