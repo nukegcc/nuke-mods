@@ -8,5 +8,21 @@
   "display": "standalone",
   "background_color": "#0e0a0a",
   "theme_color": "#0e0a0a",
-  "icons": [{ "src": "remote-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
+  "icons": [
+    {
+      "src": "remote-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "share_target": {
+    "action": "remote.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }
