@@ -165,6 +165,53 @@
   .scan .frame div { width: 68vw; max-width: 300px; aspect-ratio: 1; border-radius: 28px; box-shadow: 0 0 0 9999px rgba(0,0,0,.55); border: 3px solid var(--red); }
   .scan .bar2 { position: absolute; inset-inline: 0; bottom: 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; align-items: center; background: linear-gradient(transparent, rgba(0,0,0,.85)); }
   .scan .bar2 p { margin: 0; color: #fff; font-weight: 600; text-align: center; }
+  /* your games' screenshots */
+  h2 .more { background: none; padding: 0; color: var(--red); font-size: 13px; font-weight: 700; }
+  .shots { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -14px; padding: 0 14px 2px; scrollbar-width: none; }
+  .shots::-webkit-scrollbar { display: none; }
+  .shot { flex: 0 0 46%; scroll-snap-align: start; background: none; padding: 0; text-align: start; }
+  .shot:active .pic, .sgrid .shot:active .pic { transform: scale(.97); }
+  .shot .pic { display: block; aspect-ratio: 16/9; border-radius: 14px; background: #241b1c center/cover no-repeat; border: 1px solid var(--line); transition: transform .12s; }
+  .shot .n { display: block; margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sheet.tall .in { height: calc(100dvh - 36px); display: flex; flex-direction: column; }
+  .sheethead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .sheethead h3 { margin: 0 4px; }
+  .x { width: 38px; height: 38px; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); font-size: 20px; line-height: 1; flex-shrink: 0; }
+  .alist, .sgrid { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  .sgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: start; }
+  .sgrid .shot { flex: none; }
+  .scrollx { flex-wrap: nowrap; overflow-x: auto; margin-bottom: 12px; scrollbar-width: none; flex-shrink: 0; }
+  .scrollx::-webkit-scrollbar { display: none; }
+  .scrollx .chip { flex-shrink: 0; white-space: nowrap; }
+  .viewer { position: fixed; inset: 0; z-index: 45; background: #000; display: flex; flex-direction: column; animation: fade .18s; touch-action: pan-y; }
+  .viewer img { flex: 1; min-height: 0; width: 100%; object-fit: contain; transition: filter .35s; }
+  .viewer img.soft { filter: blur(8px) brightness(.75); }
+  .vtop { display: flex; align-items: center; gap: 12px; padding: max(12px, env(safe-area-inset-top)) 16px 10px; }
+  .vtop div { min-width: 0; }
+  .vtop b { display: block; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .vtop small { color: var(--dim); font-size: 12px; }
+  .vbar { padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+  .vbar .bar { margin: 0; }
+  .wide:disabled { opacity: .45; }
+  /* every program on the PC */
+  .arow { display: flex; align-items: center; gap: 12px; padding: 6px 4px; border-top: 1px solid var(--line); }
+  .arow:first-child { border-top: 0; }
+  .arow .go { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; background: none; padding: 4px 0; text-align: start; }
+  .arow img, .arow .ph { width: 34px; height: 34px; border-radius: 9px; object-fit: contain; background: #241b1c; flex-shrink: 0; }
+  .arow .ph, .app .ph { display: grid; place-items: center; font-weight: 700; color: var(--dim); font-size: 14px; }
+  .arow .n { flex: 0 1 auto; min-width: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; line-height: 1.4; }
+  .arow .go:active { opacity: .6; }
+  .star { width: 42px; height: 42px; border-radius: 12px; background: transparent; color: rgba(255,255,255,.35); font-size: 21px; flex-shrink: 0; }
+  .star.on { color: var(--gold); }
+  /* play time */
+  .limitline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--gold); font-size: 13px; font-weight: 700; }
+  .now .limitline button { background: rgba(255,201,60,.16); color: var(--gold); border: 1px solid rgba(255,201,60,.45); }
+  .setrow.top { padding-bottom: 6px; }
+  .chips.pad { margin: 0 4px 8px; }
+  .timerow { display: flex; align-items: center; gap: 12px; margin: 4px 4px 10px; }
+  .tpick { height: 54px; min-width: 156px; border-radius: 16px; border: 1px solid var(--line); background: var(--card2); color: #fff; font: inherit; font-size: 22px; font-weight: 700; padding: 0 14px; color-scheme: dark; font-variant-numeric: tabular-nums; text-align: center; }
+  .tpick:disabled { opacity: .4; }
+  .timerow .muted { flex: 1; padding: 0; line-height: 1.6; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -189,6 +236,22 @@
     <div class="bar2"><p>وجّه الكاميرا على الـ QR اللي بشاشة البيسي</p><button id="scanClose" class="wide ghost" style="max-width:320px;color:#fff">إلغاء</button></div>
   </div>
 
+  <div id="appsSheet" class="sheet tall hidden"><div class="in">
+    <div class="sheethead"><h3>كل البرامج</h3><button id="appsClose" class="x" aria-label="سكّر">×</button></div>
+    <input id="appsSearch" class="search" placeholder="دوّر برنامج…" dir="auto" autocomplete="off" />
+    <div id="appsList" class="alist"><p class="muted">نجيب برامج البيسي…</p></div>
+  </div></div>
+  <div id="shotsSheet" class="sheet tall hidden"><div class="in">
+    <div class="sheethead"><h3>صور لعبك</h3><button id="shotsClose" class="x" aria-label="سكّر">×</button></div>
+    <div id="shotGames" class="chips scrollx"></div>
+    <div id="shotGrid" class="sgrid"></div>
+  </div></div>
+  <div id="viewer" class="viewer hidden">
+    <div class="vtop"><button id="vClose" class="x" aria-label="سكّر">×</button><div><b id="vGame" dir="auto"></b><small id="vDate"></small></div></div>
+    <img id="vImg" alt="" />
+    <div class="vbar"><div id="vLoad" class="bar hidden"><div id="vBar" style="width:0%"></div></div><button id="vShare" class="wide" disabled>شارك أو احفظ</button></div>
+  </div>
+
   <div id="app" class="hidden">
     <header>
       <img src="remote-icon.png" alt="" />
@@ -201,10 +264,14 @@
 
     <!-- 🎮 games -->
     <div id="tab-games" class="tab on">
-      <div id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div></div></div>
+      <div id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div><div id="nowLimit" class="limitline hidden"><span id="nowLimitText"></span><button id="nowSnooze">خلّني نص ساعة</button></div></div></div>
       <section id="weekBox" class="hidden">
         <h2><span>أسبوعك</span></h2>
         <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض 🔥</span></div><div><b id="wLevel">—</b><span>مستواك 👑</span></div></div>
+      </section>
+      <section id="shotsBox" class="hidden">
+        <h2><span>صور لعبك</span><button id="shotsAll" class="more">كل الصور</button></h2>
+        <div id="shots" class="shots"></div>
       </section>
       <section>
         <h2><span>ألعابك</span><span id="gCount"></span></h2>
@@ -235,8 +302,9 @@
         <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام ينحط بحافظته (الصقه بـ Ctrl+V). الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
       </section>
       <section id="appsBox" class="hidden">
-        <h2><span>برامجك</span></h2>
+        <h2><span>برامجك</span><button id="appsAllBtn" class="more hidden">كل البرامج</button></h2>
         <div id="apps" class="apps"></div>
+        <p id="appsEmpty" class="hint hidden" style="margin-top:0">اضغط «كل البرامج» وحط ⭐ على اللي تبيه، ويطلع هنا.</p>
       </section>
       <section>
         <h2><span>الصوت</span><span id="volNote"></span></h2>
@@ -265,15 +333,10 @@
         <div class="slide" data-slide="power.shutdown"><span>اسحب ← للإطفاء</span><div class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></div></div>
       </section>
       <section>
-        <h2><span>طفّ البيسي بعد…</span></h2>
-        <div class="chips">
-          <button class="chip" data-timer="30">نص ساعة</button>
-          <button class="chip" data-timer="60">ساعة</button>
-          <button class="chip" data-timer="120">ساعتين</button>
-          <button class="chip" data-timer="180">3 ساعات</button>
-          <button class="chip gold" id="timerCancel">ألغِ المؤقت</button>
-        </div>
-        <p class="hint">تنام والبيسي يطفي لحاله. تقدر تلغيه متى ما تبي.</p>
+        <h2><span>طفّ البيسي الساعة…</span></h2>
+        <div class="timerow"><input id="offTime" class="tpick" type="time" dir="ltr" aria-label="وقت إطفاء البيسي" /><span id="offNote" class="muted"></span></div>
+        <div class="linkrow"><button id="offGo">طفّه بهالوقت</button><button id="timerCancel" class="ghost">ألغِ المؤقت</button></div>
+        <p class="hint">تنام والبيسي يطفي لحاله بالوقت اللي اخترته. تقدر تلغيه متى ما تبي.</p>
       </section>
     </div>
 
@@ -299,9 +362,22 @@
         <h2><span>التنبيهات</span></h2>
         <button id="pushBtn" class="wide">فعّل التنبيهات</button>
         <p id="pushHint" class="hint">يوصلك على جوالك: خلص التنزيل، انثبّت المود، اللعبة خلصت تنزيل، لعبة صارت مجانية، نزل سعر لعبة.</p>
+        <div id="gameAlerts" class="hidden">
+          <div class="setrow"><div><b>تحديث للعبة عندك</b><small>أول ما تنزل ملاحظات تحديث لعبة على البيسي.</small></div><button id="upSw" class="sw" aria-label="تحديث للعبة عندك"></button></div>
+          <div class="setrow"><div><b>لعبة مجانية جديدة</b><small>أي لعبة تصير مجانية بـ Epic أو Steam أو غيرها.</small></div><button id="freeSw" class="sw" aria-label="لعبة مجانية جديدة"></button></div>
+          <div class="setrow"><div><b>نزل سعر لعبة تتابعها</b><small id="priceHint">تختار الألعاب من «الألعاب ← أرخص سعر» بالبيسي.</small></div><button id="priceSw" class="sw" aria-label="نزل سعر لعبة تتابعها"></button></div>
+        </div>
         <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
         <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت NVIDIA).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
         <div id="heatChips" class="chips" style="margin:0 4px 6px"><button class="chip" data-heat="80">80°</button><button class="chip" data-heat="85">85°</button><button class="chip" data-heat="90">90°</button></div>
+      </section>
+      <section id="limitBox" class="hidden">
+        <h2><span>وقت اللعب</span></h2>
+        <div class="setrow top"><div><b>نبّهني إذا طوّلت باللعب</b><small>تنبيه على البيسي وجوالك، وبعدها كل ساعة.</small></div></div>
+        <div class="chips pad"><button class="chip" data-remind="0">لا</button><button class="chip" data-remind="60">ساعة</button><button class="chip" data-remind="120">ساعتين</button><button class="chip" data-remind="180">3 ساعات</button></div>
+        <div class="setrow"><div><b>سكّر الألعاب الساعة</b><small>اختار الوقت اللي تبيه. قبله بـ10 دقايق وبدقيقة يجيك تنبيه عشان تحفظ لعبتك.</small></div><button id="bedSw" class="sw" aria-label="سكّر الألعاب بوقت"></button></div>
+        <div class="timerow"><input id="bedTime" class="tpick" type="time" value="00:00" dir="ltr" aria-label="وقت تسكير الألعاب" /><span id="bedNote" class="muted"></span></div>
+        <button id="snoozeSet" class="wide ghost hidden">خلّني ألعب نص ساعة زيادة</button>
       </section>
       <section id="homeHint">
         <h2><span>حطها على الشاشة الرئيسية</span></h2>
@@ -554,6 +630,18 @@ async function start() {
   $("appsBox").classList.add("hidden");
   $("nowCard").classList.add("hidden");
   $("volBox").classList.add("hidden");
+  ["shotsBox", "limitBox", "gameAlerts", "nowLimit"].forEach((id) => $(id).classList.add("hidden"));
+  // another PC: its own programs, pictures and play time
+  allApps = null;
+  canAll = false;
+  chosenApps = [];
+  appIcons.clear();
+  shotList = [];
+  thumbUrl.clear();
+  thumbWant.length = 0;
+  fullPics.forEach((p) => URL.revokeObjectURL(p.url));
+  fullPics.clear();
+  limit = null;
   const raw = fromB64u(s.k);
   const k = await importKey(raw);
   const c = await listen(await channelName(raw), async (payload) => {
@@ -651,6 +739,7 @@ const ERR = {
   STEAM_DOWN: "Steam ما فتح على البيسي، واللعبة تحتاجه.",
   GAME_RUNNING: "سكّر اللعبة أول، وبعدين غيّر المودات.",
   PLAY_XBOX: "ألعاب Xbox تنفتح من تطبيق Xbox على البيسي.",
+  REMOTE_GONE: "ما عاد موجود على البيسي. سكّر وافتح القائمة مرة ثانية.",
 };
 // (only test copies of the app send a "detail")
 const fail = (r) => toast((ERR[r.error] || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
@@ -669,9 +758,10 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
   }),
 );
 function refresh() {
-  if (tab === "games") loadGames();
+  if (tab === "games") (loadGames(), loadShots(), loadLimit());
   if (tab === "pc") (loadStatus(), loadApps());
   if (tab === "mods") (loadDownloads(), loadMods(), loadTrainers());
+  if (tab === "set") (loadAlerts(), loadLimit());
 }
 // the parts that move: the game you're playing, the PC's numbers, downloads (only on screen)
 function live() {
@@ -820,24 +910,404 @@ $("clipCopy").addEventListener("click", async () => {
   }
 });
 
-// ---- 🧰 your programs (only the ones you chose on the PC) ----
+// ---- 🧰 your programs: the ones you added on the PC, the ones you starred here, and "كل البرامج" ----
+let chosenApps = [], allApps = null, canAll = false;
+const appIcons = new Map(); // id → picture (or null)
+const pinKey = () => `nk-pins-${saved()?.id}`;
+const pins = () => {
+  try {
+    return JSON.parse(localStorage.getItem(pinKey()) || "[]");
+  } catch {
+    return [];
+  }
+};
+const appIcon = (a) => (a.icon ? `<img src="${esc(a.icon)}" alt="" />` : `<span class="ph">${esc((a.name || "?").trim().charAt(0))}</span>`);
 async function loadApps() {
-  const r = await cmd("apps.list");
-  if (!r.ok) return;
-  const list = r.data ?? [];
-  $("appsBox").classList.toggle("hidden", !list.length);
-  $("apps").innerHTML = list.map((a) => `<button class="app" data-app="${esc(a.id)}">${a.icon ? `<img src="${esc(a.icon)}" alt="" />` : '<span class="ph"></span>'}<span dir="auto">${esc(a.name)}</span></button>`).join("");
+  const [r, all] = await Promise.all([cmd("apps.list"), allApps ? { ok: true, data: allApps } : cmd("apps.all")]);
+  chosenApps = r.ok ? (r.data ?? []) : [];
+  canAll = Boolean(all.ok);
+  if (all.ok) allApps = all.data ?? [];
+  paintApps();
+  // the PC's first look at its Start menu can take a few seconds: ask once more
+  if (!all.ok && all.error === "TIMEOUT") setTimeout(() => tab === "pc" && !allApps && loadApps(), 4000);
 }
-$("apps").addEventListener("click", async (e) => {
-  const b = e.target.closest("[data-app]");
-  if (!b) return;
+function paintApps() {
+  const pinned = canAll && allApps ? pins().map((id) => allApps.find((a) => a.id === id)).filter(Boolean) : [];
+  const items = [...chosenApps.map((a) => ({ ...a, mine: true })), ...pinned.map((a) => ({ ...a, icon: appIcons.get(a.id) ?? null }))];
+  $("appsBox").classList.toggle("hidden", !items.length && !canAll);
+  $("appsAllBtn").classList.toggle("hidden", !canAll);
+  $("appsEmpty").classList.toggle("hidden", items.length > 0);
+  $("apps").innerHTML = items.map((a) => `<button class="app" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`).join("");
+  const missing = pinned.filter((a) => !appIcons.has(a.id)).map((a) => a.id);
+  if (missing.length) iconsFor(missing).then(paintApps);
+}
+async function iconsFor(ids) {
+  for (let i = 0; i < ids.length; i += 12) {
+    const part = ids.slice(i, i + 12).filter((id) => !appIcons.has(id));
+    if (!part.length) continue;
+    const r = await cmd("apps.icons", { ids: part });
+    for (const id of part) appIcons.set(id, r.ok ? (r.data?.[id] ?? null) : null);
+  }
+}
+async function runApp(b, name) {
   buzz();
   b.classList.add("busy");
-  const r = await cmd("apps.open", { id: b.dataset.app });
+  const r = b.dataset.app ? await cmd("apps.open", { id: b.dataset.app }) : await cmd("apps.run", { id: b.dataset.run });
   b.classList.remove("busy");
   if (!r.ok) return fail(r);
-  toast(`فتحنا ${b.textContent.trim()} على البيسي ✓`);
+  toast(`فتحنا ${name} على البيسي ✓`);
+}
+$("apps").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-app],[data-run]");
+  if (b) runApp(b, b.textContent.trim());
 });
+
+// "كل البرامج": search, tap to open, ☆ to keep it under «برامجك»
+const appsSeen = new IntersectionObserver(
+  (es) => {
+    const ids = es.filter((e) => e.isIntersecting).map((e) => (appsSeen.unobserve(e.target), e.target.dataset.icon)).filter((id) => !appIcons.has(id));
+    if (ids.length) iconsFor(ids).then(() => ids.forEach(paintAppIcon));
+  },
+  { root: $("appsList"), rootMargin: "300px" },
+);
+function paintAppIcon(id) {
+  const a = allApps?.find((x) => x.id === id);
+  const el = document.querySelector(`#appsList [data-icon="${CSS.escape(id)}"]`);
+  if (a && el) el.outerHTML = appIcon({ ...a, icon: appIcons.get(id) });
+}
+function paintAllApps() {
+  if (!allApps) return;
+  const q = $("appsSearch").value.trim().toLowerCase();
+  const list = allApps.filter((a) => !q || a.name.toLowerCase().includes(q));
+  const pinned = new Set(pins());
+  $("appsList").innerHTML = list.length
+    ? list
+        .map(
+          (a) =>
+            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span></button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${pinned.has(a.id) ? "★" : "☆"}</button></div>`,
+        )
+        .join("")
+    : `<p class="muted">ما فيه برنامج بهالاسم على البيسي.</p>`;
+  $("appsList").querySelectorAll("[data-icon]").forEach((el) => appsSeen.observe(el));
+}
+$("appsAllBtn").addEventListener("click", async () => {
+  buzz(8);
+  $("appsSheet").classList.remove("hidden");
+  $("appsSearch").value = "";
+  if (!allApps) {
+    $("appsList").innerHTML = '<p class="muted">نجيب برامج البيسي…</p>';
+    const r = await cmd("apps.all");
+    if (!r.ok) {
+      $("appsSheet").classList.add("hidden");
+      return r.error === "REMOTE_NOT_ALLOWED" ? toast("فتح أي برنامج مطفي من إعدادات البيسي", true) : fail(r);
+    }
+    allApps = r.data ?? [];
+  }
+  paintAllApps();
+});
+$("appsSearch").addEventListener("input", paintAllApps);
+$("appsClose").addEventListener("click", () => $("appsSheet").classList.add("hidden"));
+$("appsSheet").addEventListener("click", (e) => {
+  if (e.target === $("appsSheet")) return $("appsSheet").classList.add("hidden");
+  const star = e.target.closest("[data-pin]");
+  if (star) {
+    buzz(8);
+    const id = star.dataset.pin;
+    const list = pins();
+    const on = !list.includes(id);
+    localStorage.setItem(pinKey(), JSON.stringify(on ? [...list, id] : list.filter((x) => x !== id)));
+    star.classList.toggle("on", on);
+    star.textContent = on ? "★" : "☆";
+    paintApps();
+    return toast(on ? "ثبّتناه تحت «برامجك» ✓" : "شلناه من «برامجك»");
+  }
+  const b = e.target.closest("[data-run]");
+  if (b) runApp(b, b.querySelector(".n")?.textContent.trim() || "البرنامج");
+});
+
+// ---- 📸 your games' screenshots: a small preview first, the whole picture on a tap ----
+let shotList = [], viewList = [], viewing = null, shotGame = null;
+const thumbUrl = new Map(); // id → data: url
+const thumbWant = [];
+let thumbBusy = 0;
+const fullPics = new Map(); // id → { url, file } (the last few)
+const when = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { day: "numeric", month: "long", hour: "numeric", minute: "2-digit" }).format(t);
+const shotTile = (s) => `<button class="shot" data-shot="${esc(s.id)}"><span class="pic" data-thumb="${esc(s.id)}"${thumbUrl.has(s.id) ? ` style="background-image:url('${thumbUrl.get(s.id)}')"` : ""}></span><span class="n" dir="auto">${esc(s.game)}</span></button>`;
+const thumbsSeen = new IntersectionObserver(
+  (es) =>
+    es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      thumbsSeen.unobserve(e.target);
+      wantThumb(e.target.dataset.thumb);
+    }),
+  { rootMargin: "250px" },
+);
+function watchThumbs(root) {
+  root.querySelectorAll("[data-thumb]").forEach((el) => (thumbUrl.has(el.dataset.thumb) ? null : thumbsSeen.observe(el)));
+}
+function wantThumb(id) {
+  if (thumbUrl.has(id) || thumbWant.includes(id)) return;
+  thumbWant.push(id);
+  pumpThumbs();
+}
+function pumpThumbs() {
+  while (thumbBusy < 3 && thumbWant.length) {
+    const id = thumbWant.shift();
+    thumbBusy++;
+    cmd("shots.thumb", { id })
+      .then((r) => {
+        if (!r.ok || !r.data?.data) return;
+        thumbUrl.set(id, `data:image/jpeg;base64,${r.data.data}`);
+        document.querySelectorAll(`[data-thumb="${CSS.escape(id)}"]`).forEach((el) => (el.style.backgroundImage = `url('${thumbUrl.get(id)}')`));
+      })
+      .finally(() => {
+        thumbBusy--;
+        pumpThumbs();
+      });
+  }
+}
+async function loadShots() {
+  const r = await cmd("shots.list");
+  if (!r.ok) return $("shotsBox").classList.add("hidden");
+  shotList = r.data ?? [];
+  $("shotsBox").classList.toggle("hidden", !shotList.length);
+  $("shots").innerHTML = shotList.slice(0, 12).map(shotTile).join("");
+  watchThumbs($("shots"));
+}
+function paintShotGrid() {
+  const games = [...new Set(shotList.map((s) => s.game))];
+  if (shotGame && !games.includes(shotGame)) shotGame = null;
+  $("shotGames").innerHTML = games.length > 1 ? [`<button class="chip${shotGame ? "" : " on"}" data-sg="">الكل · ${shotList.length}</button>`, ...games.map((g) => `<button class="chip${g === shotGame ? " on" : ""}" data-sg="${esc(g)}" dir="auto">${esc(g)} · ${shotList.filter((s) => s.game === g).length}</button>`)].join("") : "";
+  const list = shotList.filter((s) => !shotGame || s.game === shotGame);
+  $("shotGrid").innerHTML = list.map(shotTile).join("");
+  watchThumbs($("shotGrid"));
+}
+$("shotsAll").addEventListener("click", () => {
+  buzz(8);
+  $("shotsSheet").classList.remove("hidden");
+  paintShotGrid();
+});
+$("shotsClose").addEventListener("click", () => $("shotsSheet").classList.add("hidden"));
+$("shotGames").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-sg]");
+  if (!b) return;
+  buzz(8);
+  shotGame = b.dataset.sg || null;
+  paintShotGrid();
+  $("shotGrid").scrollTo({ top: 0 });
+});
+for (const box of ["shots", "shotGrid"])
+  $(box).addEventListener("click", (e) => {
+    const b = e.target.closest("[data-shot]");
+    if (!b) return;
+    buzz(8);
+    viewList = box === "shots" ? shotList : shotList.filter((s) => !shotGame || s.game === shotGame);
+    openShot(b.dataset.shot);
+  });
+function openShot(id) {
+  viewing = id;
+  $("viewer").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  showShot(id);
+}
+function closeShot() {
+  viewing = null;
+  $("viewer").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+async function showShot(id) {
+  const s = shotList.find((x) => x.id === id);
+  $("vGame").textContent = s?.game ?? "";
+  $("vDate").textContent = s ? when(s.time) : "";
+  const have = fullPics.get(id);
+  $("vImg").src = have?.url || thumbUrl.get(id) || "";
+  $("vImg").classList.toggle("soft", !have);
+  $("vShare").disabled = !have;
+  if (have) return $("vLoad").classList.add("hidden");
+  $("vLoad").classList.remove("hidden");
+  $("vBar").style.width = "4%";
+  const got = await fetchFull(id);
+  if (viewing !== id) return;
+  $("vLoad").classList.add("hidden");
+  if (!got) return toast("ما وصلت الصورة كاملة. سكّرها وافتحها مرة ثانية.", true);
+  $("vImg").src = got.url;
+  $("vImg").classList.remove("soft");
+  $("vShare").disabled = false;
+}
+async function fetchFull(id) {
+  const b = await cmd("shots.begin", { id });
+  if (!b.ok || !b.data) return null;
+  const { fid, parts, name } = b.data;
+  const chunks = new Array(parts);
+  let next = 0, done = 0, bad = false;
+  const worker = async () => {
+    while (!bad && next < parts) {
+      const i = next++;
+      let r;
+      for (let t = 0; t < 3 && !r?.ok; t++) r = await cmd("shots.part", { fid, i });
+      if (!r.ok) return void (bad = true);
+      chunks[i] = fromB64u(r.data.data);
+      done++;
+      if (viewing === id) $("vBar").style.width = `${Math.max(4, (100 * done) / parts)}%`;
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  cmd("shots.done", { fid });
+  if (bad) return null;
+  const blob = new Blob(chunks, { type: "image/jpeg" });
+  const pic = { url: URL.createObjectURL(blob), file: new File([blob], String(name || "screenshot.jpg").replace(/\.png$/i, ".jpg"), { type: "image/jpeg" }) };
+  fullPics.set(id, pic);
+  if (fullPics.size > 6) {
+    const [k, old] = fullPics.entries().next().value;
+    URL.revokeObjectURL(old.url);
+    fullPics.delete(k);
+  }
+  return pic;
+}
+$("vClose").addEventListener("click", closeShot);
+$("vShare").addEventListener("click", async () => {
+  const pic = fullPics.get(viewing);
+  if (!pic) return;
+  buzz();
+  // the phone's own share sheet ("حفظ الصورة" is in it on iPhone); else a download
+  if (navigator.canShare?.({ files: [pic.file] })) {
+    try {
+      await navigator.share({ files: [pic.file] });
+    } catch {}
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = pic.url;
+  a.download = pic.file.name;
+  a.click();
+  toast("نزّلناها بجوالك ✓");
+});
+// swipe: in Arabic order the next picture sits to the left, so a finger moving right brings it
+let swipeX = null;
+$("viewer").addEventListener("touchstart", (e) => (swipeX = e.touches[0].clientX), { passive: true });
+$("viewer").addEventListener("touchend", (e) => {
+  if (swipeX == null || !viewing) return;
+  const dx = e.changedTouches[0].clientX - swipeX;
+  swipeX = null;
+  if (Math.abs(dx) < 50) return;
+  const i = viewList.findIndex((s) => s.id === viewing);
+  const to = viewList[i + (dx > 0 ? 1 : -1)];
+  if (!to) return;
+  buzz(8);
+  viewing = to.id;
+  showShot(to.id);
+});
+
+// ---- 🔔 game alerts: the same switches as on the PC (updates, free games, price drops) ----
+function paintAlerts(a) {
+  if (!a) return;
+  $("upSw").classList.toggle("on", Boolean(a.updates));
+  $("freeSw").classList.toggle("on", Boolean(a.free));
+  $("priceSw").classList.toggle("on", Boolean(a.prices));
+  const n = a.watched || 0;
+  $("priceHint").textContent = n ? `تتابع ${n === 1 ? "لعبة وحدة" : n === 2 ? "لعبتين" : `${n} ألعاب`}. تزيدها من «الألعاب ← أرخص سعر» بالبيسي.` : "تختار الألعاب من «الألعاب ← أرخص سعر» بالبيسي.";
+}
+async function loadAlerts() {
+  const r = await cmd("alerts.get");
+  $("gameAlerts").classList.toggle("hidden", !r.ok);
+  if (r.ok) paintAlerts(r.data);
+}
+for (const [id, kind, said] of [
+  ["upSw", "updates", "بننبهك أول ما ينزل تحديث للعبة عندك 🆕"],
+  ["freeSw", "free", "بننبهك بكل لعبة مجانية جديدة 🎁"],
+  ["priceSw", "prices", "بننبهك إذا نزل سعر لعبة تتابعها 💸"],
+])
+  $(id).addEventListener("click", async () => {
+    buzz();
+    const on = !$(id).classList.contains("on");
+    $(id).classList.toggle("on", on);
+    const r = await cmd("alerts.set", { kind, on });
+    if (!r.ok) {
+      $(id).classList.toggle("on", !on);
+      return fail(r);
+    }
+    paintAlerts(r.data);
+    toast(on ? said : "شلنا التنبيه");
+  });
+
+// ---- 🌙 play time: a reminder after a long session, and games closed at bedtime ----
+let limit = null;
+const clock = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { hour: "numeric", minute: "2-digit" }).format(t);
+// "23:30" → that moment today, and how far away it is (a time already gone today is tomorrow)
+const atToday = (hm) => {
+  const [h, m] = String(hm).split(":").map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d.getTime();
+};
+const nextAt = (hm) => (atToday(hm) > Date.now() + 30e3 ? atToday(hm) : atToday(hm) + 86400e3);
+const hoursAr = (h) => (h === 1 ? "ساعة" : h === 2 ? "ساعتين" : h <= 10 ? `${h} ساعات` : `${h} ساعة`);
+const minsAr = (m) => (m === 1 ? "دقيقة" : m === 2 ? "دقيقتين" : m <= 10 ? `${m} دقايق` : `${m} دقيقة`);
+function span(sec) {
+  let h = Math.floor(sec / 3600);
+  let m = Math.round((sec % 3600) / 60);
+  if (m === 60) (h++, (m = 0));
+  return [h && hoursAr(h), m && minsAr(m)].filter(Boolean).join(" و") || "أقل من دقيقة";
+}
+const REMIND = { 60: "ساعة", 120: "ساعتين", 180: "3 ساعات" };
+// the PC says when (its clock rules); the phone keeps it current between two looks
+const nearBed = () => Boolean(limit?.near || (limit?.closeAt && Date.now() >= limit.closeAt - 15 * 60e3 && Date.now() < limit.closeAt + 6 * 3600e3));
+function paintLimit(l) {
+  if (l) limit = l;
+  if (!limit) return;
+  document.querySelectorAll("[data-remind]").forEach((b) => b.classList.toggle("on", Number(b.dataset.remind) === (limit.remind || 0)));
+  $("bedSw").classList.toggle("on", Boolean(limit.bedtime));
+  if (limit.bedtime && document.activeElement !== $("bedTime")) $("bedTime").value = limit.bedtime;
+  $("bedTime").disabled = !limit.bedtime;
+  $("bedNote").textContent = limit.bedtime ? "كل يوم بهالوقت، لين 6 الصبح." : "مطفي: الألعاب ما تتسكّر لحالها.";
+  $("snoozeSet").classList.toggle("hidden", !(limit.bedtime && nearBed()));
+  paintNow();
+}
+async function loadLimit() {
+  const r = await cmd("limit.get");
+  $("limitBox").classList.toggle("hidden", !r.ok);
+  if (r.ok) paintLimit(r.data);
+}
+async function setLimit(next, said) {
+  buzz();
+  const before = limit;
+  paintLimit({ ...(limit ?? {}), ...next, closeAt: limit?.closeAt ?? null });
+  const r = await cmd("limit.set", next);
+  if (!r.ok) {
+    paintLimit(before);
+    return fail(r);
+  }
+  paintLimit(r.data);
+  toast(said);
+}
+document.querySelectorAll("[data-remind]").forEach((b) =>
+  b.addEventListener("click", () => {
+    const m = Number(b.dataset.remind);
+    setLimit({ remind: m }, m ? `بننبهك إذا لعبت أكثر من ${REMIND[m]} ⏰` : "شلنا التذكير");
+  }),
+);
+$("bedSw").addEventListener("click", () => {
+  const on = !$("bedSw").classList.contains("on");
+  const t = $("bedTime").value || "00:00";
+  setLimit({ bedtime: on ? t : null }, on ? `الألعاب تتسكّر الساعة ${clock(atToday(t))} 🌙` : "الألعاب ما تتسكّر لحالها");
+});
+// a new time while it's on: saved when the picker closes
+$("bedTime").addEventListener("change", () => {
+  const t = $("bedTime").value;
+  if (t && limit?.bedtime && t !== limit.bedtime) setLimit({ bedtime: t }, `الألعاب تتسكّر الساعة ${clock(atToday(t))} 🌙`);
+});
+async function snooze(b) {
+  buzz();
+  b.classList.add("busy");
+  const r = await cmd("limit.snooze");
+  b.classList.remove("busy");
+  if (!r.ok) return fail(r);
+  paintLimit(r.data ?? limit);
+  toast(limit?.closeAt ? `مدّدنا نص ساعة 🎮 تتسكّر ${clock(limit.closeAt)}` : "مدّدنا نص ساعة 🎮");
+}
+$("snoozeSet").addEventListener("click", () => snooze($("snoozeSet")));
+$("nowSnooze").addEventListener("click", () => snooze($("nowSnooze")));
+
 
 // ---- 🎮 games ----
 let games = [], runningKey = null, runningSince = 0;
@@ -866,6 +1336,12 @@ function paintNow() {
   $("nowName").textContent = g.name;
   const m = Math.max(0, Math.floor((Date.now() - runningSince) / 60000));
   $("nowLive").textContent = `● تلعب الحين · ${m >= 60 ? `${Math.floor(m / 60)} س ${m % 60} د` : `${m} د`}`;
+  // tonight's bedtime: when it closes, and "a bit more" from 15 minutes before
+  const bed = Boolean(limit?.bedtime && limit.closeAt && Date.now() < limit.closeAt + 6 * 3600e3);
+  $("nowLimit").classList.toggle("hidden", !bed);
+  if (!bed) return;
+  $("nowLimitText").textContent = Date.now() < limit.closeAt ? `🌙 تتسكّر الساعة ${clock(limit.closeAt)}` : "🌙 وقت النوم: بتتسكّر بعد شوي";
+  $("nowSnooze").classList.toggle("hidden", !nearBed());
 }
 function paintGames() {
   const q = $("gSearch").value.trim().toLowerCase();
@@ -1023,16 +1499,31 @@ async function cancelPower() {
 }
 $("cancelBtn").addEventListener("click", cancelPower);
 $("timerCancel").addEventListener("click", cancelPower);
-document.querySelectorAll("[data-timer]").forEach((b) =>
-  b.addEventListener("click", async () => {
-    buzz();
-    const min = Number(b.dataset.timer);
-    const r = await cmd("power.timer", { minutes: min });
-    if (!r.ok) return fail(r);
-    toast(`البيسي بيطفي بعد ${b.textContent} 😴`);
-    countdown(min * 60, "يطفي");
-  }),
-);
+// "طفّ البيسي الساعة…": any time; it says how long that is from now
+function paintOff() {
+  const t = $("offTime").value;
+  $("offGo").disabled = !t;
+  $("offNote").textContent = t ? `يعني بعد ${span(Math.round((nextAt(t) - Date.now()) / 1000))}` : "";
+}
+{
+  const d = new Date(Date.now() + 60 * 60e3);
+  d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0);
+  $("offTime").value = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  paintOff();
+  setInterval(() => tab === "pc" && paintOff(), 30e3);
+}
+$("offTime").addEventListener("input", paintOff);
+$("offGo").addEventListener("click", async () => {
+  const t = $("offTime").value;
+  if (!t) return;
+  buzz();
+  const sec = Math.round((nextAt(t) - Date.now()) / 1000);
+  // (minutes too: a PC with an older NUKE Mods only knows those)
+  const r = await cmd("power.timer", { seconds: sec, minutes: Math.max(5, Math.round(sec / 60)) });
+  if (!r.ok) return fail(r);
+  toast(`البيسي بيطفي الساعة ${clock(nextAt(t))} 😴`);
+  countdown(sec, "يطفي");
+});
 
 // ---- 🧩 mods / downloads / trainers ----
 const STATE = { queued: "بالدور", resolving: "نجهّز", downloading: "ينزل", installing: "ينثبّت", done: "خلص ✓", error: "ما زبط", canceled: "انلغى" };
