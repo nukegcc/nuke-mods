@@ -1486,8 +1486,8 @@ $("nowClose").addEventListener("click", async () => {
 // ---- 📊 «الحالة»: the PC's numbers with the last 10 minutes, the card, the programs using the most, drives, parts ----
 const size = (b) => (b >= 1024 ** 4 ? `${(b / 1024 ** 4).toFixed(1)} تيرا` : b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(b >= 100 * 1024 ** 3 ? 0 : 1)} جيجا` : `${Math.max(1, Math.round(b / 1024 ** 2))} ميجا`);
 const speed = (b) => (b == null ? "…" : b >= 1024 ** 2 ? `${(b / 1024 ** 2).toFixed(1)} ميجا/ث` : `${Math.round(b / 1024)} كيلو/ث`);
-const perc = (n) => `⁦${n < 10 ? Number(n.toFixed(1)) : Math.round(n)}%⁩`;
-const ltr = (t) => `⁦${t}⁩`;
+const perc = (n) => `\u2066${n < 10 ? Number(n.toFixed(1)) : Math.round(n)}%\u2069`;
+const ltr = (t) => `\u2066${t}\u2069`;
 // a small line of the last 10 minutes: older on the left, now on the right (a chart reads that way here too)
 function spark(ts, values, max) {
   const now = Date.now();
@@ -1893,6 +1893,14 @@ else {
     toast(`اضغط «${$("sendGo").textContent}» ويوصل للبيسي`);
   }
 }
+// a notification tapped: the page opens on its tab («الحالة» for "the RAM is full"…)
+const TABS = ["games", "pc", "stat", "set"];
+const goTab = (t) => TABS.includes(t) && document.querySelector(`nav [data-tab="${t}"]`)?.click();
+if (q.get("tab") && saved()) {
+  goTab(q.get("tab"));
+  history.replaceState(null, "", location.pathname);
+}
+navigator.serviceWorker?.addEventListener("message", (e) => goTab(e.data?.tab));
 </script>
 </body>
 </html>
