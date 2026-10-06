@@ -142,6 +142,7 @@
   .pcrow.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.1); }
   .pcrow span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pcrow em { font-style: normal; font-size: 12px; color: var(--red); }
+  .pcrow small { font-weight: 500; font-size: 12px; color: var(--dim); }
   .sendbox { height: auto; min-height: 52px; max-height: 140px; padding: 12px 14px; resize: none; line-height: 1.6; display: block; margin-bottom: 8px; }
   .linkrow { display: flex; gap: 8px; }
   .linkrow button { min-height: 46px; border-radius: 14px; padding: 0 16px; background: var(--red); font-weight: 700; font-size: 14px; flex: 1; }
@@ -470,9 +471,20 @@ async function channelName(raw) {
   return "nk-" + [...h].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 40);
 }
 const importKey = (raw) => crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
-async function seal(key, obj) {
+// the PC drops messages stamped more than 2 minutes from its own clock; when this phone's clock is off,
+// the PC answers "clock" with its time and the next messages are stamped by it (up to a day off)
+let skew = 0, clockBad = false;
+function learnClock(ts) {
+  const d = Number(ts) - Date.now();
+  if (!Number.isFinite(d)) return false;
+  clockBad = Math.abs(d) > 24 * 3600e3;
+  if (!clockBad) skew = d;
+  return !clockBad;
+}
+const CLOCK_BAD = "ساعة جوالك أو البيسي مو مضبوطة. خلّ الوقت والتاريخ يتضبطون تلقائياً، وجرّب مرة ثانية.";
+async function seal(key, obj, off = skew) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify({ ...obj, ts: Date.now(), n: b64u(crypto.getRandomValues(new Uint8Array(9))) }))));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify({ ...obj, ts: Date.now() + off, n: b64u(crypto.getRandomValues(new Uint8Array(9))) }))));
   return { iv: b64u(iv), ct: b64u(ct) };
 }
 async function unseal(key, m) {
@@ -617,11 +629,18 @@ async function pairWith(rawKey, pc) {
   const c = await listen(await channelName(rawKey), async (payload) => {
     const m = await unseal(key, payload);
     if (!m || done) return;
+    if (m.t === "clock") {
+      // this phone's clock is off: the hello goes again, stamped by the PC's time
+      if (learnClock(m.ts)) return hello();
+      return intro("ساعة الجوال مو مضبوطة", CLOCK_BAD);
+    }
     if (m.t === "welcome") {
       done = true;
-      // the same PC paired again replaces its old entry (same name); a new one is added
+      // the same PC paired again replaces its old entry (by the PC's own id: two PCs can have the same
+      // name; a PC without one, an older NUKE Mods, by its name); a new one is added
       const id = crypto.randomUUID();
-      savePcs([...pcs().filter((p) => p.pc !== m.pc), { id, k: m.key, pc: m.pc, vapid: m.vapid }]);
+      const same = (p) => (m.pcId ? p.pcId === m.pcId : p.pc === m.pc);
+      savePcs([...pcs().filter((p) => !same(p)), { id, k: m.key, pc: m.pc, pcId: m.pcId || null, host: m.host || null, vapid: m.vapid }]);
       localStorage.setItem(CUR, id);
       stopRemote();
       history.replaceState(null, "", location.pathname);
@@ -654,18 +673,21 @@ async function pairWith(rawKey, pc) {
 // ---- the remote ----
 let key, ch, lastPong = 0, prefs = {}, pushInfo = null, run = 0;
 const pending = new Map();
+// → done when the old channel is let go
 function stopRemote() {
   run++;
-  if (ch) sb.removeChannel(ch);
+  const left = ch ? Promise.resolve(sb.removeChannel(ch)).catch(() => {}) : Promise.resolve();
   ch = null;
   key = null;
   lastPong = 0;
   pushInfo = null;
   prefs = {};
   pending.clear();
+  return left;
 }
 async function start() {
   stopRemote();
+  clockBad = false; // another PC: its own clock
   const me = run;
   const s = saved();
   if (!s) return intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال»، وبعدين اضغط الزر تحت وصوّر الـ QR.");
@@ -700,13 +722,19 @@ async function start() {
     if (me !== run) return;
     const m = await unseal(k, payload);
     if (!m) return;
+    if (m.t === "clock") {
+      // this phone's clock is off: asked again right away, stamped by the PC's time
+      if (learnClock(m.ts)) (lastPing = Date.now()), ping();
+      return paint();
+    }
     if (m.t === "pong") {
       const first = Date.now() - lastPong > 150e3;
       lastPong = Date.now();
-      if (m.pc) {
-        $("pcName").textContent = m.pc;
-        if (m.pc !== s.pc) savePcs(pcs().map((p) => (p.id === s.id ? { ...p, pc: m.pc } : p)));
-      }
+      if (m.pc) $("pcName").textContent = m.pc;
+      // its name (for showing), its own id and the computer's name (two PCs can share the name)
+      const cur = pcs().find((p) => p.id === s.id);
+      if (cur && ((m.pc && m.pc !== cur.pc) || (m.pcId && m.pcId !== cur.pcId) || (m.host && m.host !== cur.host)))
+        savePcs(pcs().map((p) => (p.id === s.id ? { ...p, pc: m.pc || p.pc, pcId: m.pcId || p.pcId || null, host: m.host || p.host || null } : p)));
       if (m.prefs) paintPrefs((prefs = m.prefs));
       if ("push" in m) {
         pushInfo = m.push;
@@ -720,11 +748,12 @@ async function start() {
       pending.get(m.id)?.(m);
       pending.delete(m.id);
     } else if (m.t === "unpaired") {
+      // unpaired on the PC (now, or while this phone was away): it's taken off here too
       forget(s.id);
       if (pcs().length) {
-        toast(`${s.pc || "البيسي"} فصل هالجوال`, true);
+        toast(`انفصل ${s.pc || "البيسي"} عن هالجوال`, true);
         start();
-      } else intro("انفصل الجوال", "البيسي فصل هالجوال. تقدر تربطه مرة ثانية من الإعدادات.");
+      } else intro("انفصل البيسي", "البيسي فصل هالجوال من عنده. تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
     }
   });
   if (me !== run) return sb.removeChannel(c); // switched to another PC meanwhile
@@ -764,7 +793,7 @@ const ping = () => send({ t: "ping" });
 function paint() {
   const on = Date.now() - lastPong < 150e3;
   $("dot").className = "dot" + (on ? " on" : "");
-  $("status").textContent = on ? "متصل" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
+  $("status").textContent = on ? "متصل" : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
 }
 function cmd(action, args) {
   const id = crypto.randomUUID();
@@ -833,8 +862,11 @@ function live() {
 // ---- several PCs: the name at the top switches ----
 function openPcs() {
   const cur = saved();
-  $("pcList").innerHTML = pcs()
-    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(p.pc || "البيسي")}</span>${p.id === cur?.id ? "<em>الحين</em>" : ""}</button>`)
+  const list = pcs();
+  // two PCs with the same name: the computer's own name tells them apart
+  const twin = (p) => list.filter((x) => (x.pc || "") === (p.pc || "")).length > 1;
+  $("pcList").innerHTML = list
+    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(p.pc || "البيسي")}${twin(p) && p.host ? ` <small dir="ltr">${esc(p.host)}</small>` : ""}</span>${p.id === cur?.id ? "<em>الحين</em>" : ""}</button>`)
     .join("");
   $("pcSheet").classList.remove("hidden");
 }
@@ -1355,7 +1387,11 @@ function span(sec) {
 }
 const REMIND = { 60: "ساعة", 120: "ساعتين", 180: "3 ساعات" };
 // the PC says when (its clock rules); the phone keeps it current between two looks
-const nearBed = () => Boolean(limit?.near || (limit?.closeAt && Date.now() >= limit.closeAt - 15 * 60e3 && Date.now() < limit.closeAt + 6 * 3600e3));
+// (a time in the day, 6 AM to 5:59 PM, keeps games closed 4 hours; one in the evening or the night, until 6 AM)
+// (`day` comes from the PC: an older NUKE Mods keeps every time until 6 AM)
+const isDayTime = (hm) => /^\d{2}:\d{2}$/.test(hm || "") && Number(hm.slice(0, 2)) >= 6 && Number(hm.slice(0, 2)) < 18;
+const bedUntil = () => limit?.until ?? (limit?.closeAt ? limit.closeAt + (limit.day === true ? 4 : 6) * 3600e3 : 0);
+const nearBed = () => Boolean(limit?.near || (limit?.closeAt && Date.now() >= limit.closeAt - 15 * 60e3 && Date.now() < bedUntil()));
 function paintLimit(l) {
   if (l) limit = l;
   if (!limit) return;
@@ -1363,7 +1399,7 @@ function paintLimit(l) {
   $("bedSw").classList.toggle("on", Boolean(limit.bedtime));
   if (limit.bedtime && document.activeElement !== $("bedTime")) $("bedTime").value = limit.bedtime;
   $("bedTime").disabled = !limit.bedtime;
-  $("bedNote").textContent = limit.bedtime ? "كل يوم بهالوقت، لين 6 الصبح." : "مطفي: الألعاب ما تتسكّر لحالها.";
+  $("bedNote").textContent = !limit.bedtime ? "مطفي: الألعاب ما تتسكّر لحالها." : limit.day === true ? "كل يوم بهالوقت، ولمدة 4 ساعات." : "كل يوم بهالوقت، لين 6 الصبح.";
   $("snoozeSet").classList.toggle("hidden", !(limit.bedtime && nearBed()));
   paintNow();
 }
@@ -1375,7 +1411,7 @@ async function loadLimit() {
 async function setLimit(next, said) {
   buzz();
   const before = limit;
-  paintLimit({ ...(limit ?? {}), ...next, closeAt: limit?.closeAt ?? null });
+  paintLimit({ ...(limit ?? {}), ...next, closeAt: limit?.closeAt ?? null, ...("bedtime" in next ? { day: limit && "day" in limit ? isDayTime(next.bedtime) : undefined, until: undefined } : {}) });
   const r = await cmd("limit.set", next);
   if (!r.ok) {
     paintLimit(before);
@@ -1441,7 +1477,7 @@ function paintNow() {
   const m = Math.max(0, Math.floor((Date.now() - runningSince) / 60000));
   $("nowLive").textContent = `● تلعب الحين · ${m >= 60 ? `${Math.floor(m / 60)} س ${m % 60} د` : `${m} د`}`;
   // tonight's bedtime: when it closes, and "a bit more" from 15 minutes before
-  const bed = Boolean(limit?.bedtime && limit.closeAt && Date.now() < limit.closeAt + 6 * 3600e3);
+  const bed = Boolean(limit?.bedtime && limit.closeAt && Date.now() < bedUntil());
   $("nowLimit").classList.toggle("hidden", !bed);
   if (!bed) return;
   $("nowLimitText").textContent = Date.now() < limit.closeAt ? `🌙 تتسكّر الساعة ${clock(limit.closeAt)}` : "🌙 وقت النوم: بتتسكّر بعد شوي";
@@ -1462,25 +1498,35 @@ function paintGames() {
     : `<p class="muted">${games.length ? "ما فيه لعبة بهالاسم" : "ما لقينا ألعاب على البيسي"}</p>`;
 }
 $("gSearch").addEventListener("input", paintGames);
+// closing a game: asked first (anything not saved in it is lost), then what really happened
+async function closeGame(key, b) {
+  if (!key || !confirm("نسكّر اللعبة على البيسي؟ أي شي مو محفوظ ممكن يروح.")) return;
+  buzz();
+  if (b) b.disabled = true;
+  const r = await cmd("games.close", { key });
+  if (b) b.disabled = false;
+  if (!r.ok) return fail(r);
+  // how many of its processes closed (0: it wasn't running any more)
+  const d = r.data;
+  const n = typeof d === "number" ? d : d && typeof d === "object" ? (d.closed === false ? -1 : (d.count ?? 1)) : null;
+  if (n === 0) toast("اللعبة كانت مسكّرة أصلاً");
+  else if (n === -1) toast("اللعبة ما رضت تتسكّر", true);
+  else toast("سكّرنا اللعبة ✓");
+  setTimeout(loadGames, 1500);
+}
 $("games").addEventListener("click", async (e) => {
   const b = e.target.closest("button");
   if (!b) return;
+  if (b.dataset.close) return closeGame(b.dataset.close, b);
   buzz();
   b.disabled = true;
-  const playing = b.dataset.play;
-  const r = await cmd(playing ? "games.play" : "games.close", { key: playing || b.dataset.close });
+  const r = await cmd("games.play", { key: b.dataset.play });
   b.disabled = false;
   if (!r.ok) return fail(r);
-  toast(playing ? "تنفتح على البيسي 🎮" : "سكّرنا اللعبة ✓");
+  toast("تنفتح على البيسي 🎮");
   setTimeout(loadGames, 2500);
 });
-$("nowClose").addEventListener("click", async () => {
-  if (!runningKey || !confirm("نسكّر اللعبة على البيسي؟ أي شي مو محفوظ ممكن يروح.")) return;
-  const r = await cmd("games.close", { key: runningKey });
-  if (!r.ok) return fail(r);
-  toast("سكّرنا اللعبة ✓");
-  setTimeout(loadGames, 1500);
-});
+$("nowClose").addEventListener("click", () => closeGame(runningKey, $("nowClose")));
 
 // ---- 💻 PC ----
 // ---- 📊 «الحالة»: the PC's numbers with the last 10 minutes, the card, the programs using the most, drives, parts ----
@@ -1562,6 +1608,8 @@ async function closeFlow(action, args, name) {
   buzz();
   let r = await cmd(action, args);
   if (!r.ok) return fail(r), false;
+  // (only that program's own file is closed: another one with the same name stays open)
+  if (r.data && r.data.count === 0) return toast(`ما لقينا ${name} مفتوح على البيسي`), true;
   if (r.data && r.data.closed === false) {
     if (!confirm(`${name} ما تسكّر بالطيب (يمكن يسألك تحفظ شي على البيسي). نسكّره غصب؟ أي شي مو محفوظ فيه يروح.`)) return toast("خلّيناه مفتوح"), false;
     r = await cmd(action, { ...args, force: true });
@@ -1625,7 +1673,7 @@ document.querySelectorAll("[data-a]").forEach((b) =>
     if (!r.ok) return fail(r);
     if (a.startsWith("vol.")) paintVol(r.data);
     if (a === "power.lock") toast("قفلنا الشاشة 🔒");
-    if (a === "power.sleep") toast("البيسي نام 😴");
+    if (a === "power.sleep") toast("البيسي بينام الحين 😴");
   }),
 );
 let dragging = false;
@@ -1779,15 +1827,60 @@ for (const [id, k, said] of [
   ["battSw", "battery", "بننبهك إذا البطارية ضعفت 🔋"],
 ])
   $(id).addEventListener("click", () => setPrefs({ [k]: !$(id).classList.contains("on") }, (p) => (p[k] !== false ? said : "شلنا التنبيه")));
+// «افصل» while the PC is off: this phone keeps saying bye (when the page opens, and every minute while
+// it's on screen) until that PC answers, so it stops sending notifications here
+const BYE = "nk-remote-bye"; // [{ k, at }]
+const byes = () => {
+  try {
+    const l = JSON.parse(localStorage.getItem(BYE) || "[]");
+    return Array.isArray(l) ? l.filter((b) => b?.k && Date.now() - (b.at || 0) < 60 * 86400e3) : [];
+  } catch {
+    return [];
+  }
+};
+const byeChans = new Map(); // key → { c, key, off }
+async function sayBye(k) {
+  let b = byeChans.get(k);
+  if (!b) {
+    b = { c: null, key: null, off: skew };
+    byeChans.set(k, b);
+    const raw = fromB64u(k);
+    b.key = await importKey(raw);
+    b.c = await listen(await channelName(raw), async (payload) => {
+      const m = await unseal(b.key, payload);
+      if (!m) return;
+      if (m.t === "unpaired") {
+        // that PC took this phone off: done
+        localStorage.setItem(BYE, JSON.stringify(byes().filter((x) => x.k !== k)));
+        byeChans.delete(k);
+        sb.removeChannel(b.c);
+        return;
+      }
+      if (m.t === "clock") {
+        const d = Number(m.ts) - Date.now();
+        if (Number.isFinite(d) && Math.abs(d) <= 24 * 3600e3) b.off = d;
+      }
+      // the PC is back ("I'm here"), or asked for the right time: said again now
+      sendBye(b);
+    });
+  }
+  if (b.c) await sendBye(b);
+}
+const sendBye = async (b) => b.c?.send({ type: "broadcast", event: "m", payload: await seal(b.key, { t: "bye" }, b.off) });
+const pendingByes = () => byes().forEach((b) => sayBye(b.k).catch(() => {}));
 $("byeBtn").addEventListener("click", async () => {
   if (!confirm("نفصل هالجوال عن البيسي؟")) return;
   const s = saved();
-  await send({ t: "bye" });
-  forget(s?.id);
+  if (!s) return;
+  localStorage.setItem(BYE, JSON.stringify([...byes().filter((x) => x.k !== s.k), { k: s.k, at: Date.now() }]));
+  forget(s.id);
+  // its channel is let go first, then it's said on a fresh one (now if the PC is on, else when it's back)
+  const left = stopRemote();
   if (pcs().length) {
-    toast(`فصلنا ${s?.pc || "البيسي"}`);
+    toast(`فصلنا ${s.pc || "البيسي"}`);
     start();
   } else intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
+  left.then(() => sayBye(s.k)).catch(() => {});
 });
 
 // ---- notifications (Web Push, sent by the PC itself) ----
@@ -1893,6 +1986,9 @@ else {
     toast(`اضغط «${$("sendGo").textContent}» ويوصل للبيسي`);
   }
 }
+// a «افصل» that hasn't reached its PC yet (it was off): said again now, and every minute on screen
+pendingByes();
+setInterval(() => document.visibilityState === "visible" && pendingByes(), 60e3);
 // a notification tapped: the page opens on its tab («الحالة» for "the RAM is full"…)
 const TABS = ["games", "pc", "stat", "set"];
 const goTab = (t) => TABS.includes(t) && document.querySelector(`nav [data-tab="${t}"]`)?.click();
