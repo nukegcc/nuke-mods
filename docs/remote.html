@@ -1783,16 +1783,25 @@ $("timerCancel").addEventListener("click", cancelPower);
 function paintOff() {
   const t = $("offTime").value;
   $("offGo").disabled = !t;
-  $("offNote").textContent = t ? `يعني بعد ${span(Math.round((nextAt(t) - Date.now()) / 1000))}` : "";
+  // (only a preview: nothing happens until the button is pressed — owner: "هل يعني البيسي بيطفى؟")
+  $("offNote").textContent = t ? `لو ضغطت الزر، البيسي يطفي بعد ${span(Math.round((nextAt(t) - Date.now()) / 1000))}` : "";
 }
-{
+// the suggested time stays an hour from now (rounded up to 5 minutes) until the player picks one
+let offPicked = false;
+function suggestOff() {
+  if (offPicked) return;
   const d = new Date(Date.now() + 60 * 60e3);
   d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0);
   $("offTime").value = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  paintOff();
-  setInterval(() => tab === "pc" && paintOff(), 30e3);
 }
-$("offTime").addEventListener("input", paintOff);
+suggestOff();
+paintOff();
+setInterval(() => tab === "pc" && (suggestOff(), paintOff()), 30e3);
+document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && (suggestOff(), paintOff()));
+$("offTime").addEventListener("input", () => {
+  offPicked = true;
+  paintOff();
+});
 $("offGo").addEventListener("click", async () => {
   const t = $("offTime").value;
   if (!t) return;
