@@ -10,10 +10,10 @@
   "theme_color": "#0e0a0a",
   "icons": [
     {
-      "src": "remote-icon.png",
+      "src": "remote-app.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
   "share_target": {
