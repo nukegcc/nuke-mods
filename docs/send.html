@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0e0a0a" />
+<link rel="icon" href="remote-icon.png" />
+<title>أرسل للبيسي · NUKE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin />
+<!--
+  «استقبل من جوال أي أحد» — the page a phone's camera opens from the QR on someone's PC (electron/features/quicksend.cjs).
+  No app, no pairing, no account: the QR carries a one-time key; everything about the session is sealed with it over
+  NUKE's relay (AES-256-GCM, the same as the phone link), and the files go straight to the PC over a WebRTC data channel
+  in raw pieces (full quality, nothing re-encoded) — or sealed pieces over the relay when no direct link opens.
+-->
+<style>
+  :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --dim:rgba(255,255,255,.55); --red:#ef3b2d; --flame:#ff8a1f; --gold:#ffc93c; --green:#34d399; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: #fff; font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+  body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 30% at 50% 18%, rgba(239,59,45,.16), transparent 72%); }
+  .wrap { position: relative; max-width: 480px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; margin: 6px 0 18px; }
+  header img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(239,59,45,.5)); }
+  header h1 { margin: 0; font-size: 19px; font-weight: 700; }
+  header p { margin: 2px 0 0; font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); }
+  .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 16px; margin-bottom: 12px; }
+  .hidden { display: none !important; }
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; -webkit-user-select: none; user-select: none; }
+  .me { display: flex; align-items: center; gap: 12px; }
+  .av { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 20px; color: #0e0a0a; flex-shrink: 0; box-shadow: 0 6px 18px -6px currentColor; }
+  input.name { flex: 1; min-width: 0; min-height: 48px; border-radius: 14px; border: 1px solid var(--line); background: var(--card2); color: #fff; font: inherit; font-size: 16px; padding: 0 14px; }
+  .colors { display: flex; gap: 10px; margin-top: 12px; justify-content: center; }
+  .colors button { width: 30px; height: 30px; border-radius: 50%; outline: 3px solid transparent; outline-offset: 2px; transition: outline-color .15s; }
+  .colors button.on { outline-color: #fff; }
+  .big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pick { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 120px; border-radius: 22px; background: var(--card2); border: 1px solid var(--line); font-weight: 700; font-size: 15px; transition: transform .12s; }
+  .pick:active { transform: scale(.96); }
+  .pick.main { background: var(--red); border-color: var(--red); box-shadow: 0 12px 30px -12px rgba(239,59,45,.9); }
+  .pick svg { width: 30px; height: 30px; }
+  .hint { font-size: 12.5px; color: var(--dim); line-height: 1.7; margin: 10px 4px 0; text-align: center; }
+  .sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 2px 10px; }
+  .sum b { font-size: 15px; }
+  .sum span { font-size: 12.5px; color: var(--dim); direction: ltr; }
+  .bar { height: 8px; border-radius: 8px; background: rgba(255,255,255,.08); overflow: hidden; margin-bottom: 12px; }
+  .bar > div { height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, var(--gold), var(--red)); transition: width .2s; }
+  .list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .it { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: var(--card2); display: grid; place-items: center; font-size: 11px; color: var(--dim); text-align: center; padding: 4px; word-break: break-all; }
+  .it img, .it video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .it .ring { position: absolute; inset: 0; background: rgba(14,10,10,.55); display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; direction: ltr; transition: opacity .3s; }
+  .it.done .ring { opacity: 0; }
+  .it .ok { position: absolute; bottom: 5px; inset-inline-start: 5px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #0e0a0a; display: grid; place-items: center; font-size: 12px; font-weight: 700; transform: scale(0); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
+  .it.done .ok { transform: scale(1); }
+  .done-card { text-align: center; padding: 22px 16px; }
+  .done-card .big-ok { font-size: 46px; animation: pop .5s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } }
+  .rx { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 16px; background: var(--card2); margin-top: 8px; }
+  .rx .n { flex: 1; min-width: 0; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rx button { min-height: 38px; padding: 0 14px; border-radius: 12px; background: var(--red); font-weight: 700; font-size: 13px; }
+  .rx .pct { font-size: 12px; color: var(--dim); direction: ltr; }
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+  .confetti i { position: absolute; top: -10px; width: 8px; height: 14px; border-radius: 2px; animation: fall 1.8s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .6; } }
+  .err { text-align: center; padding: 30px 18px; }
+  .err b { display: block; font-size: 18px; margin-bottom: 8px; }
+  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="remote-icon.png" alt="" />
+    <div>
+      <h1 id="title">ترسل للبيسي</h1>
+      <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
+    </div>
+  </header>
+
+  <div id="bad" class="card err hidden"><b>هالكود انتهى</b>اطلب من صاحب البيسي يفتح «استقبل من جوال» مرة ثانية، وصوّر الكود الجديد.</div>
+
+  <div id="main" class="hidden">
+    <div class="card">
+      <div class="me">
+        <div id="av" class="av">؟</div>
+        <input id="name" class="name" maxlength="24" placeholder="اسمك (يطلع عنده)" autocomplete="nickname" />
+      </div>
+      <div id="colors" class="colors"></div>
+    </div>
+
+    <div class="card">
+      <div class="big">
+        <button id="pickPhotos" class="pick main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>صور وفيديو</button>
+        <button id="pickFiles" class="pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/></svg>ملفات</button>
+      </div>
+      <input id="inPhotos" type="file" accept="image/*,video/*" multiple hidden />
+      <input id="inFiles" type="file" multiple hidden />
+      <p id="hint" class="hint">توصل بجودتها الأصلية. وعلى نفس الواي فاي توصل بأسرع شي.</p>
+    </div>
+
+    <div id="sending" class="card hidden">
+      <div class="sum"><b id="sumText">نرسل…</b><span id="speed"></span></div>
+      <div class="bar"><div id="bar"></div></div>
+      <div id="list" class="list"></div>
+    </div>
+
+    <div id="doneCard" class="card done-card hidden">
+      <div class="big-ok">✅</div>
+      <b id="doneText">وصلت كلها</b>
+      <p class="hint">تقدر ترسل غيرها من فوق.</p>
+    </div>
+
+    <div id="rxCard" class="card hidden">
+      <b style="font-size:14px">من البيسي لجوالك</b>
+      <div id="rx"></div>
+    </div>
+  </div>
+</div>
+<div id="confetti" class="confetti"></div>
+
+<script type="module">
+const RELAY_URL = "wss://nuke-relay.nuke-gcc.workers.dev/ws";
+const $ = (id) => document.getElementById(id);
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const COLORS = ["#ef3b2d", "#ff8a1f", "#ffc93c", "#34d399", "#38bdf8", "#a78bfa", "#f472b6"];
+const ICE = [{ urls: ["stun:stun.cloudflare.com:3478", "stun:stun.l.google.com:19302"] }];
+const PIECE = 192 * 1024; // a data channel message tops out at 256 KB (with the 4-byte header)
+const RELAY_PIECE = 96 * 1024;
+const mb = (n) => (n >= 1024 ** 3 ? `${(n / 1024 ** 3).toFixed(1)} GB` : `${Math.max(0.1, n / 1024 ** 2).toFixed(n < 10 * 1024 ** 2 ? 1 : 0)} MB`);
+
+// ---- the key from the QR (never sent anywhere: only its hash names the relay room) ----
+const b64u = (u8) => {
+  let bin = "";
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode(...u8.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+const fromB64u = (s) => Uint8Array.from(atob(String(s).replace(/-/g, "+").replace(/_/g, "/") + "===".slice((String(s).length + 3) % 4)), (c) => c.charCodeAt(0));
+const q = new URLSearchParams(location.hash.slice(1));
+const raw = q.get("k") ? fromB64u(q.get("k")) : null;
+const pcLabel = q.get("n") || "البيسي";
+$("title").textContent = `ترسل لـ ${pcLabel}`;
+document.title = `أرسل لـ ${pcLabel} · NUKE`;
+if (!raw || raw.length !== 32) {
+  $("bad").classList.remove("hidden");
+  throw new Error("no key");
+}
+const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+const chanName = "nk-" + [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 40);
+async function seal(obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify({ ...obj, ts: Date.now() }))));
+  return { iv: b64u(iv), ct: b64u(ct) };
+}
+async function unseal(m) {
+  try {
+    return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64u(m.iv) }, key, fromB64u(m.ct))));
+  } catch {
+    return null;
+  }
+}
+
+// ---- who I am (kept on this phone) ----
+const ME = (() => {
+  let id = sessionStorage.getItem("nk-send-id");
+  if (!id) sessionStorage.setItem("nk-send-id", (id = crypto.randomUUID().slice(0, 12)));
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem("nk-send-me") || "{}");
+  } catch {}
+  return { id, name: saved.name || "", color: COLORS.includes(saved.color) ? saved.color : COLORS[Math.floor(Math.random() * COLORS.length)] };
+})();
+function paintMe() {
+  $("av").style.background = ME.color;
+  $("av").style.color = "#0e0a0a";
+  $("av").textContent = (ME.name.trim()[0] || "؟").toUpperCase();
+  $("colors").innerHTML = COLORS.map((c) => `<button aria-label="لون" data-c="${c}" style="background:${c}" class="${c === ME.color ? "on" : ""}"></button>`).join("");
+  $("colors").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => ((ME.color = b.dataset.c), saveMe())));
+}
+function saveMe() {
+  try {
+    localStorage.setItem("nk-send-me", JSON.stringify({ name: ME.name, color: ME.color }));
+  } catch {}
+  paintMe();
+  if (welcomed) void say({ t: "hello", id: ME.id, name: ME.name, color: ME.color });
+}
+$("name").value = ME.name;
+let nameT;
+$("name").addEventListener("input", () => {
+  ME.name = $("name").value.slice(0, 24);
+  paintMe();
+  clearTimeout(nameT);
+  nameT = setTimeout(saveMe, 600);
+});
+paintMe();
+
+// ---- NUKE's relay (only the session's sealed messages) ----
+let ws = null;
+let tries = 0;
+let welcomed = false;
+function relay() {
+  ws = new WebSocket(`${RELAY_URL}?ch=${encodeURIComponent(chanName)}`);
+  ws.onopen = () => {
+    tries = 0;
+    void say({ t: "hello", id: ME.id, name: ME.name, color: ME.color });
+    clearInterval(ws.ping);
+    ws.ping = setInterval(() => ws.readyState === 1 && ws.send("ping"), 45e3);
+  };
+  ws.onmessage = async (e) => {
+    if (typeof e.data !== "string" || e.data === "pong") return;
+    let p;
+    try {
+      p = JSON.parse(e.data);
+    } catch {
+      return;
+    }
+    if (p?.from !== "pc" || (p.to && p.to !== ME.id)) return;
+    const m = await unseal(p.s);
+    if (m) onPc(m, "relay");
+  };
+  ws.onclose = () => setTimeout(relay, Math.min(15e3, 1000 * 2 ** tries++));
+}
+async function say(msg) {
+  if (ws?.readyState !== 1) return false;
+  ws.send(JSON.stringify({ from: ME.id, s: await seal(msg) }));
+  return true;
+}
+const send = (msg) => (dc?.readyState === "open" ? (dc.send(JSON.stringify(msg)), true) : say(msg));
+
+// ---- the direct link ----
+let pc = null;
+let dc = null;
+function status() {
+  const on = welcomed;
+  $("dot").className = "dot" + (on ? " on" : "");
+  $("status").textContent = !on ? "نتصل… (لازم «استقبل من جوال» يكون مفتوح بالبيسي)" : dc?.readyState === "open" ? "متصل مباشرة ⚡" : "متصل";
+}
+async function direct() {
+  if (!window.RTCPeerConnection || pc) return;
+  pc = new RTCPeerConnection({ iceServers: ICE });
+  const ch = pc.createDataChannel("nk", { ordered: true });
+  ch.binaryType = "arraybuffer";
+  ch.onopen = () => ((dc = ch), status());
+  ch.onclose = () => ((dc = null), (pc = null), status());
+  ch.onmessage = (e) => {
+    if (e.data instanceof ArrayBuffer) return onPiece(e.data);
+    if (typeof e.data === "string" && e.data !== "hb") {
+      try {
+        onPc(JSON.parse(e.data), "direct");
+      } catch {}
+    }
+  };
+  pc.onicecandidate = (e) => e.candidate && say({ t: "rtc-ice", c: e.candidate.toJSON() });
+  pc.onconnectionstatechange = () => ["failed", "closed"].includes(pc?.connectionState) && ((dc = null), (pc = null), status());
+  await pc.setLocalDescription(await pc.createOffer());
+  await say({ t: "rtc-offer", sdp: pc.localDescription.sdp });
+  setTimeout(() => pc && !dc && ((pc = null), status()), 15e3);
+}
+
+// ---- what the PC says ----
+const waits = new Map(); // "go:<bid>" / "got:<fid>" / "pack:<fid>:<i>" → resolve
+function onPc(m, via) {
+  if (m.t === "welcome") {
+    welcomed = true;
+    $("title").textContent = `ترسل لـ ${m.pc || pcLabel}`;
+    $("main").classList.remove("hidden");
+    status();
+    void direct();
+  } else if (m.t === "rtc-answer") pc?.setRemoteDescription({ type: "answer", sdp: m.sdp }).catch(() => {});
+  else if (m.t === "rtc-ice") pc?.addIceCandidate(m.c).catch(() => {});
+  else if (m.t === "go" || m.t === "no") waits.get(`go:${m.bid}`)?.(m);
+  else if (m.t === "got") (waits.get(`got:${m.fid}`)?.(), markDone(m.fid));
+  else if (m.t === "pack") waits.get(`pack:${m.fid}:${m.i}`)?.();
+  else if (m.t === "incoming") incoming(m);
+  else if (m.t === "fend") rxEnd(m.fid);
+  else if (m.t === "bye") {
+    $("main").classList.add("hidden");
+    $("bad").classList.remove("hidden");
+    try {
+      ws.onclose = null;
+      ws.close();
+    } catch {}
+  }
+}
+const wait = (k, ms) => new Promise((resolve) => {
+  waits.set(k, (v) => (waits.delete(k), resolve(v ?? true)));
+  if (ms) setTimeout(() => waits.has(k) && (waits.delete(k), resolve(null)), ms);
+});
+
+// ---- sending ----
+let fidN = Math.floor(Math.random() * 1e6) + 1;
+let busy = false;
+const tiles = new Map();
+function tile(f, fid) {
+  const el = document.createElement("div");
+  el.className = "it";
+  if (/^image\//.test(f.type)) {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(f);
+    img.onload = () => URL.revokeObjectURL(img.src);
+    // a kind this browser can't draw (HEIC on Android / a PC): its name instead of a broken picture
+    img.onerror = () => (URL.revokeObjectURL(img.src), img.replaceWith(f.name.slice(0, 40)));
+    el.append(img);
+  } else el.textContent = f.name.slice(0, 40);
+  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok">✓</div>`);
+  $("list").append(el);
+  tiles.set(fid, el);
+  return el;
+}
+function markDone(fid) {
+  tiles.get(fid)?.classList.add("done");
+}
+async function sendFiles(list) {
+  if (busy || !list.length) return;
+  if (!welcomed) return;
+  busy = true;
+  $("doneCard").classList.add("hidden");
+  $("sending").classList.remove("hidden");
+  $("list").innerHTML = "";
+  const files = [...list].map((f) => ({ f, fid: fidN++ }));
+  const total = files.reduce((a, x) => a + x.f.size, 0);
+  const bid = crypto.randomUUID().slice(0, 12);
+  for (const x of files) tile(x.f, x.fid);
+  $("sumText").textContent = `${files.length} ${files.length === 1 ? "ملف" : "ملفات"} · ${mb(total)}`;
+  await send({ t: "batch", bid, files: files.map((x) => ({ fid: x.fid, name: x.f.name, size: x.f.size, type: x.f.type })) });
+  $("speed").textContent = "ننتظر البيسي…";
+  const ans = await wait(`go:${bid}`, 5 * 60e3);
+  if (!ans || ans.t === "no") {
+    $("sumText").textContent = ans?.why === "DISK_FULL" ? "البيسي ما فيه مساحة كافية" : ans ? "صاحب البيسي ما قبل" : "البيسي ما رد";
+    $("speed").textContent = "";
+    busy = false;
+    return;
+  }
+  try {
+    await pushAll(files, total);
+  } catch {
+    $("sumText").textContent = "انقطع الاتصال. جرّب مرة ثانية.";
+    $("speed").textContent = "";
+    busy = false;
+    return;
+  }
+  $("bar").style.width = "100%";
+  $("sumText").textContent = "خلصنا ✓";
+  $("speed").textContent = "";
+  $("doneText").textContent = files.length === 1 ? "وصل الملف" : `وصلت ${files.length} ملفات`;
+  setTimeout(() => $("doneCard").classList.remove("hidden"), 400);
+  confetti();
+  navigator.vibrate?.(40);
+  busy = false;
+}
+async function pushAll(files, total) {
+  let sent = 0;
+  const t0 = performance.now();
+  const tick = () => {
+    $("bar").style.width = `${Math.round((sent / Math.max(1, total)) * 100)}%`;
+    const s = (performance.now() - t0) / 1000;
+    if (s > 0.5) $("speed").textContent = `${mb(sent / s)}/s`;
+  };
+  for (const { f, fid } of files) {
+    const el = tiles.get(fid);
+    const ring = el.querySelector(".ring");
+    let got = 0;
+    if (dc?.readyState === "open") {
+      // straight to the PC: raw pieces [4-byte id][bytes], paced by the channel's buffer
+      const reader = f.stream().getReader();
+      let carry = new Uint8Array(0);
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (value || (done && carry.length)) {
+          let buf = !value ? carry : carry.length ? concat(carry, value) : value;
+          while (buf.length >= PIECE || (done && buf.length)) {
+            const part = buf.subarray(0, PIECE);
+            buf = buf.subarray(part.length);
+            const out = new Uint8Array(4 + part.length);
+            new DataView(out.buffer).setUint32(0, fid, true);
+            out.set(part, 4);
+            if (dc.bufferedAmount > 8 * 1024 * 1024) await new Promise((r) => ((dc.bufferedAmountLowThreshold = 1024 * 1024), dc.addEventListener("bufferedamountlow", r, { once: true })));
+            dc.send(out);
+            got += part.length;
+            sent += part.length;
+            ring.textContent = `${Math.round((got / Math.max(1, f.size)) * 100)}%`;
+            tick();
+          }
+          carry = buf;
+        }
+        if (done) break;
+      }
+      dc.send(JSON.stringify({ t: "fend", fid }));
+    } else {
+      // through the relay: sealed pieces, each acknowledged (slower; up to 200 MB a file)
+      for (let i = 0; i * RELAY_PIECE < f.size; i++) {
+        const part = new Uint8Array(await f.slice(i * RELAY_PIECE, (i + 1) * RELAY_PIECE).arrayBuffer());
+        let ok = null;
+        for (let t = 0; t < 3 && !ok; t++) {
+          await say({ t: "p", fid, i, d: b64(part) });
+          ok = await wait(`pack:${fid}:${i}`, 15e3);
+        }
+        if (!ok) throw new Error("QS_LOST");
+        got += part.length;
+        sent += part.length;
+        ring.textContent = `${Math.round((got / Math.max(1, f.size)) * 100)}%`;
+        tick();
+      }
+      await say({ t: "fend", fid });
+    }
+  }
+  // the PC says it has the last one whole before the confetti
+  $("speed").textContent = "";
+  await wait(`got:${files[files.length - 1].fid}`, 60e3);
+}
+const concat = (a, b) => {
+  const out = new Uint8Array(a.length + b.length);
+  out.set(a);
+  out.set(b, a.length);
+  return out;
+};
+const b64 = (u8) => {
+  let bin = "";
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode(...u8.subarray(i, i + 0x8000));
+  return btoa(bin);
+};
+function confetti() {
+  const box = $("confetti");
+  box.innerHTML = Array.from({ length: 36 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${COLORS[i % COLORS.length]};animation-delay:${Math.random() * 0.4}s;transform:rotate(${Math.random() * 180}deg)"></i>`).join("");
+  setTimeout(() => (box.innerHTML = ""), 2600);
+}
+$("pickPhotos").addEventListener("click", () => $("inPhotos").click());
+$("pickFiles").addEventListener("click", () => $("inFiles").click());
+for (const id of ["inPhotos", "inFiles"]) $(id).addEventListener("change", (e) => {
+  const list = [...(e.target.files || [])];
+  e.target.value = "";
+  void sendFiles(list);
+});
+
+// ---- from the PC to this phone ----
+const rx = new Map(); // fid → { name, size, type, parts: [], got, el }
+function incoming(m) {
+  $("rxCard").classList.remove("hidden");
+  const el = document.createElement("div");
+  el.className = "rx";
+  el.innerHTML = `<span class="n">${esc(m.name)}</span><span class="pct">0%</span>`;
+  $("rx").prepend(el);
+  rx.set(m.fid, { name: m.name, size: m.size, type: m.type || "application/octet-stream", parts: [], got: 0, el });
+}
+function onPiece(buf) {
+  const fid = new DataView(buf).getUint32(0, true);
+  const r = rx.get(fid);
+  if (!r) return;
+  r.parts.push(new Uint8Array(buf, 4));
+  r.got += buf.byteLength - 4;
+  r.el.querySelector(".pct").textContent = `${Math.round((r.got / Math.max(1, r.size)) * 100)}%`;
+}
+function rxEnd(fid) {
+  const r = rx.get(fid);
+  if (!r) return;
+  const file = new File(r.parts, r.name, { type: r.type });
+  r.parts = [];
+  r.el.querySelector(".pct").remove();
+  const b = document.createElement("button");
+  b.textContent = "احفظه";
+  b.addEventListener("click", async () => {
+    try {
+      if (navigator.canShare?.({ files: [file] })) return void (await navigator.share({ files: [file] }));
+    } catch {}
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(file);
+    a.download = r.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+  });
+  r.el.append(b);
+  navigator.vibrate?.(30);
+}
+
+addEventListener("pagehide", () => void say({ t: "bye", id: ME.id }));
+status();
+relay();
+</script>
+</body>
+</html>
