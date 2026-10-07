@@ -17,7 +17,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(["remote.html", "remote-icon.png", "remote.webmanifest"]))
+      .then((c) => c.addAll(["remote.html", "remote-icon.png", "remote-app.png", "remote.webmanifest"]))
       .catch(() => {}), // (kept on the first visit instead)
   );
 });
@@ -46,7 +46,7 @@ self.addEventListener("fetch", (event) => {
   }
   if (fixed(u)) return event.respondWith(keptFirst(req));
   if (here(u) && /\/remote\.html$/.test(u.pathname)) return event.respondWith(pageFirst(event, req, pageKey(u)));
-  if ((here(u) && /\/remote-icon\.png$|\/remote\.webmanifest$/.test(u.pathname)) || u.hostname === "fonts.googleapis.com") return event.respondWith(keptThenFresh(event, req));
+  if ((here(u) && /\/remote-(icon|app)\.png$|\/remote\.webmanifest$/.test(u.pathname)) || u.hostname === "fonts.googleapis.com") return event.respondWith(keptThenFresh(event, req));
 });
 
 // good answers only (a broken one would stick)
