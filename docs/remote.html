@@ -522,7 +522,7 @@
           <button class="b" data-root="desktop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>سطح المكتب</button>
           <button class="b" data-root="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>المستندات</button>
         </div>
-        <p class="hint">تختار أي ملف ويوصل جوالك (لين 100 ميجا).</p>
+        <p class="hint">تختار أي ملف ويوصل جوالك. مع «متصل مباشرة ⚡» يوصل لين 4 جيجا (الآيفون لين 1 جيجا)، وبدونه لين 100 ميجا.</p>
       </section>
       <section id="appsBox" class="hidden">
         <h2><span>برامجك</span><button id="appsAllBtn" class="more hidden">كل البرامج</button></h2>
@@ -1007,6 +1007,11 @@ function stopRemote() {
   pushInfo = null;
   prefs = {};
   pending.clear();
+  closeRtc();
+  onPayload = null;
+  relayName = null;
+  rejoining = null;
+  clearTimeout(leaveTimer);
   return left;
 }
 async function start() {
@@ -1057,7 +1062,7 @@ async function start() {
   showLast(s.id);
   const raw = fromB64u(s.k);
   const k = await importKey(raw);
-  const c = await listen(await channelName(raw), async (payload) => {
+  const handle = async (payload) => {
     if (me !== run) return;
     const m = await unseal(k, payload);
     if (!m) return;
@@ -1087,11 +1092,16 @@ async function start() {
         backAgain = false;
         refresh();
       }
+      if (!rtc && Date.now() - rtcTry > 20e3) startRtc(me);
     } else if (m.t === "power") {
       // another phone planned or cancelled it
       showPower(m.power);
     } else if (m.t === "reply") {
       onReply(m);
+    } else if (m.t === "rtc-answer") {
+      if (rtc && !rtc.open && rtc.me === me) rtc.pc.setRemoteDescription({ type: "answer", sdp: String(m.sdp) }).catch(() => closeRtc());
+    } else if (m.t === "rtc-ice") {
+      if (rtc && rtc.me === me && m.c) rtc.pc.addIceCandidate(m.c).catch(() => {});
     } else if (m.t === "ack") {
       lastPong = Date.now();
       paint();
@@ -1105,10 +1115,13 @@ async function start() {
         start();
       } else intro("انفصل البيسي", "البيسي فصل هالجوال من عنده. تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
     }
-  });
+  };
+  relayName = await channelName(raw);
+  const c = await listen(relayName, handle);
   if (me !== run) return sb.removeChannel(c); // switched to another PC meanwhile
   key = k;
   ch = c;
+  onPayload = handle;
   // one ping now (the loop below waits its turn: no second one right after)
   lastPing = Date.now();
   ping();
@@ -1133,28 +1146,155 @@ async function start() {
       // back on screen: asked again right away, «متصل» stays meanwhile (if it was), and the open tab
       // fills in quietly when the PC answers; only a PC that doesn't answer in a few seconds shows «نعيد الاتصال…»
       if (hidOn) graceUntil = Date.now() + 6000;
+      // a phone puts a hidden page to sleep and its direct link with it: started fresh (the relay meanwhile)
+      if (Date.now() - hiddenAt > 10e3) closeRtc();
       backAgain = true;
       lastPing = 0;
       tick();
-    } else hidOn = connected();
+    } else (hidOn = connected()), (hiddenAt = Date.now());
   });
   setInterval(() => document.visibilityState === "visible" && live(), 4000);
   paintPush();
 }
-let loops = false, lastPing = 0, graceUntil = 0, hidOn = false, backAgain = false;
+let loops = false, lastPing = 0, graceUntil = 0, hidOn = false, backAgain = false, hiddenAt = 0;
 const connected = () => Date.now() - lastPong < 150e3 || Date.now() < graceUntil;
-const send = async (obj) => ch && key && ch.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
+// «اتصال مباشر» (2026-10-07, owner: "مباشر لكل شي"): once the PC answers, the page offers a WebRTC data channel; when it
+// opens, every message goes over it (no relay message, files up to 4 GB, much faster on the same Wi-Fi). The offer /
+// answer / ICE go sealed over the relay; what goes on the channel is sealed too. No direct link → the relay, as before.
+const RTC_ICE = [{ urls: ["stun:stun.cloudflare.com:3478", "stun:stun.l.google.com:19302"] }];
+let rtc = null, rtcTry = 0, onPayload = null, relayName = null, rejoining = null, leaveTimer = null;
+// while the direct link is open this page lets go of the relay (each open connection counts toward the relay's limit
+// for everyone); it joins again the moment it needs it: the link closed, or something must go over the relay
+function leaveRelay() {
+  clearTimeout(leaveTimer);
+  leaveTimer = setTimeout(() => {
+    if (!direct() || !ch) return;
+    const c = ch;
+    ch = null;
+    Promise.resolve(sb.removeChannel(c)).catch(() => {});
+  }, 5000);
+}
+function rejoinRelay() {
+  clearTimeout(leaveTimer);
+  if (ch || !relayName || !onPayload) return Promise.resolve(ch);
+  const me = run;
+  rejoining ??= listen(relayName, onPayload)
+    .then((c) => {
+      rejoining = null;
+      if (me !== run || ch) return Promise.resolve(sb.removeChannel(c)).catch(() => {}), ch;
+      return (ch = c);
+    })
+    .catch(() => (rejoining = null));
+  return rejoining;
+}
+// raw pieces waiting for their bytes (tag → resolve)
+const binWait = new Map();
+let binTag = 0;
+const BIN = 192 * 1024;
+async function rawPiece(fid, i) {
+  const tag = (binTag = (binTag + 1) >>> 0);
+  const got = new Promise((res) => {
+    binWait.set(tag, res);
+    setTimeout(() => binWait.has(tag) && (binWait.delete(tag), res(null)), 20e3);
+  });
+  const r = await cmd("files.bin", { fid, i, tag });
+  if (!r.ok) return binWait.delete(tag), null;
+  return got;
+}
+const direct = () => Boolean(rtc?.open && rtc.dc.readyState === "open");
+const sendRelay = async (obj) => {
+  if (!key) return;
+  if (!ch) await rejoinRelay();
+  return ch && ch.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
+};
+const send = async (obj) => {
+  if (direct() && key) {
+    try {
+      return rtc.dc.send(JSON.stringify(await seal(key, obj)));
+    } catch {
+      closeRtc();
+    }
+  }
+  return sendRelay(obj);
+};
+function closeRtc() {
+  const r = rtc;
+  rtc = null;
+  if (!r) return;
+  // back on the relay (joined again if it was let go)
+  void rejoinRelay();
+  try {
+    r.pc.close();
+  } catch {}
+  paint();
+}
+async function startRtc(me) {
+  if (!window.RTCPeerConnection || me !== run || rtc) return;
+  rtcTry = Date.now();
+  await rejoinRelay();
+  if (me !== run || rtc) return;
+  const pc = new RTCPeerConnection({ iceServers: RTC_ICE });
+  const dc = pc.createDataChannel("nk", { ordered: true });
+  dc.binaryType = "arraybuffer";
+  const r = (rtc = { pc, dc, me, open: false });
+  dc.onopen = () => rtc === r && ((r.open = true), (r.hbAt = Date.now()), paint(), leaveRelay());
+  dc.onclose = () => rtc === r && closeRtc();
+  dc.onmessage = (e) => {
+    if (rtc !== r) return;
+    r.hbAt = Date.now(); // anything from the PC: the link is alive
+    if (e.data === "hb") return;
+    // a file's raw piece: [4-byte tag][bytes] (the channel is encrypted itself)
+    if (e.data instanceof ArrayBuffer) {
+      const tag = new DataView(e.data).getUint32(0, true);
+      binWait.get(tag)?.(new Uint8Array(e.data, 4));
+      return binWait.delete(tag);
+    }
+    if (typeof e.data !== "string") return;
+    try {
+      onPayload?.(JSON.parse(e.data));
+    } catch {}
+  };
+  pc.onicecandidate = (e) => rtc === r && e.candidate && sendRelay({ t: "rtc-ice", c: e.candidate.toJSON() });
+  pc.onconnectionstatechange = () => rtc === r && ["failed", "closed"].includes(pc.connectionState) && closeRtc();
+  try {
+    await pc.setLocalDescription(await pc.createOffer());
+    await sendRelay({ t: "rtc-offer", sdp: pc.localDescription.sdp });
+  } catch {
+    return closeRtc();
+  }
+  // not open in 15 s (a network that blocks it): the relay it is, tried again later
+  setTimeout(() => rtc === r && !r.open && closeRtc(), 15e3);
+}
+// a link that died without closing (the PC slept, the app closed, the network changed) is noticed within ~8 s: a
+// tiny "hb" every 3 s while on screen, answered by the PC's link window itself
+setInterval(() => {
+  if (!direct() || document.visibilityState !== "visible") return;
+  if (Date.now() - (rtc.hbAt || 0) > 8000) return closeRtc();
+  try {
+    rtc.dc.send("hb");
+  } catch {
+    closeRtc();
+  }
+}, 3000);
+// tried again while the page is on screen and the PC answers: a minute after a failed try
+setInterval(() => {
+  if (!rtc && key && document.visibilityState === "visible" && Date.now() - lastPong < 150e3 && Date.now() - rtcTry > 60e3) startRtc(run);
+}, 5000);
 const ping = () => send({ t: "ping" });
 function paint() {
   const on = connected();
   $("dot").className = "dot" + (on ? " on" : "");
-  $("status").textContent = on ? "متصل" : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
+  $("status").textContent = on ? (direct() ? "متصل مباشرة ⚡" : "متصل") : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
 }
 function cmd(action, args) {
   const id = crypto.randomUUID();
+  // (no answer over a direct link that didn't say it closed: it's dropped, the next ask goes over the relay — never the
+  // same ask twice: it may have been done already)
+  const wasDirect = direct();
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       pending.delete(id);
+      if (wasDirect) closeRtc();
       resolve({ ok: false, error: "TIMEOUT" });
     }, 9000);
     pending.set(id, (m) => {
@@ -1179,7 +1319,8 @@ const ERR = {
   SCREEN_NONE: "ما فيه شاشة ثانية أو تلفزيون موصول بالبيسي.",
   BRIGHT_NONE: "شاشتك ما تقبل تغيير السطوع من البيسي.",
   BT_NONE: "هالبيسي ما فيه بلوتوث.",
-  PCFILE_TOO_BIG: "الملف أكبر من 100 ميجا، ما يمديه ينرسل للجوال.",
+  PCFILE_TOO_BIG: "الملف أكبر من 4 جيجا، ما يمديه ينرسل للجوال.",
+  DISK_FULL: "البيسي ما فيه مساحة كافية للملف.",
   MSG_WAIT: "استنى ثواني قبل الرسالة الجاية.",
   VOICE_TOO_LONG: "التسجيل طويل. خله أقل من دقيقة.",
 };
@@ -1306,7 +1447,7 @@ $("sendPaste").addEventListener("click", async () => {
 });
 
 // photos and files: in pieces of the size the PC asks, three at a time, each one acknowledged
-const MAX_FILE = 50 * 1024 * 1024;
+const MAX_RELAY = 50 * 1024 * 1024, MAX_DIRECT = 4 * 1024 ** 3;
 const queue = [];
 let sendingFiles = false;
 function paintSending(name, pct) {
@@ -1316,8 +1457,8 @@ function paintSending(name, pct) {
   $("sendBar").style.width = `${pct * 100}%`;
 }
 async function sendFile(file) {
-  if (file.size > MAX_FILE) {
-    toast(`${file.name} أكبر من 50 ميجا`, true);
+  if (file.size > (direct() ? MAX_DIRECT : MAX_RELAY)) {
+    toast(direct() ? `${file.name} أكبر من 4 جيجا` : `${file.name} أكبر من 50 ميجا. يحتاج «متصل مباشرة ⚡»: افتح الصفحة وانت على نفس واي فاي البيسي`, true);
     return true;
   }
   paintSending(file.name, 0);
@@ -1336,7 +1477,7 @@ async function sendFile(file) {
       paintSending(file.name, ++done / parts);
     }
   };
-  await Promise.all([worker(), worker(), worker()]);
+  await Promise.all(Array.from({ length: direct() ? 6 : 3 }, worker));
   if (bad) {
     cmd("file.cancel", { fid });
     return fail(bad), false;
@@ -1684,7 +1825,7 @@ async function fetchFull(id) {
       if (viewing === id) $("vBar").style.width = `${Math.max(4, (100 * done) / parts)}%`;
     }
   };
-  await Promise.all([worker(), worker(), worker()]);
+  await Promise.all(Array.from({ length: direct() ? 6 : 3 }, worker));
   cmd("shots.done", { fid });
   if (bad) return null;
   const blob = new Blob(chunks, { type: "image/jpeg" });
@@ -2745,7 +2886,7 @@ async function loadFiles() {
       .map((f, i) => {
         const key = fKey(f.name);
         const thumb = fThumbs.get(key);
-        const sub = f.dir ? "مجلد" : `${mbOf(f.size)} · ${fileWhen(f.time)}${f.big ? " · أكبر من 100 ميجا" : ""}`;
+        const sub = f.dir ? "مجلد" : `${mbOf(f.size)} · ${fileWhen(f.time)}${f.big ? " · أكبر من 4 جيجا" : ""}`;
         const ready = gotFiles.has(key) ? '<span class="save">احفظه</span>' : "";
         return `<button class="frow${f.big ? " big" : ""}" data-f="${i}"><span class="ic"${thumb ? ` style="background-image:url('${thumb}')"` : ""}${!thumb && f.kind === "pic" ? ` data-fthumb="${i}"` : ""}>${thumb ? "" : KIND_ICON[f.dir ? "dir" : f.kind] || "📄"}</span><span class="t"><b dir="auto">${esc(f.name)}</b><small>${sub}</small></span>${ready}</button>`;
       })
@@ -2776,7 +2917,10 @@ $("filesList").addEventListener("click", async (e) => {
     fPath.push(f.name);
     return loadFiles();
   }
-  if (f.big) return toast(ERR.PCFILE_TOO_BIG, true);
+  if (f.big || f.size > takeLimit()) {
+    if (!direct() && f.size <= 4 * 1024 * MB) return toast(`الملف ${sizeWord(f.size)}. الكبيرة تحتاج «متصل مباشرة ⚡» فوق: يصير أغلب الوقت بروحه، وأسرع شي على نفس واي فاي البيسي`, true);
+    return toast(`الملف أكبر من ${sizeWord(takeLimit())}، ما يمديه يوصل الجوال`, true);
+  }
   const key = fKey(f.name);
   if (gotFiles.has(key)) return saveFile(gotFiles.get(key));
   if (b.dataset.busy) return;
@@ -2788,31 +2932,92 @@ $("filesList").addEventListener("click", async (e) => {
   delete b.dataset.busy;
   small.innerHTML = was;
   if (!file) return;
+  // (a big one went straight into the phone's Downloads)
+  if (file.streamed) return toast(`انحفظ «${file.name}» بتنزيلات جوالك ✓`);
   gotFiles.set(key, file);
   if (gotFiles.size > 8) gotFiles.delete(gotFiles.keys().next().value);
   b.insertAdjacentHTML("beforeend", '<span class="save">احفظه</span>');
   toast("وصل ✓ اضغط «احفظه»");
 });
+// how big a file may come: over the relay 100 MB; direct: an iPhone keeps it in memory until «احفظه» (1 GB), a phone
+// whose page can write it straight to its Downloads while it arrives (Android) up to 4 GB
+const MB = 1024 * 1024;
+const canStream = () => !isIos && Boolean(navigator.serviceWorker?.controller);
+const takeLimit = () => (!direct() ? 100 * MB : canStream() ? 4 * 1024 * MB : 1024 * MB);
+const sizeWord = (b) => (b >= 1024 * MB ? `${Math.round(b / (1024 * MB))} جيجا` : `${Math.round(b / MB)} ميجا`);
+// straight to the phone's Downloads: the service worker hands the browser a download whose bytes this page feeds in
+// order as they arrive (nothing piles up in memory)
+async function streamSink(name, size, type) {
+  const sw = navigator.serviceWorker?.controller;
+  if (!sw) return null;
+  const id = crypto.randomUUID();
+  const mc = new MessageChannel();
+  const ok = await new Promise((res) => {
+    mc.port1.onmessage = (e) => res(e.data === "ok");
+    sw.postMessage({ t: "dl", id, name, size, type }, [mc.port2]);
+    setTimeout(() => res(false), 3000);
+  });
+  if (!ok) return null;
+  const frame = document.createElement("iframe");
+  frame.hidden = true;
+  frame.src = `nk-dl/${id}`;
+  document.body.appendChild(frame);
+  return {
+    write: (u8) => mc.port1.postMessage(u8, [u8.buffer]),
+    close: () => (mc.port1.postMessage(null), setTimeout(() => frame.remove(), 60e3)),
+    abort: () => (mc.port1.postMessage("abort"), setTimeout(() => frame.remove(), 5e3)),
+  };
+}
 async function takeFile(f, onProgress) {
   const b = await cmd("files.begin", { root: fRoot, path: [...fPath, f.name].join("/") });
   if (!b.ok || !b.data) return fail(b), null;
-  const { fid, parts, name, kind } = b.data;
-  const chunks = new Array(parts);
+  const { fid, name, kind } = b.data;
+  const raw = direct();
+  const parts = raw ? Math.max(1, Math.ceil(b.data.size / BIN)) : b.data.parts;
+  const type = /\.png$/i.test(name) ? "image/png" : MIME[kind] || "application/octet-stream";
+  // big files on a phone that can: written as they arrive, in order (pieces that come early wait their turn)
+  const sink = b.data.size > 40 * MB && canStream() ? await streamSink(name, b.data.size, type) : null;
+  const chunks = sink ? null : new Array(parts);
+  const early = new Map();
+  let flushed = 0;
+  const put = (i, u8) => {
+    if (!sink) return void (chunks[i] = u8);
+    early.set(i, u8);
+    while (early.has(flushed)) {
+      sink.write(early.get(flushed));
+      early.delete(flushed++);
+    }
+  };
   let next = 0, done = 0, bad = false;
   const worker = async () => {
     while (!bad && next < parts) {
+      // (written in order: a worker far ahead of the writing waits a moment)
+      while (sink && next - flushed > 48) await new Promise((r) => setTimeout(r, 20));
       const i = next++;
-      let r;
-      for (let t = 0; t < 3 && !r?.ok; t++) r = await cmd("files.part", { fid, i });
-      if (!r.ok) return void (bad = true);
-      chunks[i] = fromB64u(r.data.data);
+      if (raw) {
+        let u8 = null;
+        for (let t = 0; t < 3 && !u8; t++) u8 = await rawPiece(fid, i);
+        if (!u8) return void (bad = true);
+        put(i, u8.slice());
+      } else {
+        let r;
+        for (let t = 0; t < 3 && !r?.ok; t++) r = await cmd("files.part", { fid, i });
+        if (!r.ok) return void (bad = true);
+        put(i, fromB64u(r.data.data));
+      }
       onProgress(++done / parts);
     }
   };
-  await Promise.all([worker(), worker(), worker()]);
+  await Promise.all(Array.from({ length: direct() ? 12 : 3 }, worker));
   cmd("files.done", { fid });
-  if (bad) return toast("ما وصل الملف كامل. جرّب مرة ثانية.", true), null;
-  const type = /\.png$/i.test(name) ? "image/png" : MIME[kind] || "application/octet-stream";
+  if (bad) {
+    sink?.abort();
+    return toast("ما وصل الملف كامل. جرّب مرة ثانية.", true), null;
+  }
+  if (sink) {
+    sink.close();
+    return { streamed: true, name };
+  }
   return new File(chunks, name, { type });
 }
 async function saveFile(file) {
