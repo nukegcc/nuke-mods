@@ -282,6 +282,126 @@
   .apphead img, .apphead .ph { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: #241b1c; object-fit: contain; font-weight: 700; color: var(--dim); }
   .apphead b { display: block; font-size: 16px; }
   .apphead small { color: var(--green); font-size: 12.5px; font-weight: 700; }
+  /* the NUKE look (2026-10-07, owner: "شكل مثل البيسي الجديد"): the section icons in the tab bar, a banner on top of each tab */
+  nav button { padding: 5px 0 4px; }
+  nav button img { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; opacity: .5; filter: saturate(.55); transition: opacity .2s, filter .2s, transform .2s, box-shadow .2s; }
+  nav button.on { background: transparent; }
+  nav button.on img { opacity: 1; filter: none; transform: translateY(-2px) scale(1.06); box-shadow: 0 6px 16px -6px rgba(239,59,45,.85), 0 0 0 2px rgba(239,59,45,.55); }
+  .tabhead { position: relative; height: 112px; border-radius: 24px; overflow: hidden; margin-bottom: 12px; border: 1px solid var(--line); background: var(--card); }
+  .tabhead img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: left center; }
+  .tabhead::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to left, rgba(10,6,6,.88) 0%, rgba(10,6,6,.45) 45%, transparent 75%); }
+  .tabhead div { position: absolute; z-index: 1; inset-inline-start: 18px; bottom: 14px; }
+  .tabhead b { display: block; font-size: 24px; font-weight: 700; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+  .tabhead small { display: block; font-size: 12.5px; color: rgba(255,255,255,.75); font-weight: 600; text-shadow: 0 1px 8px rgba(0,0,0,.8); }
+  /* what Steam is downloading */
+  .sd { display: flex; gap: 10px; align-items: center; padding: 9px 4px; border-top: 1px solid var(--line); }
+  .sd:first-child { border-top: 0; }
+  .sd img { width: 92px; height: 34px; border-radius: 8px; object-fit: cover; background: #241b1c; flex-shrink: 0; }
+  .sd .t { flex: 1; min-width: 0; }
+  .sd b { display: block; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sd small { display: block; margin-top: 5px; font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .sd .bar { margin-top: 6px; }
+  .sd.paused .bar > div, .sd.queued .bar > div { background: rgba(255,255,255,.3); }
+  /* where the sound comes out, the microphone */
+  .sub { margin: 6px 4px 8px; font-size: 12.5px; color: var(--dim); font-weight: 600; }
+  .outs { display: flex; flex-direction: column; gap: 8px; margin: 0 0 12px; }
+  .out { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px; border-radius: 16px; background: var(--card2); border: 1px solid var(--line); text-align: start; font-weight: 700; font-size: 13.5px; }
+  .out .t { flex: 1; min-width: 0; }
+  .out small { display: block; font-weight: 500; color: var(--dim); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .out svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--dim); }
+  .out.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.12); }
+  .out.on svg { color: var(--red); }
+  .out em { font-style: normal; font-size: 11.5px; color: var(--red); flex-shrink: 0; }
+  .mic { min-width: 108px; min-height: 44px; border-radius: 14px; font-weight: 700; font-size: 14px; background: rgba(52,211,153,.14); border: 1px solid rgba(52,211,153,.45); color: var(--green); }
+  .mic.off { background: rgba(239,59,45,.14); border-color: rgba(239,59,45,.5); color: #ffb4ad; }
+  /* the screens */
+  .modes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+  .mode { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 12px 6px; border-radius: 16px; background: var(--card2); border: 1px solid var(--line); font-size: 12.5px; font-weight: 700; }
+  .mode svg { width: 52px; height: 26px; color: var(--dim); }
+  .mode.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.12); }
+  .mode.on svg { color: var(--red); }
+  .mode:active { transform: scale(.96); }
+  .vol.bright input::-webkit-slider-runnable-track { background: linear-gradient(90deg, #8a6a2a, var(--gold)) 0 / var(--p, 0%) 100% no-repeat, rgba(255,255,255,.1); }
+  .vol .sun { font-size: 22px; }
+  /* the internet's speed */
+  .speed { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .speed div { background: var(--card2); border-radius: 16px; padding: 12px 6px; text-align: center; border: 1px solid transparent; transition: border-color .2s; }
+  .speed span { display: block; font-size: 11.5px; color: var(--dim); font-weight: 600; }
+  .speed b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; margin: 2px 0; }
+  .speed small { font-size: 11px; color: var(--dim); }
+  .speed .now { border-color: rgba(255,201,60,.45); }
+  .speed .now b { color: var(--gold); }
+  /* files from the PC */
+  .roots .b { min-height: 78px; font-size: 13px; }
+  .frow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 4px; border-top: 1px solid var(--line); background: none; text-align: start; }
+  .frow:first-child { border-top: 0; }
+  .frow .ic { width: 44px; height: 44px; border-radius: 11px; background: #241b1c center/cover no-repeat; display: grid; place-items: center; flex-shrink: 0; font-size: 21px; }
+  .frow .t { flex: 1; min-width: 0; }
+  .frow b { display: block; font-size: 13.5px; font-weight: 600; overflow-wrap: anywhere; line-height: 1.4; }
+  .frow small { font-size: 11.5px; color: var(--dim); }
+  .frow .bar { margin-top: 6px; }
+  .frow.big { opacity: .45; }
+  .frow .save { border-radius: 12px; padding: 8px 12px; background: var(--red); font-weight: 700; font-size: 12.5px; flex-shrink: 0; }
+  .crumbs { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: -4px 4px 10px; font-size: 12.5px; color: var(--dim); font-weight: 600; }
+  .crumbs b { color: #fff; }
+  .back { width: 38px; height: 38px; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); font-size: 18px; flex-shrink: 0; }
+  /* a message on the PC's screen */
+  .msgstate { margin: 10px 4px 0; font-size: 13px; font-weight: 700; color: var(--dim); }
+  .msgstate.reply { color: var(--green); font-size: 15px; }
+  /* who's using the camera / the microphone */
+  .priv { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-top: 1px solid var(--line); }
+  .priv:first-child { border-top: 0; }
+  .priv .ic { font-size: 22px; width: 36px; text-align: center; flex-shrink: 0; }
+  .priv .t { flex: 1; min-width: 0; }
+  .priv b { display: block; font-size: 14px; }
+  .priv small { display: block; font-size: 12px; color: var(--dim); line-height: 1.5; }
+  .priv.live b { color: #ff8a80; }
+  .priv.live .ic { animation: knob .8s ease-in-out infinite alternate; }
+  /* «أزرارك»: one button, several things on the PC (like a Stream Deck) */
+  .deck { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 92px; border-radius: 18px; background: linear-gradient(160deg, rgba(239,59,45,.18), rgba(255,138,31,.06)); border: 1px solid rgba(239,59,45,.35); font-weight: 700; font-size: 13px; padding: 8px 4px; text-align: center; line-height: 1.3; transition: transform .12s; }
+  .scene i { font-style: normal; font-size: 30px; line-height: 1; }
+  .scene:active { transform: scale(.94); }
+  .scene.ran { border-color: var(--green); box-shadow: 0 0 0 2px rgba(52,211,153,.35); }
+  .scene.add { background: var(--card2); border-style: dashed; border-color: rgba(255,255,255,.18); color: var(--dim); }
+  .tpls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .sclist .pcrow { margin-bottom: 8px; }
+  .sclist .pcrow i { font-style: normal; font-size: 22px; }
+  .steps { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
+  .stp { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; }
+  .stp b { width: 22px; height: 22px; border-radius: 50%; background: rgba(239,59,45,.18); color: #ffb4ad; font-size: 11.5px; display: grid; place-items: center; flex-shrink: 0; }
+  .stp span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .stp button { background: none; color: var(--dim); font-size: 18px; padding: 0 4px; }
+  .addstep { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 16px; border: 1px dashed rgba(255,255,255,.18); }
+  select.search { appearance: none; -webkit-appearance: none; margin-bottom: 0; }
+  .emojis { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+  .emojis button { width: 42px; height: 42px; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); font-size: 20px; }
+  .emojis button.on { border-color: rgba(239,59,45,.7); background: rgba(239,59,45,.15); }
+  .sheet.tall .scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  /* «تكلم من جوالك» */
+  .talk { display: grid; place-items: center; gap: 10px; padding: 6px 0 4px; }
+  .talk button { width: 112px; height: 112px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #ff5a4a, var(--red)); box-shadow: 0 14px 40px -12px rgba(239,59,45,.9); display: grid; place-items: center; font-size: 40px; touch-action: none; transition: transform .15s; }
+  .talk button.rec { transform: scale(1.12); background: radial-gradient(circle at 50% 35%, #ff8a80, #c62828); animation: recpulse 1s ease-in-out infinite; }
+  @keyframes recpulse { 50% { box-shadow: 0 0 0 18px rgba(239,59,45,.15), 0 14px 40px -12px rgba(239,59,45,.9); } }
+  .talk p { margin: 0; font-size: 13.5px; font-weight: 700; color: var(--dim); font-variant-numeric: tabular-nums; text-align: center; }
+  .talk p.on { color: #ff8a80; }
+  /* the gaming dashboard: the phone beside the keyboard */
+  .dash { position: fixed; inset: 0; z-index: 60; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(239,59,45,.18), transparent 70%), #0a0606; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); animation: fade .2s; }
+  .dtop { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .dtop .t { flex: 1; min-width: 0; }
+  .dtop b { display: block; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dtop small { color: var(--green); font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .dgrid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: center; }
+  .gauge { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 10px 8px 12px; text-align: center; }
+  .gauge svg { width: 100%; max-width: 150px; height: auto; display: block; margin: 0 auto; }
+  .gauge .v { position: absolute; inset-inline: 0; top: 44%; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; direction: ltr; }
+  .gauge span { display: block; font-size: 12.5px; color: var(--dim); font-weight: 700; margin-top: -6px; }
+  .gauge circle.val { transition: stroke-dashoffset .6s ease, stroke .4s; }
+  @media (orientation: landscape) { .dgrid { grid-template-columns: repeat(3, 1fr); } .gauge svg { max-width: 120px; } .gauge .v { font-size: 22px; } }
+  .dashbtn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border-radius: 20px; margin-bottom: 12px; background: linear-gradient(120deg, rgba(168,85,247,.22), rgba(239,59,45,.14)); border: 1px solid rgba(168,85,247,.45); text-align: start; }
+  .dashbtn i { font-style: normal; font-size: 28px; }
+  .dashbtn b { display: block; font-size: 15px; }
+  .dashbtn small { color: var(--dim); font-size: 12px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -341,7 +461,12 @@
 
     <!-- 🎮 games -->
     <div id="tab-games" class="tab on">
+      <div class="tabhead"><img src="ban-games.jpg" alt="" /><div><b>ألعابي</b><small>ألعابك وصورها وتحميلاتها</small></div></div>
       <div id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div><div id="nowLimit" class="limitline hidden"><span id="nowLimitText"></span><button id="nowSnooze">خلّني نص ساعة</button></div></div></div>
+      <section id="steamBox" class="hidden">
+        <h2><span>تحميلات ستيم</span><span id="steamNote" class="was"></span></h2>
+        <div id="steamList"></div>
+      </section>
       <section id="weekBox" class="hidden">
         <h2><span>أسبوعك</span></h2>
         <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض 🔥</span></div><div><b id="wLevel">—</b><span>مستواك 👑</span></div></div>
@@ -359,6 +484,11 @@
 
     <!-- 💻 PC -->
     <div id="tab-pc" class="tab">
+      <div class="tabhead"><img src="ban-pc.jpg" alt="" /><div><b>البيسي</b><small>تحكم فيه من مكانك</small></div></div>
+      <section id="deckBox">
+        <h2><span>أزرارك</span><button id="deckEdit" class="more">عدّل</button></h2>
+        <div id="deck" class="deck"><p class="muted">نجيب أزرارك…</p></div>
+      </section>
       <section>
         <h2><span>أرسل للبيسي</span></h2>
         <textarea id="sendIn" class="search sendbox" rows="2" dir="auto" placeholder="الصق رابط أو اكتب أي شي…" autocomplete="off"></textarea>
@@ -374,6 +504,26 @@
         <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div></div>
         <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام ينحط بحافظته (الصقه بـ Ctrl+V). الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
       </section>
+      <section>
+        <h2><span>رسالة على شاشة البيسي</span></h2>
+        <textarea id="msgIn" class="search sendbox" rows="2" dir="auto" maxlength="300" placeholder="مثلاً: تعال العشا 🍽️" autocomplete="off"></textarea>
+        <div class="chips" id="msgQuick" style="margin:0 0 10px"><button class="chip">تعال العشا 🍽️</button><button class="chip">الصلاة 🕌</button><button class="chip">رد على جوالك 📱</button><button class="chip">نام بدري 😴</button></div>
+        <div class="linkrow"><button id="msgGo" disabled>أرسلها للشاشة</button></div>
+        <p id="msgState" class="hint">تطلع فوق كل شي مع صوت، واللي قدام البيسي يرد عليك بضغطة.</p>
+      </section>
+      <section>
+        <h2><span>تكلم من جوالك</span></h2>
+        <div class="talk"><button id="talkBtn" aria-label="اضغط واستمر وتكلم">🎙️</button><p id="talkState">اضغط على الزر واستمر وأنت تتكلم، وأول ما تتركه يطلع صوتك من سماعات البيسي.</p></div>
+      </section>
+      <section>
+        <h2><span>ملفات البيسي</span></h2>
+        <div class="grid three roots">
+          <button class="b" data-root="downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>التنزيلات</button>
+          <button class="b" data-root="desktop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>سطح المكتب</button>
+          <button class="b" data-root="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>المستندات</button>
+        </div>
+        <p class="hint">تختار أي ملف ويوصل جوالك (لين 100 ميجا).</p>
+      </section>
       <section id="appsBox" class="hidden">
         <h2><span>برامجك</span><button id="appsAllBtn" class="more hidden">كل البرامج</button></h2>
         <div id="apps" class="apps"></div>
@@ -387,6 +537,28 @@
           <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>كتم</button>
           <button class="b" data-a="vol.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/><path d="M19 9v6"/></svg>أعلى</button>
         </div>
+        <div id="outBox" class="hidden"><p class="sub">الصوت يطلع من</p><div id="outs" class="outs"></div></div>
+        <div id="micRow" class="setrow hidden" style="padding-top:2px"><div><b>المايك</b><small id="micName" dir="auto"></small></div><button id="micBtn" class="mic">—</button></div>
+      </section>
+      <section id="screenBox" class="hidden">
+        <h2><span>الشاشة</span></h2>
+        <div id="brightBox" class="vol bright hidden"><span class="sun">☀️</span><input id="brightRange" type="range" min="0" max="100" step="1" value="0" aria-label="سطوع الشاشة" /><b id="brightNum">—</b></div>
+        <button id="scrOff" class="wide ghost" style="color:#fff">طفّ الشاشة والبيسي شغّال</button>
+        <div id="modes" class="modes">
+          <button class="mode" data-mode="pc"><svg viewBox="0 0 52 26" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="22" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M9 22h8"/><rect x="28" y="3" width="22" height="15" rx="2.5" stroke-dasharray="3 3" opacity=".45"/><path d="M35 22h8" opacity=".45"/></svg>شاشة البيسي بس</button>
+          <button class="mode" data-mode="tv"><svg viewBox="0 0 52 26" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="22" height="15" rx="2.5" stroke-dasharray="3 3" opacity=".45"/><path d="M9 22h8" opacity=".45"/><rect x="28" y="3" width="22" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M35 22h8"/></svg>الثانية / التلفزيون بس</button>
+          <button class="mode" data-mode="same"><svg viewBox="0 0 52 26" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="22" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M9 22h8"/><rect x="28" y="3" width="22" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M35 22h8"/></svg>نفس الصورة بالثنتين</button>
+          <button class="mode" data-mode="wide"><svg viewBox="0 0 52 26" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="48" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M19 22h14"/></svg>شاشة وحدة عريضة</button>
+        </div>
+        <p id="screenHint" class="hint">«طفّ الشاشة» تطفيها والبيسي شغّال، وأي حركة للماوس ترجّعها.</p>
+      </section>
+      <section id="guardBox" class="hidden">
+        <div class="setrow"><div><b>👀 راقب البيسي</b><small>شغّله وأنت طالع: أول ما أحد يلمس الماوس أو الكيبورد يوصلك تنبيه.</small></div><button id="guardSw" class="sw" aria-label="راقب البيسي"></button></div>
+        <div class="setrow"><div><b>إذا أحد لمسه، قفّله على طول</b><small>الشاشة تنقفل بنفس اللحظة.</small></div><button id="guardLockSw" class="sw" aria-label="قفّله إذا أحد لمسه"></button></div>
+        <p id="guardHint" class="hint hidden" style="margin-top:4px">عشان يوصلك التنبيه، فعّل التنبيهات من «الإعدادات».</p>
+      </section>
+      <section id="btBox" class="hidden">
+        <div class="setrow" style="padding:4px"><div><b>البلوتوث</b><small>للسماعة أو اليد اللاسلكية</small></div><button id="btSw" class="sw" aria-label="البلوتوث"></button></div>
       </section>
       <section>
         <h2><span>الأغاني والفيديو</span></h2>
@@ -415,6 +587,8 @@
 
     <!-- 📊 the PC's state -->
     <div id="tab-stat" class="tab">
+      <div class="tabhead"><img src="ban-stat.jpg" alt="" /><div><b>الحالة</b><small>كل شي عن جهازك</small></div></div>
+      <button id="dashOpen" class="dashbtn"><i>🎮</i><span><b>لوحة اللعب</b><small>حط جوالك جنبك وأنت تلعب، ويعرض حرارة الكرت والمعالج والرام والبنق مباشرة.</small></span></button>
       <section>
         <h2><span>حالة البيسي</span><span id="upt"></span></h2>
         <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
@@ -426,6 +600,16 @@
       <section>
         <h2><span>وش ماكل الجهاز؟</span><span class="seg"><button data-sort="cpu" class="on">المعالج</button><button data-sort="mem">الرام</button></span></h2>
         <div id="heavy"><p class="muted">نشوف البرامج…</p></div>
+      </section>
+      <section>
+        <h2><span>سرعة نت البيسي</span><span id="speedWhen" class="was"></span></h2>
+        <div class="speed"><div id="spDownBox"><span>تنزيل</span><b id="spDown">—</b><small>ميجابت</small></div><div id="spUpBox"><span>رفع</span><b id="spUp">—</b><small>ميجابت</small></div><div id="spPingBox"><span>البنق</span><b id="spPing">—</b><small>مللي ثانية</small></div></div>
+        <button id="speedGo" class="wide">قيس السرعة</button>
+        <p class="hint">ياخذ 10 ثواني تقريباً، والأفضل وأنت ما تلعب أونلاين.</p>
+      </section>
+      <section>
+        <h2><span>الكاميرا والمايك</span></h2>
+        <div id="privBox"><p class="muted">نشوف…</p></div>
       </section>
       <section id="drivesBox" class="hidden">
         <h2><span>الهارديسكات</span></h2>
@@ -439,6 +623,7 @@
 
     <!-- ⚙️ settings -->
     <div id="tab-set" class="tab">
+      <div class="tabhead"><img src="ban-set.jpg" alt="" /><div><b>الإعدادات</b><small>التنبيهات ووقت اللعب</small></div></div>
       <section>
         <h2><span>التنبيهات</span></h2>
         <button id="pushBtn" class="wide">فعّل التنبيهات</button>
@@ -473,11 +658,24 @@
   </div>
 </div>
 
+<div id="filesSheet" class="sheet tall hidden"><div class="in">
+  <div class="sheethead"><button id="filesBack" class="back" aria-label="رجوع">→</button><h3 id="filesTitle" style="flex:1">الملفات</h3><button id="filesClose" class="x" aria-label="سكّر">×</button></div>
+  <div id="filesCrumbs" class="crumbs"></div>
+  <div id="filesList" class="alist"><p class="muted">نجيب الملفات…</p></div>
+</div></div>
+<div id="deckSheet" class="sheet tall hidden"><div class="in">
+  <div class="sheethead"><button id="deckBack" class="back hidden" aria-label="رجوع">→</button><h3 id="deckTitle" style="flex:1">أزرارك</h3><button id="deckClose" class="x" aria-label="سكّر">×</button></div>
+  <div id="deckBody" class="scroll"></div>
+</div></div>
+<div id="dash" class="dash hidden">
+  <div class="dtop"><div class="t"><b id="dGame" dir="auto">البيسي</b><small id="dTime"></small></div><button id="dashClose" class="x" aria-label="سكّر">×</button></div>
+  <div id="dGrid" class="dgrid"></div>
+</div>
 <nav id="nav" class="hidden"><div class="in">
-  <button data-tab="games" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></svg>ألعابي</button>
-  <button data-tab="pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>البيسي</button>
-  <button data-tab="stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>الحالة</button>
-  <button data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>الإعدادات</button>
+  <button data-tab="games" class="on"><img src="tab-games.jpg" alt="" />ألعابي</button>
+  <button data-tab="pc"><img src="tab-pc.jpg" alt="" />البيسي</button>
+  <button data-tab="stat"><img src="tab-stat.jpg" alt="" />الحالة</button>
+  <button data-tab="set"><img src="tab-set.jpg" alt="" />الإعدادات</button>
 </div></nav>
 <div id="toast" class="toast"></div>
 
@@ -892,6 +1090,8 @@ async function start() {
     } else if (m.t === "power") {
       // another phone planned or cancelled it
       showPower(m.power);
+    } else if (m.t === "reply") {
+      onReply(m);
     } else if (m.t === "ack") {
       lastPong = Date.now();
       paint();
@@ -976,6 +1176,12 @@ const ERR = {
   GAME_RUNNING: "سكّر اللعبة أول، وبعدين غيّر المودات.",
   PLAY_XBOX: "ألعاب Xbox تنفتح من تطبيق Xbox على البيسي.",
   REMOTE_GONE: "ما عاد موجود على البيسي. سكّر وافتح القائمة مرة ثانية.",
+  SCREEN_NONE: "ما فيه شاشة ثانية أو تلفزيون موصول بالبيسي.",
+  BRIGHT_NONE: "شاشتك ما تقبل تغيير السطوع من البيسي.",
+  BT_NONE: "هالبيسي ما فيه بلوتوث.",
+  PCFILE_TOO_BIG: "الملف أكبر من 100 ميجا، ما يمديه ينرسل للجوال.",
+  MSG_WAIT: "استنى ثواني قبل الرسالة الجاية.",
+  VOICE_TOO_LONG: "التسجيل طويل. خله أقل من دقيقة.",
 };
 // (only test copies of the app send a "detail")
 const fail = (r) => toast((ERR[r.error] || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
@@ -994,9 +1200,9 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
   }),
 );
 function refresh() {
-  if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit()]);
-  if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning()]);
-  if (tab === "stat") return Promise.all([loadStatus(), loadHeavy(), loadDrives(), loadSpecs()]);
+  if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam()]);
+  if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadGuard()]);
+  if (tab === "stat") return Promise.all([loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed()]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
   return Promise.resolve();
 }
@@ -1026,9 +1232,12 @@ function live() {
   if (tab === "stat") {
     loadStatus();
     if (Date.now() - heavyAt > 20e3) loadHeavy();
+    if (Date.now() - privAt > 10e3) loadPriv();
   }
   if (tab === "pc" && Date.now() - runLook > 3500) loadRunning();
   if (tab === "games") {
+    // Steam's downloads: every 4 s while one is going, else every half minute
+    if (Date.now() - steamAt > (steamCount ? 3500 : 30e3)) loadSteam();
     if (Date.now() - gamesLook > 4500) loadGames();
     else if (runningKey) paintNow();
   }
@@ -2293,6 +2502,733 @@ $("pushBtn").addEventListener("click", async () => {
 
 // iOS pinch: ignored (the page is a remote, not a document)
 document.addEventListener("gesturestart", (e) => e.preventDefault());
+
+// ================= more PC controls (2026-10-07, owner's picks) =================
+const mbOf = (b) => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(1)} جيجا` : b >= 1024 ** 2 ? `${Math.round(b / 1024 ** 2)} ميجا` : `${Math.max(1, Math.round(b / 1024))} كيلو`);
+function leftTime(s) {
+  if (s < 60) return "أقل من دقيقة";
+  if (s < 3600) return num(Math.round(s / 60), W.min);
+  const h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+  return num(h, W.hour) + (m ? ` و${num(m, W.min)}` : "");
+}
+
+// ---- 🎮 what Steam is downloading ----
+const STEAM_SAID = { down: "ينزل", paused: "موقّف", queued: "بالانتظار", finishing: "يخلّص التثبيت" };
+let steamCount = 0, steamAt = 0;
+async function loadSteam() {
+  steamAt = Date.now();
+  const r = await cmd("steam.list");
+  if (!r.ok) return;
+  const list = r.data ?? [];
+  steamCount = list.length;
+  $("steamBox").classList.toggle("hidden", !list.length);
+  $("steamNote").textContent = list.length > 1 ? num(list.length, W.game) : "";
+  $("steamList").innerHTML = list
+    .map((d) => {
+      const p = d.progress == null ? null : Math.floor(d.progress * 100);
+      const bits = [p == null ? null : ltr(`${p}%`), STEAM_SAID[d.state] + (d.update ? " (تحديث)" : ""), d.speed ? `${ltr((d.speed / 1024 ** 2).toFixed(1))} ميجا/ث` : null, d.eta ? `باقي ${leftTime(d.eta)}` : d.left ? `باقي ${mbOf(d.left)}` : null].filter(Boolean);
+      return `<div class="sd ${d.state}"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${encodeURIComponent(d.appId)}/capsule_184x69.jpg" alt="" onerror="this.style.visibility='hidden'" /><div class="t"><b dir="auto">${esc(d.name)}</b><div class="bar"><div style="width:${p ?? 3}%"></div></div><small>${bits.join(" · ")}</small></div></div>`;
+    })
+    .join("");
+}
+
+// ---- 🔊 where the sound comes out, the microphone ----
+const ICON_HEAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>';
+const ICON_SPK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6h.01"/></svg>';
+const ICON_TV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/></svg>';
+const devIcon = (n) => (/head|سماع|ear|airpod|buds|h510|arctis|hyperx|chat|gaming/i.test(n) ? ICON_HEAD : /nvidia|hdmi|display|monitor|tv|lg |samsung/i.test(n) ? ICON_TV : ICON_SPK);
+// "Headphones (H510-PRO Wireless headset)" → the part in brackets first, Windows' word under it; when several
+// devices share the bracket ("SteelSeries Sonar - Gaming / - Chat (SteelSeries Sonar Virtual Audio Device)") the
+// part that tells them apart goes first
+const devSplit = (n) => {
+  const m = /^(.*?)\s*\(([^()]+)\)\s*$/.exec(String(n ?? ""));
+  return m ? { main: m[2], sub: m[1] } : { main: String(n ?? ""), sub: "" };
+};
+let devAll = [];
+const devName = (n) => {
+  const d = devSplit(n);
+  return d.sub && devAll.filter((x) => devSplit(x).main === d.main).length > 1 ? { main: d.sub, sub: d.main } : d;
+};
+let micMuted = null;
+function paintSound(d) {
+  if (!d) return;
+  const outs = d.list ?? [];
+  devAll = [...outs.map((o) => o.name), d.mic?.name].filter(Boolean);
+  $("outBox").classList.toggle("hidden", outs.length < 2);
+  $("outs").innerHTML = outs
+    .map((o) => {
+      const n = devName(o.name);
+      return `<button class="out${o.on ? " on" : ""}" data-out="${esc(o.id)}">${devIcon(o.name)}<span class="t"><span dir="auto">${esc(n.main)}</span>${n.sub ? `<small dir="auto">${esc(n.sub)}</small>` : ""}</span>${o.on ? "<em>الحين</em>" : ""}</button>`;
+    })
+    .join("");
+  $("micRow").classList.toggle("hidden", !d.mic);
+  if (d.mic) paintMic(d.mic);
+}
+function paintMic(m) {
+  micMuted = Boolean(m.muted);
+  $("micName").textContent = devName(m.name).main;
+  $("micBtn").className = "mic" + (micMuted ? " off" : "");
+  $("micBtn").textContent = micMuted ? "🔇 مكتوم" : "🎙️ مفتوح";
+}
+async function loadSound() {
+  const r = await cmd("audio.list");
+  if (r.ok) paintSound(r.data);
+}
+$("outs").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-out]");
+  if (!b || b.classList.contains("on")) return;
+  buzz();
+  const done = working(b, "نحوّل الصوت…");
+  const r = await cmd("audio.use", { id: b.dataset.out });
+  done();
+  if (!r.ok) return fail(r);
+  if (r.data) paintSound(r.data);
+  const on = r.data?.list?.find((o) => o.on);
+  toast(on ? `الصوت يطلع الحين من ${devName(on.name).main} ✓` : "تم ✓");
+});
+$("micBtn").addEventListener("click", async () => {
+  if (micMuted === null) return;
+  buzz();
+  const want = !micMuted;
+  const done = working($("micBtn"), "");
+  const r = await cmd("mic.mute", { muted: want });
+  done();
+  if (!r.ok) return fail(r);
+  if (r.data) paintMic(r.data);
+  toast(micMuted ? "كتمنا المايك 🔇" : "فتحنا المايك 🎙️");
+});
+
+// ---- 🖥️ the screens ----
+let screenNow = null, brightDrag = false, brightTimer = null, brightLast = 0;
+function paintScreen(s) {
+  if (!s) return;
+  screenNow = s;
+  $("screenBox").classList.remove("hidden");
+  document.querySelectorAll("#modes [data-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === s.mode));
+  $("screenHint").textContent = s.screens > 1 ? "«طفّ الشاشة» تطفيها والبيسي شغّال، وأي حركة للماوس ترجّعها." : "«طفّ الشاشة» تطفيها والبيسي شغّال. أوضاع الشاشتين تشتغل لما توصّل شاشة ثانية أو تلفزيون.";
+  $("brightBox").classList.toggle("hidden", !s.bright);
+  if (s.bright && !brightDrag) {
+    $("brightRange").value = s.bright.level;
+    $("brightNum").textContent = `${s.bright.level}%`;
+    $("brightRange").style.setProperty("--p", `${s.bright.level}%`);
+  }
+}
+async function loadScreen() {
+  const r = await cmd("screen.get");
+  if (r.ok) paintScreen(r.data);
+}
+$("scrOff").addEventListener("click", async () => {
+  buzz();
+  const done = working($("scrOff"), "نطفيها…");
+  const r = await cmd("screen.off");
+  done();
+  r.ok ? toast("طفّينا الشاشة 🌙 تحرّك الماوس وترجع") : fail(r);
+});
+$("modes").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-mode]");
+  if (!b || b.classList.contains("on")) return;
+  buzz();
+  const done = working(b, "");
+  const r = await cmd("screen.mode", { mode: b.dataset.mode });
+  done();
+  if (!r.ok) return fail(r);
+  if (screenNow) paintScreen({ ...screenNow, mode: b.dataset.mode });
+  toast("تم ✓ الشاشات تغيّرت");
+  setTimeout(loadScreen, 2500);
+});
+const sendBright = async () => {
+  brightLast = Date.now();
+  const r = await cmd("screen.bright", { level: Number($("brightRange").value) });
+  if (!r.ok) fail(r);
+};
+$("brightRange").addEventListener("input", () => {
+  brightDrag = true;
+  $("brightNum").textContent = `${$("brightRange").value}%`;
+  $("brightRange").style.setProperty("--p", `${$("brightRange").value}%`);
+  clearTimeout(brightTimer);
+  // monitors answer slowly over their cable: one change every half second at most
+  if (Date.now() - brightLast > 500) sendBright();
+  else brightTimer = setTimeout(sendBright, 500);
+});
+$("brightRange").addEventListener("change", () => setTimeout(() => (brightDrag = false), 600));
+
+// ---- Bluetooth ----
+let btOn = null;
+async function loadBt() {
+  const r = await cmd("bt.get");
+  const has = r.ok && (r.data === "on" || r.data === "off");
+  $("btBox").classList.toggle("hidden", !has);
+  if (has) {
+    btOn = r.data === "on";
+    $("btSw").classList.toggle("on", btOn);
+  }
+}
+$("btSw").addEventListener("click", async () => {
+  if (btOn === null) return;
+  buzz();
+  const want = !btOn;
+  $("btSw").classList.toggle("on", want);
+  $("btSw").classList.add("wait");
+  const r = await cmd("bt.set", { on: want });
+  $("btSw").classList.remove("wait");
+  if (!r.ok) return $("btSw").classList.toggle("on", btOn), fail(r);
+  btOn = r.data === "on";
+  $("btSw").classList.toggle("on", btOn);
+  toast(btOn ? "شغّلنا البلوتوث ✓" : "طفّينا البلوتوث");
+});
+
+// ---- 💬 a message on the PC's screen ----
+let msgWaiting = null;
+const paintMsg = () => ($("msgGo").disabled = !$("msgIn").value.trim());
+$("msgIn").addEventListener("input", paintMsg);
+$("msgQuick").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  buzz(8);
+  $("msgIn").value = b.textContent;
+  paintMsg();
+});
+$("msgGo").addEventListener("click", async () => {
+  const text = $("msgIn").value.trim();
+  if (!text) return;
+  buzz();
+  const mid = crypto.randomUUID();
+  const done = working($("msgGo"), "نرسلها…");
+  const r = await cmd("msg.send", { text, mid });
+  done();
+  if (!r.ok) return fail(r);
+  msgWaiting = mid;
+  $("msgIn").value = "";
+  paintMsg();
+  $("msgState").className = "msgstate";
+  $("msgState").textContent = "✓ طلعت على شاشة البيسي… ننتظر الرد";
+});
+function onReply(m) {
+  if (m.mid && msgWaiting && m.mid !== msgWaiting) return;
+  msgWaiting = null;
+  $("msgState").className = m.text ? "msgstate reply" : "msgstate";
+  $("msgState").textContent = m.text ? `💬 ردّوا: ${m.text}` : "شافوا الرسالة وسكّروها بدون رد";
+  if (m.text) toast(`💬 ${m.text}`);
+  buzz(30);
+}
+
+// ---- 📁 files from the PC ----
+const ROOT_NAME = { downloads: "التنزيلات", desktop: "سطح المكتب", documents: "المستندات" };
+const KIND_ICON = { dir: "📁", pic: "🖼️", vid: "🎬", audio: "🎵", pdf: "📕", doc: "📄", zip: "🗜️", app: "⚙️", file: "📄" };
+const MIME = { pic: "image/jpeg", vid: "video/mp4", pdf: "application/pdf", audio: "audio/mpeg" };
+let fRoot = null, fPath = [], fItems = [];
+const fThumbs = new Map();
+const gotFiles = new Map(); // key → File
+const fKey = (name) => `${fRoot}/${[...fPath, name].join("/")}`;
+const fileWhen = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(t);
+function openFiles(root) {
+  fRoot = root;
+  fPath = [];
+  $("filesSheet").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  loadFiles();
+}
+function closeFiles() {
+  $("filesSheet").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+async function loadFiles() {
+  $("filesTitle").textContent = fPath.length ? fPath[fPath.length - 1] : ROOT_NAME[fRoot];
+  $("filesCrumbs").innerHTML = [ROOT_NAME[fRoot], ...fPath].map((p, i, a) => (i === a.length - 1 ? `<b dir="auto">${esc(p)}</b>` : `<span dir="auto">${esc(p)}</span>`)).join(" ‹ ");
+  $("filesList").innerHTML = '<p class="muted">نجيب الملفات…</p>';
+  const r = await cmd("files.list", { root: fRoot, path: fPath.join("/") });
+  if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || ERR.REMOTE_FAILED)}</p>`);
+  fItems = r.data.items ?? [];
+  if (!fItems.length) return ($("filesList").innerHTML = '<p class="muted">المجلد فاضي.</p>');
+  $("filesList").innerHTML =
+    fItems
+      .map((f, i) => {
+        const key = fKey(f.name);
+        const thumb = fThumbs.get(key);
+        const sub = f.dir ? "مجلد" : `${mbOf(f.size)} · ${fileWhen(f.time)}${f.big ? " · أكبر من 100 ميجا" : ""}`;
+        const ready = gotFiles.has(key) ? '<span class="save">احفظه</span>' : "";
+        return `<button class="frow${f.big ? " big" : ""}" data-f="${i}"><span class="ic"${thumb ? ` style="background-image:url('${thumb}')"` : ""}${!thumb && f.kind === "pic" ? ` data-fthumb="${i}"` : ""}>${thumb ? "" : KIND_ICON[f.dir ? "dir" : f.kind] || "📄"}</span><span class="t"><b dir="auto">${esc(f.name)}</b><small>${sub}</small></span>${ready}</button>`;
+      })
+      .join("") + (r.data.more ? `<p class="muted">وفيه ${r.data.more} غيرها… الأحدث فوق.</p>` : "");
+  $("filesList").querySelectorAll("[data-fthumb]").forEach((el) => fThumbSeen.observe(el));
+}
+const fThumbSeen = new IntersectionObserver((es) =>
+  es.forEach(async (e) => {
+    if (!e.isIntersecting) return;
+    fThumbSeen.unobserve(e.target);
+    const f = fItems[Number(e.target.dataset.fthumb)];
+    if (!f) return;
+    const key = fKey(f.name);
+    const r = await cmd("files.thumb", { root: fRoot, path: [...fPath, f.name].join("/") });
+    if (!r.ok || !r.data?.data) return;
+    fThumbs.set(key, `data:image/jpeg;base64,${r.data.data}`);
+    e.target.style.backgroundImage = `url('${fThumbs.get(key)}')`;
+    e.target.textContent = "";
+  }),
+);
+$("filesList").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-f]");
+  if (!b) return;
+  const f = fItems[Number(b.dataset.f)];
+  if (!f) return;
+  buzz(8);
+  if (f.dir) {
+    fPath.push(f.name);
+    return loadFiles();
+  }
+  if (f.big) return toast(ERR.PCFILE_TOO_BIG, true);
+  const key = fKey(f.name);
+  if (gotFiles.has(key)) return saveFile(gotFiles.get(key));
+  if (b.dataset.busy) return;
+  b.dataset.busy = "1";
+  const small = b.querySelector("small");
+  const was = small.innerHTML;
+  small.innerHTML = '<span class="bar"><div style="width:3%"></div></span>';
+  const file = await takeFile(f, (p) => (small.querySelector(".bar > div").style.width = `${Math.max(3, p * 100)}%`));
+  delete b.dataset.busy;
+  small.innerHTML = was;
+  if (!file) return;
+  gotFiles.set(key, file);
+  if (gotFiles.size > 8) gotFiles.delete(gotFiles.keys().next().value);
+  b.insertAdjacentHTML("beforeend", '<span class="save">احفظه</span>');
+  toast("وصل ✓ اضغط «احفظه»");
+});
+async function takeFile(f, onProgress) {
+  const b = await cmd("files.begin", { root: fRoot, path: [...fPath, f.name].join("/") });
+  if (!b.ok || !b.data) return fail(b), null;
+  const { fid, parts, name, kind } = b.data;
+  const chunks = new Array(parts);
+  let next = 0, done = 0, bad = false;
+  const worker = async () => {
+    while (!bad && next < parts) {
+      const i = next++;
+      let r;
+      for (let t = 0; t < 3 && !r?.ok; t++) r = await cmd("files.part", { fid, i });
+      if (!r.ok) return void (bad = true);
+      chunks[i] = fromB64u(r.data.data);
+      onProgress(++done / parts);
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  cmd("files.done", { fid });
+  if (bad) return toast("ما وصل الملف كامل. جرّب مرة ثانية.", true), null;
+  const type = /\.png$/i.test(name) ? "image/png" : MIME[kind] || "application/octet-stream";
+  return new File(chunks, name, { type });
+}
+async function saveFile(file) {
+  buzz();
+  // the phone's own share sheet ("حفظ في الملفات" / "حفظ الصورة" are in it); else a plain download
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      return await navigator.share({ files: [file] });
+    } catch {
+      return;
+    }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file);
+  a.download = file.name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+}
+document.querySelectorAll("[data-root]").forEach((b) => b.addEventListener("click", () => (buzz(8), openFiles(b.dataset.root))));
+$("filesBack").addEventListener("click", () => (buzz(8), fPath.length ? (fPath.pop(), loadFiles()) : closeFiles()));
+$("filesClose").addEventListener("click", closeFiles);
+
+// ---- 🚀 the internet's speed ----
+let speedRun = false;
+function paintSpeed(s) {
+  if (!s) return;
+  $("spDown").textContent = s.down == null ? "—" : String(s.down);
+  $("spUp").textContent = s.up == null ? "—" : String(s.up);
+  $("spPing").textContent = s.ping == null ? "—" : String(s.ping);
+  $("spDownBox").classList.toggle("now", s.phase === "down");
+  $("spUpBox").classList.toggle("now", s.phase === "up");
+  $("spPingBox").classList.toggle("now", s.phase === "ping");
+  if (s.at && (s.phase === "done" || s.phase === "failed")) $("speedWhen").textContent = ago(s.at);
+}
+$("speedGo").addEventListener("click", async () => {
+  if (speedRun) return;
+  buzz();
+  speedRun = true;
+  const done = working($("speedGo"), "نقيس…");
+  let r = await cmd("net.speed");
+  const t0 = Date.now();
+  while (r.ok && Date.now() - t0 < 40e3) {
+    paintSpeed(r.data);
+    if (r.data?.phase === "done" || r.data?.phase === "failed") break;
+    await new Promise((res) => setTimeout(res, 700));
+    r = await cmd("net.speedGet");
+  }
+  done();
+  speedRun = false;
+  if (!r.ok) return fail(r);
+  if (r.data?.phase === "failed") return toast("ما قدرنا نقيس. تأكد إن نت البيسي شغّال.", true);
+  toast(`تنزيل ${r.data.down} · رفع ${r.data.up} ميجابت`);
+});
+async function loadSpeed() {
+  const r = await cmd("net.speedGet");
+  if (r.ok && r.data?.phase !== "idle") paintSpeed(r.data);
+}
+
+// ---- 📷 who's using the camera / the microphone ----
+let privAt = 0;
+async function loadPriv() {
+  privAt = Date.now();
+  const r = await cmd("privacy.get");
+  if (!r.ok) return;
+  const row = (icon, what, d) => {
+    const live = d.now.length > 0;
+    const line = live ? `شغّال الحين مع: ${d.now.map(esc).join("، ")}` : "محد شاغله الحين";
+    const last = !live && d.last ? `<small>آخر مرة: <span dir="auto">${esc(d.last.name)}</span> ${ago(d.last.at)}</small>` : "";
+    return `<div class="priv${live ? " live" : ""}"><span class="ic">${icon}</span><div class="t"><b>${what}</b><small dir="auto">${live ? "🔴 " : "✓ "}${line}</small>${last}</div></div>`;
+  };
+  $("privBox").innerHTML = row("📷", "الكاميرا", r.data.camera) + row("🎙️", "المايك", r.data.mic);
+}
+
+// ================= buttons, voice, the PC watcher, the gaming dashboard (2026-10-07, owner's picks) =================
+
+// ---- ⚡ «أزرارك»: one button, several things on the PC ----
+const MODE_WORD = { off: "🌙 طفّ الشاشة", pc: "🖥️ شاشة البيسي بس", tv: "📺 الثانية / التلفزيون بس", same: "🖥️ نفس الصورة بالثنتين", wide: "🖥️ شاشة وحدة عريضة" };
+function stepWord(s) {
+  switch (s.t) {
+    case "out": return `🎧 الصوت يطلع من ${devName(s.name).main || "الجهاز اللي اخترته"}`;
+    case "vol": return `🔊 الصوت ${ltr(`${s.level}%`)}`;
+    case "mic": return s.muted ? "🔇 اكتم المايك" : "🎙️ افتح المايك";
+    case "app": return `🚀 افتح ${s.name || "برنامج"}`;
+    case "game": return `🎮 شغّل ${s.name || "لعبة"}`;
+    case "closegames": return "✋ سكّر الألعاب المفتوحة";
+    case "screen": return MODE_WORD[s.mode] || "🖥️ الشاشات";
+    case "bright": return `☀️ السطوع ${ltr(`${s.level}%`)}`;
+    case "off": return `⏻ طفّ البيسي بعد ${num(s.minutes, W.min)}`;
+    case "sleep": return "💤 نوّم البيسي";
+    case "media": return "⏯️ شغّل / وقّف الأغنية";
+    default: return s.t;
+  }
+}
+let deckList = [], deckTemplates = [], editing = null;
+async function loadDeck() {
+  const r = await cmd("scenes.get");
+  if (!r.ok) return $("deckBox").classList.toggle("hidden", r.error === "REMOTE_NOT_ALLOWED");
+  deckList = r.data.list ?? [];
+  deckTemplates = r.data.templates ?? [];
+  paintDeck();
+}
+function paintDeck() {
+  $("deckEdit").classList.toggle("hidden", !deckList.length);
+  $("deck").innerHTML = deckList.length
+    ? deckList.map((b) => `<button class="scene" data-scene="${esc(b.id)}"><i>${esc(b.emoji)}</i>${esc(b.name)}</button>`).join("") + '<button class="scene add" id="deckAdd"><i>＋</i>زر جديد</button>'
+    : '<button class="scene add" id="deckAdd" style="grid-column:1/-1;min-height:74px"><i>＋</i>سوّ أول زر: ضغطة وحدة تسوي كذا شي بالبيسي</button>';
+}
+$("deck").addEventListener("click", async (e) => {
+  if (e.target.closest("#deckAdd")) return buzz(8), openDeck(null);
+  const b = e.target.closest("[data-scene]");
+  if (!b) return;
+  const sc = deckList.find((x) => x.id === b.dataset.scene);
+  buzz(20);
+  const done = working(b, "");
+  const r = await cmd("scene.run", { id: b.dataset.scene });
+  done();
+  if (!r.ok) return fail(r);
+  const bad = (r.data?.steps ?? []).filter((s) => !s.ok).length;
+  b.classList.add("ran");
+  setTimeout(() => b.classList.remove("ran"), 1500);
+  toast(bad ? `«${sc?.name}» اشتغل، بس ${num(bad, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])} ما زبطت` : `«${sc?.name}» ✓`, Boolean(bad));
+});
+$("deckEdit").addEventListener("click", () => (buzz(8), openDeck("list")));
+$("deckClose").addEventListener("click", () => $("deckSheet").classList.add("hidden"));
+$("deckBack").addEventListener("click", () => (buzz(8), openDeck("list")));
+// the sheet: the list of buttons, or one button being made / changed
+function openDeck(what) {
+  $("deckSheet").classList.remove("hidden");
+  if (what === "list") return paintDeckList();
+  editing = what ? JSON.parse(JSON.stringify(what)) : null;
+  if (!editing) return paintTemplates();
+  paintEditor();
+}
+function paintDeckList() {
+  editing = null;
+  $("deckBack").classList.add("hidden");
+  $("deckTitle").textContent = "أزرارك";
+  $("deckBody").innerHTML = `<div class="sclist">${deckList.map((b) => `<button class="pcrow" data-ed="${esc(b.id)}"><i>${esc(b.emoji)}</i><span>${esc(b.name)}</span><small>${num(b.steps.length, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])}</small></button>`).join("")}</div><button id="deckNew" class="wide" style="margin-top:6px">＋ زر جديد</button>`;
+}
+function paintTemplates() {
+  $("deckBack").classList.toggle("hidden", !deckList.length);
+  $("deckTitle").textContent = "زر جديد";
+  $("deckBody").innerHTML = `<p class="hint" style="margin-top:0">ابدأ من واحد جاهز وغيّر فيه، أو من الصفر.</p><div class="tpls">${deckTemplates.map((t, i) => `<button class="chip" data-tpl="${i}">${esc(t.emoji)} ${esc(t.name)}</button>`).join("")}<button class="chip" data-tpl="-1">✏️ من الصفر</button></div>`;
+}
+const EMOJIS = ["🎮", "🎬", "😴", "🤫", "🎧", "🔥", "💤", "🎵", "📺", "⚡", "🍿", "🏆"];
+let stepKind = "";
+function paintEditor() {
+  $("deckBack").classList.remove("hidden");
+  $("deckTitle").textContent = editing.id ? "عدّل الزر" : "زر جديد";
+  $("deckBody").innerHTML = `
+    <input id="edName" class="search" maxlength="30" dir="auto" placeholder="اسم الزر (مثلاً: وضع اللعب)" value="${esc(editing.name || "")}" />
+    <div class="emojis">${EMOJIS.map((e) => `<button data-emo="${e}" class="${e === editing.emoji ? "on" : ""}">${e}</button>`).join("")}</div>
+    <p class="sub">لما تضغطه يسوي هذي بالترتيب:</p>
+    <div class="steps">${editing.steps.length ? editing.steps.map((s, i) => `<div class="stp"><b>${i + 1}</b><span dir="auto">${esc(stepWord(s))}</span><button data-rm="${i}" aria-label="شيل">×</button></div>`).join("") : '<p class="muted">ما فيه خطوات للحين. أضف تحت.</p>'}</div>
+    <div class="addstep">
+      <select id="stepKind" class="search"><option value="">＋ أضف خطوة…</option><option value="out">🎧 الصوت يطلع من…</option><option value="vol">🔊 مستوى الصوت</option><option value="mic">🎙️ المايك</option><option value="game">🎮 شغّل لعبة</option><option value="app">🚀 افتح برنامج</option><option value="closegames">✋ سكّر الألعاب المفتوحة</option><option value="screen">🖥️ الشاشات</option><option value="bright">☀️ السطوع</option><option value="off">⏻ طفّ البيسي بعد…</option><option value="sleep">💤 نوّم البيسي</option><option value="media">⏯️ شغّل / وقّف الأغنية</option></select>
+      <div id="stepVal"></div>
+      <button id="stepAdd" class="wide ghost hidden" style="color:#fff">أضف الخطوة</button>
+    </div>
+    <div class="linkrow" style="margin-top:14px"><button id="edSave">احفظ الزر</button>${editing.id ? '<button id="edDel" class="ghost">احذفه</button>' : ""}</div>`;
+  stepKind = "";
+}
+async function paintStepVal() {
+  const k = $("stepKind").value;
+  stepKind = k;
+  const box = $("stepVal");
+  $("stepAdd").classList.toggle("hidden", !k);
+  const sel = (opts) => `<select id="stepPick" class="search">${opts.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select>`;
+  if (k === "out") {
+    box.innerHTML = '<p class="muted">نجيب أجهزة الصوت…</p>';
+    const r = await cmd("audio.list");
+    if (stepKind !== k) return;
+    const list = r.ok ? r.data?.list ?? [] : [];
+    devAll = list.map((o) => o.name);
+    box.innerHTML = list.length ? sel(list.map((o) => [o.id, devName(o.name).main])) : '<p class="muted">ما لقينا أجهزة صوت.</p>';
+  } else if (k === "vol" || k === "bright") box.innerHTML = sel([100, 80, 70, 60, 50, 40, 30, 20, 10].map((n) => [n, `${n}%`]));
+  else if (k === "mic") box.innerHTML = sel([["1", "اكتمه"], ["0", "افتحه"]]);
+  else if (k === "screen") box.innerHTML = sel(Object.entries(MODE_WORD));
+  else if (k === "off") box.innerHTML = sel([5, 10, 15, 30, 45, 60, 90, 120].map((n) => [n, `بعد ${num(n, W.min)}`]));
+  else if (k === "game") {
+    if (!games.length) await loadGames();
+    if (stepKind !== k) return;
+    box.innerHTML = games.length ? sel(games.map((g) => [g.key, g.name])) : '<p class="muted">ما لقينا ألعاب.</p>';
+  } else if (k === "app") {
+    box.innerHTML = '<p class="muted">نجيب البرامج…</p>';
+    const [mine, all] = await Promise.all([cmd("apps.list"), cmd("apps.all")]);
+    if (stepKind !== k) return;
+    const opts = [...(mine.ok ? mine.data ?? [] : []).map((a) => [`m:${a.id}`, a.name]), ...(all.ok ? all.data ?? [] : []).map((a) => [`a:${a.id}`, a.name])];
+    box.innerHTML = opts.length ? sel(opts) : '<p class="muted">ما لقينا برامج.</p>';
+  } else box.innerHTML = "";
+}
+function pickedStep() {
+  const k = stepKind;
+  const v = $("stepPick")?.value;
+  const label = $("stepPick")?.selectedOptions?.[0]?.textContent ?? "";
+  if (k === "out") return v && { t: "out", id: v, name: devAll.find((n) => devName(n).main === label) || label };
+  if (k === "vol" || k === "bright") return { t: k, level: Number(v) };
+  if (k === "mic") return { t: "mic", muted: v === "1" };
+  if (k === "screen") return { t: "screen", mode: v };
+  if (k === "off") return { t: "off", minutes: Number(v) };
+  if (k === "game") return v && { t: "game", key: v, name: label };
+  if (k === "app") return v && { t: "app", id: v.slice(2), all: v.startsWith("a:"), name: label };
+  if (k === "media") return { t: "media", key: "play" };
+  return k ? { t: k } : null;
+}
+$("deckBody").addEventListener("change", (e) => e.target.id === "stepKind" && paintStepVal());
+$("deckBody").addEventListener("input", (e) => e.target.id === "edName" && editing && (editing.name = e.target.value));
+$("deckBody").addEventListener("click", async (e) => {
+  const t = e.target;
+  if (t.closest("#deckNew")) return buzz(8), openDeck(null);
+  const ed = t.closest("[data-ed]");
+  if (ed) return buzz(8), openDeck(deckList.find((b) => b.id === ed.dataset.ed));
+  const tpl = t.closest("[data-tpl]");
+  if (tpl) {
+    buzz(8);
+    const base = deckTemplates[Number(tpl.dataset.tpl)];
+    return openDeck(base ? { name: base.name, emoji: base.emoji, steps: base.steps } : { name: "", emoji: "⚡", steps: [] });
+  }
+  const emo = t.closest("[data-emo]");
+  if (emo) {
+    editing.emoji = emo.dataset.emo;
+    return $("deckBody").querySelectorAll("[data-emo]").forEach((b) => b.classList.toggle("on", b === emo));
+  }
+  const rm = t.closest("[data-rm]");
+  if (rm) {
+    editing.name = $("edName").value;
+    editing.steps.splice(Number(rm.dataset.rm), 1);
+    return paintEditor();
+  }
+  if (t.closest("#stepAdd")) {
+    const s = pickedStep();
+    if (!s) return;
+    if (editing.steps.length >= 10) return toast("الزر يشيل 10 خطوات بالكثير", true);
+    buzz(8);
+    editing.name = $("edName").value;
+    editing.steps.push(s);
+    return paintEditor();
+  }
+  if (t.closest("#edSave")) {
+    editing.name = $("edName").value.trim();
+    if (!editing.name) return toast("اكتب اسم للزر", true);
+    if (!editing.steps.length) return toast("أضف خطوة وحدة على الأقل", true);
+    const list = editing.id ? deckList.map((b) => (b.id === editing.id ? editing : b)) : [...deckList, editing];
+    return saveDeck(list, `حفظنا «${editing.name}» ✓`, t.closest("#edSave"));
+  }
+  if (t.closest("#edDel")) {
+    if (!confirm(`نحذف زر «${editing.name}»؟`)) return;
+    return saveDeck(deckList.filter((b) => b.id !== editing.id), "حذفناه", t.closest("#edDel"));
+  }
+});
+async function saveDeck(list, said, btn) {
+  buzz();
+  const done = working(btn, "");
+  const r = await cmd("scenes.set", { list });
+  done();
+  if (!r.ok) return fail(r);
+  deckList = r.data?.list ?? list;
+  paintDeck();
+  $("deckSheet").classList.add("hidden");
+  toast(said);
+}
+
+// ---- 🎙️ «تكلم من جوالك»: hold to talk, your voice comes out of the PC's speakers ----
+let rec = null, recChunks = [], recAt = 0, recTimer = null, recStream = null, recWant = false;
+const recType = () => ["audio/webm;codecs=opus", "audio/mp4", "audio/webm", "audio/ogg;codecs=opus"].find((t) => window.MediaRecorder?.isTypeSupported?.(t)) || "";
+function talkSay(text, on = false) {
+  $("talkState").textContent = text;
+  $("talkState").classList.toggle("on", on);
+}
+async function talkStart(e) {
+  e.preventDefault();
+  if (rec) return;
+  recWant = true;
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) return talkSay("جوالك ما يسمح بالتسجيل من الصفحة.");
+  try {
+    recStream ??= await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  } catch {
+    return talkSay("لازم تسمح للصفحة تستخدم المايك (من إعدادات المتصفح).");
+  }
+  // the finger came off while the phone was asking for the microphone: nothing recorded this time
+  if (!recWant) return talkSay("الحين اضغط واستمر وأنت تتكلم.");
+  const type = recType();
+  rec = new MediaRecorder(recStream, type ? { mimeType: type } : undefined);
+  recChunks = [];
+  rec.ondataavailable = (ev) => ev.data.size && recChunks.push(ev.data);
+  rec.onstop = talkSend;
+  rec.start();
+  recAt = Date.now();
+  buzz(20);
+  $("talkBtn").classList.add("rec");
+  const tick = () => talkSay(`نسجّل… ${Math.floor((Date.now() - recAt) / 1000)} ث · اتركه عشان يوصل`, true);
+  tick();
+  recTimer = setInterval(() => (Date.now() - recAt > 60e3 ? talkStop() : tick()), 250);
+}
+function talkStop() {
+  recWant = false;
+  clearInterval(recTimer);
+  $("talkBtn").classList.remove("rec");
+  if (rec && rec.state !== "inactive") rec.stop();
+}
+async function talkSend() {
+  const took = Date.now() - recAt;
+  const type = rec?.mimeType || recType() || "audio/webm";
+  rec = null;
+  // (the microphone is let go: the phone stops showing it in use)
+  recStream?.getTracks().forEach((t) => t.stop());
+  recStream = null;
+  if (took < 700) return talkSay("اضغط على الزر واستمر وأنت تتكلم، وبعدين اتركه.");
+  const blob = new Blob(recChunks, { type });
+  talkSay("نرسله للبيسي…");
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  const b = await cmd("voice.begin", { size: buf.length, type });
+  if (!b.ok) return talkSay(""), fail(b);
+  const PART = 96 * 1024;
+  for (let i = 0; i * PART < buf.length; i++) {
+    let r;
+    for (let t = 0; t < 3 && !r?.ok; t++) r = await cmd("voice.part", { vid: b.data.vid, i, data: b64u(buf.subarray(i * PART, (i + 1) * PART)) });
+    if (!r.ok) return talkSay(""), fail(r);
+  }
+  const e = await cmd("voice.end", { vid: b.data.vid });
+  if (!e.ok) return talkSay(""), fail(e);
+  buzz(30);
+  talkSay("📢 طلع صوتك من البيسي. تبي ترسل ثاني؟ اضغط واستمر.");
+}
+$("talkBtn").addEventListener("pointerdown", talkStart);
+for (const ev of ["pointerup", "pointercancel", "pointerleave"]) $("talkBtn").addEventListener(ev, talkStop);
+$("talkBtn").addEventListener("contextmenu", (e) => e.preventDefault());
+
+// ---- 👀 «راقب البيسي» ----
+let guardNow = null;
+async function loadGuard() {
+  const r = await cmd("guard.get");
+  $("guardBox").classList.toggle("hidden", !r.ok);
+  if (r.ok) paintGuard(r.data);
+}
+function paintGuard(g) {
+  guardNow = g;
+  $("guardSw").classList.toggle("on", Boolean(g.on));
+  $("guardLockSw").classList.toggle("on", Boolean(g.lock));
+  $("guardHint").classList.toggle("hidden", !(g.on && !localStorage.getItem("nk-push")));
+}
+for (const [id, key] of [["guardSw", "on"], ["guardLockSw", "lock"]])
+  $(id).addEventListener("click", async () => {
+    if (!guardNow) return;
+    buzz();
+    const want = { on: guardNow.on, lock: guardNow.lock, [key]: !guardNow[key] };
+    $(id).classList.toggle("on", want[key]);
+    $(id).classList.add("wait");
+    const r = await cmd("guard.set", want);
+    $(id).classList.remove("wait");
+    if (!r.ok) return paintGuard(guardNow), fail(r);
+    paintGuard(r.data);
+    if (key === "on") toast(r.data.on ? "👀 البيسي تحت المراقبة. أول لمسة توصلك" : "وقّفنا المراقبة");
+  });
+
+// ---- 🎮 the gaming dashboard ----
+const GAUGES = [
+  ["cpu", "المعالج", "%", 100],
+  ["gpu", "كرت الشاشة", "%", 100],
+  ["temp", "حرارة الكرت", "°", 100],
+  ["ram", "الرام", "%", 100],
+  ["ping", "البنق", "ms", 200],
+  ["down", "التنزيل · ميجابت", "Mb", 500],
+];
+let dashTimer = null, wake = null;
+function gaugeSvg(id) {
+  // a 240° ring: the grey track and the coloured value on top
+  const r = 44, c = 2 * Math.PI * r, arc = c * (240 / 360);
+  return `<svg viewBox="0 0 110 100"><circle cx="55" cy="55" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${arc} ${c}" transform="rotate(150 55 55)"/><circle id="g-${id}" class="val" cx="55" cy="55" r="${r}" fill="none" stroke="#34d399" stroke-width="10" stroke-linecap="round" stroke-dasharray="${arc} ${c}" stroke-dashoffset="${arc}" transform="rotate(150 55 55)" data-arc="${arc}"/></svg>`;
+}
+function paintDashFrame() {
+  $("dGrid").innerHTML = GAUGES.map(([id, label]) => `<div class="gauge">${gaugeSvg(id)}<div class="v" id="gv-${id}">—</div><span>${label}</span></div>`).join("");
+}
+function setGauge(id, value, max, unit, warnAt, hotAt) {
+  const el = $(`g-${id}`);
+  if (!el) return;
+  const arc = Number(el.dataset.arc);
+  const v = value == null ? null : Number(value);
+  el.style.strokeDashoffset = v == null ? arc : arc * (1 - Math.max(0, Math.min(1, v / max)));
+  el.style.stroke = v == null ? "#34d399" : v >= hotAt ? "#ef3b2d" : v >= warnAt ? "#ffc93c" : "#34d399";
+  $(`gv-${id}`).textContent = v == null ? "—" : `${Math.round(v)}${unit === "%" || unit === "°" ? unit : ""}`;
+}
+async function dashTick() {
+  const r = await cmd("pc.status");
+  if (!r.ok || !r.data) return;
+  const s = r.data;
+  setGauge("cpu", s.cpu, 100, "%", 70, 90);
+  setGauge("gpu", s.gpu?.use, 100, "%", 80, 95);
+  setGauge("temp", s.gpu?.temp, 100, "°", 75, 85);
+  setGauge("ram", s.ram ? (100 * s.ram.used) / s.ram.total : null, 100, "%", 80, 92);
+  setGauge("ping", s.net?.ping, 200, "ms", 60, 120);
+  setGauge("down", s.net?.down != null ? (s.net.down * 8) / 1e6 : null, 500, "Mb", 9999, 9999);
+  const g = games.find((x) => x.key === runningKey);
+  $("dGame").textContent = g ? g.name : "ما فيه لعبة شغّالة";
+  $("dTime").textContent = g && runningSince ? `شغّالة من ${span(Math.max(60, (Date.now() - runningSince) / 1000))}` : "";
+}
+$("dashOpen").addEventListener("click", async () => {
+  buzz();
+  paintDashFrame();
+  $("dash").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  // the phone's screen stays on while it's open (where the phone allows it)
+  try {
+    wake = await navigator.wakeLock?.request("screen");
+  } catch {}
+  if (!games.length) loadGames();
+  dashTick();
+  dashTimer = setInterval(() => document.visibilityState === "visible" && dashTick(), 2000);
+});
+$("dashClose").addEventListener("click", () => {
+  clearInterval(dashTimer);
+  wake?.release?.().catch(() => {});
+  wake = null;
+  $("dash").classList.add("hidden");
+  document.body.style.overflow = "";
+});
 
 // ---- start ----
 const hash = new URLSearchParams(location.hash.slice(1));
