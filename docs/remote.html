@@ -3556,6 +3556,11 @@ const SRV_TIPS = {
   apex: "بشاشة البداية افتح «Data Center» واختار البحرين أو الأقل بنق.",
   rocket: "من الإعدادات ← «Gameplay» ← «منطقة المطابقة» اختار «Middle East».",
   dota: "وتقدر بعد تختار «دبي» بس من إعدادات البحث عن قيم.",
+  pubg: "من الشاشة الرئيسية فوق، اختار المنطقة الأقل بنق.",
+  rivals: "قبل ما تدوّر قيم، اضغط زر السيرفر فوق واختار الأقل بنق.",
+  cod: "تختار السيرفر بنفسها حسب البنق. الأهم كيبل بدل الواي فاي.",
+  lol: "على حسب منطقة حسابك. منطقة «الشرق الأوسط» سيرفرها قريب منك.",
+  bf: "من إعدادات الشبكة باللعبة اختار مركز البيانات الأقل بنق.",
 };
 const msTone = (ms) => (ms == null ? "var(--dim)" : ms <= 40 ? "var(--green)" : ms <= 90 ? "var(--gold)" : "var(--red)");
 let srvData = null;
@@ -3584,20 +3589,24 @@ function paintServers() {
   if (!d) return;
   const best = d.cities[0];
   $("srvBest").innerHTML = best ? `أقرب سيرفر لك: <b style="color:${msTone(best.ms)}">${esc(best.name)}</b> <span dir="ltr">${best.ms} ms</span>` : "";
-  $("srvRegions").innerHTML = d.regions.map((x) => `<div class="b" style="min-height:62px;padding:8px 6px"><small style="color:${msTone(x.ms)};font-weight:700">${esc(x.name)}</small><b dir="ltr" style="font-size:17px">${x.ms == null ? "—" : x.ms + " ms"}</b></div>`).join("");
-  $("srvGames").innerHTML = d.games
-    .map((g) =>
-      g.kind === "sdr"
-        ? `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${g.blocked ? `✓ تدخلك القريب بس (محجوب ${g.blocked.count} مكان)` : "نحجب السيرفرات البعيدة عشان تدخلك القريب. على البيسي يطلع سؤال من ويندوز."}${g.tip ? " " + esc(SRV_TIPS[g.tip] || "") : ""}</small></div><button class="chip" data-srv="${g.appId}" data-on="${g.blocked ? 1 : 0}">${g.blocked ? "رجّعها" : "القريب بس"}</button></div>`
-        : `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${esc(SRV_TIPS[g.tip] || "")}</small></div></div>`,
-    )
-    .join("");
+  $("srvRegions").innerHTML = d.regions.map((x) => `<div class="b" style="min-height:62px;padding:8px 6px"><small style="color:${msTone(x.ms)};font-weight:700">${esc(x.name)}</small><b dir="ltr" style="font-size:17px">${x.state === "down" ? "طافي" : x.ms == null ? "—" : x.ms + " ms"}</b></div>`).join("");
+  // games we can steer from here: Valve's, Overwatch, Dead by Daylight, Rainbow Six (its own file), any game blocked on the PC
+  const STEER = { sdr: 1, cloud: 1, hosts: 1, custom: 1, ini: 1 };
+  $("srvGames").innerHTML =
+    (d.down?.length ? `<p class="hint" style="margin:0 2px 8px;color:var(--gold)">طافي الحين: ${esc(d.down.join("، "))}</p>` : "") +
+    d.games
+      .map((g) =>
+        STEER[g.kind]
+          ? `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${g.blocked ? `✓ تدخلك القريب بس${g.blocked.after?.worst ? ` (أبعدها ${g.blocked.after.worst} ms)` : ""}` : g.kind === "ini" ? "نختار لها أقرب سيرفر بملف إعداداتها." : "نبلك السيرفرات البعيدة عشان تدخلك القريب. على البيسي يطلع سؤال من ويندوز."}${g.tip ? " " + esc(SRV_TIPS[g.tip] || "") : ""}</small></div><button class="chip" data-srv="${esc(g.id ?? g.appId)}" data-on="${g.blocked ? 1 : 0}">${g.blocked ? "رجّعها" : "القريب بس"}</button></div>`
+          : `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${esc(SRV_TIPS[g.tip] || "")}</small></div></div>`,
+      )
+      .join("");
   $("srvGames").querySelectorAll("[data-srv]").forEach((b) =>
     b.addEventListener("click", async () => {
       const done = working(b, "");
       try {
         const on = b.dataset.on === "1";
-        const r = await cmd(on ? "servers.clear" : "servers.near", { appId: Number(b.dataset.srv) }, 5 * 60e3);
+        const r = await cmd(on ? "servers.clear" : "servers.near", { id: b.dataset.srv }, 5 * 60e3);
         if (!r.ok) return fail(r);
         buzz(30);
         toast(on ? "رجعت كل السيرفرات" : `تم ✓ ${r.data?.game ?? ""} بتدخلك ${(r.data?.kept || []).slice(0, 3).join("، ")}`);
