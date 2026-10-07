@@ -274,6 +274,10 @@
   .app.open { border-color: rgba(52,211,153,.55); }
   .app.open::after { content: ""; position: absolute; top: 7px; inset-inline-end: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
   .arow .live { font-size: 11px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+  /* closed to the tray, still running (WhatsApp, Discord…): a faded dot, «بالخلفية» (owner's pick, 2026-10-07) */
+  .app.open.bg { border-color: var(--line); }
+  .app.open.bg::after { opacity: .45; box-shadow: none; }
+  .arow .live.bg { color: var(--dim); }
   .apphead { display: flex; align-items: center; gap: 12px; margin: 0 4px 14px; }
   .apphead img, .apphead .ph { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: #241b1c; object-fit: contain; font-weight: 700; color: var(--dim); }
   .apphead b { display: block; font-size: 16px; }
@@ -314,7 +318,7 @@
     <div id="shotGrid" class="sgrid"></div>
   </div></div>
   <div id="appSheet" class="sheet hidden"><div class="in">
-    <div class="apphead"><span id="asIcon"></span><div><b id="asName" dir="auto"></b><small>مفتوح على البيسي</small></div></div>
+    <div class="apphead"><span id="asIcon"></span><div><b id="asName" dir="auto"></b><small id="asState">مفتوح على البيسي</small></div></div>
     <button id="asClose" class="wide">سكّره</button>
     <button id="asOpen" class="wide ghost" style="margin-top:8px">افتحه مرة ثانية</button>
   </div></div>
@@ -1202,7 +1206,7 @@ function paintApps() {
   $("appsBox").classList.toggle("hidden", !items.length && !canAll);
   $("appsAllBtn").classList.toggle("hidden", !canAll);
   $("appsEmpty").classList.toggle("hidden", items.length > 0);
-  $("apps").innerHTML = items.map((a) => `<button class="app${openIds.has(a.mine ? `m:${a.id}` : `a:${a.id}`) ? " open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`).join("");
+  $("apps").innerHTML = items.map((a) => { const k = a.mine ? `m:${a.id}` : `a:${a.id}`; return `<button class="app${openIds.has(k) ? (bgIds.has(k) ? " open bg" : " open") : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`; }).join("");
   const missing = pinned.filter((a) => !appIcons.has(a.id)).map((a) => a.id);
   if (missing.length) iconsFor(missing).then(paintApps);
 }
@@ -1241,7 +1245,7 @@ function paintAllApps() {
     ? list
         .map(
           (a) =>
-            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span>${openIds.has(`a:${a.id}`) ? '<span class="live">● مفتوح</span>' : ""}</button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${pinned.has(a.id) ? "★" : "☆"}</button></div>`,
+            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span>${openIds.has(`a:${a.id}`) ? (bgIds.has(`a:${a.id}`) ? '<span class="live bg">● بالخلفية</span>' : '<span class="live">● مفتوح</span>') : ""}</button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${pinned.has(a.id) ? "★" : "☆"}</button></div>`,
         )
         .join("")
     : `<p class="muted">ما فيه برنامج بهالاسم على البيسي.</p>`;
@@ -1283,7 +1287,8 @@ $("appsSheet").addEventListener("click", (e) => {
 });
 
 // ---- programs open on the PC: a green dot, and tapping one that's open offers «سكّره» ----
-let openIds = new Set(), runLook = 0, sheetFor = null;
+// bgIds: running with no window on screen (closed to the tray): a faded dot
+let openIds = new Set(), bgIds = new Set(), runLook = 0, sheetFor = null;
 const openKey = (b) => (b.dataset.app ? `m:${b.dataset.app}` : `a:${b.dataset.run}`);
 let openSig = "";
 async function loadRunning() {
@@ -1291,8 +1296,9 @@ async function loadRunning() {
   const r = await cmd("apps.running");
   if (!r.ok) return;
   openIds = new Set([...(r.data?.mine ?? []).map((id) => `m:${id}`), ...(r.data?.all ?? []).map((id) => `a:${id}`)]);
-  // (drawn again only when something opened or closed: no flicker every few seconds)
-  const sig = [...openIds].sort().join("|");
+  bgIds = new Set([...(r.data?.bgMine ?? []).map((id) => `m:${id}`), ...(r.data?.bgAll ?? []).map((id) => `a:${id}`)]);
+  // (drawn again only when something opened, closed or went to the tray: no flicker every few seconds)
+  const sig = `${[...openIds].sort().join("|")}#${[...bgIds].sort().join("|")}`;
   if (sig === openSig) return;
   openSig = sig;
   paintApps();
@@ -1307,6 +1313,7 @@ function showAppSheet(b, name) {
   const icon = b.querySelector("img")?.getAttribute("src");
   $("asIcon").outerHTML = icon ? `<img id="asIcon" src="${esc(icon)}" alt="" />` : `<span id="asIcon" class="ph">${esc(name.charAt(0))}</span>`;
   $("asName").textContent = name;
+  $("asState").textContent = bgIds.has(openKey(b)) ? "نافذته مسكّرة، بس شغّال بالخلفية" : "مفتوح على البيسي";
   $("appSheet").classList.remove("hidden");
 }
 async function openApp(f, name, b) {
