@@ -14,7 +14,6 @@
 <!-- opens fast: the library starts downloading at once, and the font never holds the first paint back
      (the phone's own font shows first; remote-sw.js keeps both on the phone for next time) -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm" />
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin />
@@ -680,13 +679,70 @@
 <div id="toast" class="toast"></div>
 
 <script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm";
-
 const SB_URL = "https://yiujxcmynjauwwpbikxl.supabase.co";
 const SB_KEY = "sb_publishable_vpnc3OKWBjuOhz7HgCFh3Q_rnUv8wZP";
+const RELAY_URL = "wss://nuke-relay.nuke-gcc.workers.dev/ws";
 const STORE = "nk-remote-pcs"; // [{ id, k, pc, vapid }] — every PC this phone controls
 const CUR = "nk-remote-cur";
-const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+// NUKE's own relay on Cloudflare (2026-10-07; site/relay/worker.js): the same small shape the page used with Supabase
+// Realtime — channel(name).on(…, fn).subscribe(cb), send({ payload }), removeChannel(c). One WebSocket per channel,
+// "ping" every 45 s, back by itself 1, 2, 4… up to 30 s after a drop. (No relay address → Supabase, as before.)
+function createRelay(url) {
+  const open = (c) => {
+    if (c.closed) return;
+    let ws;
+    try {
+      ws = new WebSocket(`${url}?ch=${encodeURIComponent(c.name)}`);
+    } catch {
+      return retry(c);
+    }
+    c.ws = ws;
+    ws.onopen = () => {
+      c.tries = 0;
+      clearInterval(c.ping);
+      c.ping = setInterval(() => ws.readyState === 1 && ws.send("ping"), 45e3);
+      c.status?.("SUBSCRIBED");
+    };
+    ws.onmessage = (e) => {
+      if (typeof e.data !== "string" || e.data === "pong") return;
+      let payload;
+      try {
+        payload = JSON.parse(e.data);
+      } catch {
+        return;
+      }
+      c.handlers.forEach((fn) => fn({ payload }));
+    };
+    ws.onclose = () => {
+      clearInterval(c.ping);
+      if (c.ws === ws) c.ws = null;
+      if (!c.closed) retry(c);
+    };
+  };
+  const retry = (c) => !c.closed && setTimeout(() => open(c), Math.min(30e3, 1000 * 2 ** c.tries++));
+  return {
+    channel(name) {
+      const c = { name, handlers: [], ws: null, closed: false, tries: 0, status: null, ping: null };
+      c.on = (_t, _f, fn) => (c.handlers.push(fn), c);
+      c.subscribe = (cb) => ((c.status = cb), open(c), c);
+      c.send = async (m) => (c.ws?.readyState === 1 ? (c.ws.send(JSON.stringify(m?.payload ?? null)), "ok") : "error");
+      return c;
+    },
+    removeChannel(c) {
+      if (c) {
+        c.closed = true;
+        clearInterval(c.ping);
+        try {
+          c.ws?.close(1000);
+        } catch {}
+      }
+      return Promise.resolve("ok");
+    },
+  };
+}
+const sb = /^wss:\/\//.test(RELAY_URL)
+  ? createRelay(RELAY_URL)
+  : (await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm")).createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 const $ = (id) => document.getElementById(id);
 const enc = new TextEncoder();
 const dec = new TextDecoder();
