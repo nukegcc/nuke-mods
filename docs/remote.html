@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="NUKE Remote" />
 <link rel="manifest" href="remote.webmanifest" />
 <link rel="icon" href="remote-icon.png" />
-<link rel="apple-touch-icon" href="remote-icon.png" />
+<link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE Remote</title>
 <!-- opens fast: the library starts downloading at once, and the font never holds the first paint back
      (the phone's own font shows first; remote-sw.js keeps both on the phone for next time) -->
@@ -26,7 +26,7 @@
   body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 75% 28% at 50% 26%, rgba(239,59,45,.13), transparent 72%); }
   .wrap { position: relative; max-width: 480px; margin: 0 auto; }
   header { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
-  header img { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 0 24px rgba(239,59,45,.4); }
+  header img { width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(239,59,45,.45)); }
   header .t { flex: 1; min-width: 0; }
   header h1 { margin: 0; font-size: 19px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   header p { margin: 2px 0 0; font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
@@ -51,7 +51,7 @@
   .center { text-align: center; padding: 40px 10px; }
   .center h2 { font-size: 22px; margin: 18px 0 8px; color: #fff; }
   .center p { color: var(--dim); line-height: 1.7; margin: 0 0 20px; white-space: pre-line; }
-  .big { width: 84px; height: 84px; border-radius: 26px; box-shadow: 0 0 40px rgba(239,59,45,.45); }
+  .big { width: 104px; height: 104px; object-fit: contain; filter: drop-shadow(0 10px 26px rgba(239,59,45,.45)); }
   .spin { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); border-radius: 50%; animation: s .8s linear infinite; margin: 0 auto; }
   /* a button that is working: it answers the tap at once (an iPhone page can't vibrate) */
   button.busy { opacity: .85; pointer-events: none; }
