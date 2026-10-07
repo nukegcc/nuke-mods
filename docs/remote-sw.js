@@ -35,6 +35,27 @@ const fixed = (u) => (u.hostname === "cdn.jsdelivr.net" && /^\/npm\/(@[^/]+\/)?[
 const here = (u) => u.origin === self.location.origin;
 const pageKey = (u) => `${u.origin}${u.pathname}`; // ?tab=… / a shared link: the same page
 
+// big files straight to Downloads: the page says "dl" with a port; the bytes it sends on the port become the
+// download's body (null = the end, "abort" = cut off)
+const downloads = new Map();
+self.addEventListener("message", (event) => {
+  const m = event.data;
+  const port = event.ports?.[0];
+  if (m?.t !== "dl" || !port || typeof m.id !== "string") return;
+  let ctrl;
+  const stream = new ReadableStream({ start: (c) => (ctrl = c) });
+  port.onmessage = (e) => {
+    try {
+      if (e.data === null) ctrl.close();
+      else if (e.data === "abort") ctrl.error(new Error("cut off"));
+      else ctrl.enqueue(e.data instanceof Uint8Array ? e.data : new Uint8Array(e.data));
+    } catch {}
+  };
+  downloads.set(m.id, { stream, name: String(m.name || "file"), size: Number(m.size) || 0, type: String(m.type || "") });
+  setTimeout(() => downloads.delete(m.id), 60e3);
+  port.postMessage("ok");
+});
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
@@ -43,6 +64,22 @@ self.addEventListener("fetch", (event) => {
     u = new URL(req.url);
   } catch {
     return;
+  }
+  // a big file from the PC, written into the phone's Downloads as its pieces arrive (see the "dl" message below)
+  const dl = here(u) && /\/nk-dl\/([0-9a-f-]{36})$/.exec(u.pathname);
+  if (dl) {
+    const d = downloads.get(dl[1]);
+    downloads.delete(dl[1]);
+    if (!d) return event.respondWith(new Response("", { status: 404 }));
+    return event.respondWith(
+      new Response(d.stream, {
+        headers: {
+          "Content-Type": d.type || "application/octet-stream",
+          "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(d.name)}`,
+          ...(d.size ? { "Content-Length": String(d.size) } : {}),
+        },
+      }),
+    );
   }
   if (fixed(u)) return event.respondWith(keptFirst(req));
   if (here(u) && /\/remote\.html$/.test(u.pathname)) return event.respondWith(pageFirst(event, req, pageKey(u)));
