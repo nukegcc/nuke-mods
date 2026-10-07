@@ -174,6 +174,21 @@
   .pcrow small { font-weight: 500; font-size: 12px; color: var(--dim); }
   .sendbox { height: auto; min-height: 52px; max-height: 140px; padding: 12px 14px; resize: none; line-height: 1.6; display: block; margin-bottom: 8px; }
   .linkrow { display: flex; gap: 8px; }
+  /* «صوّر الخطأ بجوالك» */
+  .errcall { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 4px 2px 2px; }
+  .errcall svg { width: 30px; height: 30px; color: #ff8a1f; }
+  .errcall b { font-size: 16px; margin-top: 2px; }
+  .errcall small { color: var(--dim); font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
+  #errBox { border-color: rgba(239,59,45,.45); }
+  .errres { margin-top: 12px; border-radius: 18px; background: var(--card2); padding: 14px; }
+  .errres .lbl { font-size: 12.5px; color: #ff8a1f; font-weight: 700; }
+  .errres .lbl.ok { color: var(--green); }
+  .errres h3 { font-size: 16px; margin: 4px 0 6px; line-height: 1.5; }
+  .errres p { font-size: 13.5px; color: rgba(255,255,255,.75); line-height: 1.75; margin: 0 0 10px; }
+  .errres .atpc { font-size: 12.5px; color: var(--gold); margin: 8px 2px 0; }
+  .errres ul { margin: 8px 0 0; padding-inline-start: 18px; font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.8; }
+  .errres pre { white-space: pre-wrap; direction: ltr; text-align: left; font: 12px/1.6 ui-monospace, Consolas, monospace; background: rgba(0,0,0,.35); border-radius: 12px; padding: 10px; margin: 8px 0 0; color: rgba(255,255,255,.7); max-height: 180px; overflow: auto; }
+  .errres .mean { white-space: pre-line; }
   .linkrow button { min-height: 46px; border-radius: 14px; padding: 0 16px; background: var(--red); font-weight: 700; font-size: 14px; flex: 1; }
   .linkrow button.ghost { background: var(--card2); border: 1px solid var(--line); flex: 0 0 auto; }
   .linkrow button:disabled { opacity: .45; }
@@ -484,6 +499,17 @@
     <!-- 💻 PC -->
     <div id="tab-pc" class="tab">
       <div class="tabhead"><img src="ban-pc.jpg" alt="" /><div><b>البيسي</b><small>تحكم فيه من مكانك</small></div></div>
+      <section id="errBox">
+        <div class="errcall">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          <b>طلع لك خطأ؟</b>
+          <small>صوّره (أو اختر صورته من المعرض)، ونقول لك وش هو ونصلّحه بالبيسي</small>
+        </div>
+        <div class="linkrow"><button id="errGo">صوّر الخطأ</button></div>
+        <input id="errIn" type="file" accept="image/*" hidden />
+        <p id="errState" class="hint hidden"></p>
+        <div id="errOut" class="errres hidden"></div>
+      </section>
       <section id="deckBox">
         <h2><span>أزرارك</span><button id="deckEdit" class="more">عدّل</button></h2>
         <div id="deck" class="deck"><p class="muted">نجيب أزرارك…</p></div>
@@ -1342,7 +1368,7 @@ function paint() {
   $("dot").className = "dot" + (on ? " on" : "");
   $("status").textContent = on ? (direct() ? "متصل مباشرة ⚡" : "متصل") : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
 }
-function cmd(action, args) {
+function cmd(action, args, wait = 9000) {
   const id = crypto.randomUUID();
   // (no answer over a direct link that didn't say it closed: it's dropped, the next ask goes over the relay — never the
   // same ask twice: it may have been done already)
@@ -1352,7 +1378,7 @@ function cmd(action, args) {
       pending.delete(id);
       if (wasDirect) closeRtc();
       resolve({ ok: false, error: "TIMEOUT" });
-    }, 9000);
+    }, wait);
     pending.set(id, (m) => {
       clearTimeout(timer);
       resolve(m);
@@ -1379,6 +1405,15 @@ const ERR = {
   DISK_FULL: "البيسي ما فيه مساحة كافية للملف.",
   MSG_WAIT: "استنى ثواني قبل الرسالة الجاية.",
   VOICE_TOO_LONG: "التسجيل طويل. خله أقل من دقيقة.",
+  WHY_IMAGE: "هذي مو صورة نقدر نقراها. جرّب صورة ثانية.",
+  WHY_NO_TEXT: "ما قدرنا نقرا الكلام بالصورة. صوّر الشاشة من قريب، وبدون انعكاس.",
+  WHY_GONE: "هالخطأ انمسح من البيسي. صوّره مرة ثانية.",
+  WHY_BUSY: "قاعدين نصلّحها، لحظة.",
+  WHY_FIX_FAILED: "ما زبط التصليح. جرّب مرة ثانية.",
+  UAC_DECLINED: "ما أحد وافق على نافذة ويندوز بالبيسي، فما ثبّتنا شي.",
+  RUNTIME_DOWNLOAD: "البيسي ما قدر ينزّل الملفات. تأكد من نته.",
+  RUNTIME_SIGNATURE: "الملف اللي نزل مو موقّع من صاحبه، فما شغّلناه. جرّب مرة ثانية.",
+  RUNTIME_FAILED: "مثبّت مايكروسوفت ما كمّل. أعد تشغيل البيسي وجرّب.",
 };
 // (only test copies of the app send a "detail")
 const fail = (r) => toast((ERR[r.error] || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
@@ -3401,6 +3436,100 @@ async function talkSend() {
 $("talkBtn").addEventListener("pointerdown", talkStart);
 for (const ev of ["pointerup", "pointercancel", "pointerleave"]) $("talkBtn").addEventListener(ev, talkStop);
 $("talkBtn").addEventListener("contextmenu", (e) => e.preventDefault());
+
+// ---- 📷 «صوّر الخطأ بجوالك» ----
+// the photo (camera or gallery) is made smaller on the phone (≤ 2000 px JPEG), sent in pieces, read on the PC; the card
+// it sends back is in words already (the PC has the words)
+const errSay = (t) => {
+  $("errState").textContent = t;
+  $("errState").classList.toggle("hidden", !t);
+};
+async function shrinkPhoto(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k);
+    c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise((r) => c.toBlob(r, "image/jpeg", 0.88));
+  } catch {
+    return null;
+  }
+}
+let errView = null;
+function paintErr(v, note) {
+  errView = v;
+  const o = $("errOut");
+  o.classList.remove("hidden");
+  const c = v.cause;
+  const fixed = v.fixed || note?.good;
+  let h = "";
+  if (c) {
+    h += `<div class="lbl${fixed ? " ok" : ""}">${fixed ? "✓ " + esc(note?.text || "انحلّت") : "🎯 " + esc(v.found || "فهمنا الخطأ")}</div><h3>${esc(c.t)}</h3>${c.b ? `<p>${esc(c.b)}</p>` : ""}`;
+    if (c.fix && !fixed) h += `<div class="linkrow"><button id="errFix">${esc(c.fix === "صلّحها" ? "صلّحها بالبيسي" : c.fix)}</button></div>` + (c.atPc ? `<p class="atpc">بيطلع على البيسي سؤال من ويندوز «تسمح؟»، لازم أحد يوافق هناك.</p>` : "");
+    if (note && !note.good) h += `<p class="atpc">${esc(note.text)}</p>`;
+  } else {
+    h += `<div class="lbl">🤔 ${esc(v.none?.t || "")}</div><p>${esc(v.none?.b || "")}</p>`;
+    if (v.meaningAr) h += `<p class="mean">${esc(v.meaningAr)}</p>`;
+  }
+  if (v.others?.length) h += `<ul>${v.others.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  if (v.wiki?.titles?.length) h += `<p style="margin:12px 0 0;font-size:12.5px;color:var(--dim)">حلول بموقع بي سي قيمنق ويكي (تفاصيلها بالبيسي):</p><ul>${v.wiki.titles.map((t) => `<li dir="auto">${esc(t)}</li>`).join("")}</ul>`;
+  if (v.text) h += `<pre>${esc(v.text)}</pre>`;
+  o.innerHTML = `<b style="display:block;font-size:13px;color:var(--dim);margin-bottom:6px">${esc(v.title)}</b>` + h;
+  $("errFix")?.addEventListener("click", errFix);
+}
+async function errSend(file) {
+  const done = working($("errGo"), "نقرا الخطأ…");
+  $("errOut").classList.add("hidden");
+  try {
+    errSay("نرسل الصورة للبيسي…");
+    const blob = await shrinkPhoto(file);
+    if (!blob) return errSay(""), toast(ERR.WHY_IMAGE, true);
+    const buf = new Uint8Array(await blob.arrayBuffer());
+    const b = await cmd("err.begin", { size: buf.length, type: "image/jpeg" });
+    if (!b.ok) return errSay(""), fail(b);
+    const PART = 96 * 1024;
+    for (let i = 0; i * PART < buf.length; i++) {
+      let r;
+      for (let t = 0; t < 3 && !r?.ok; t++) r = await cmd("err.part", { sid: b.data.sid, i, data: b64u(buf.subarray(i * PART, (i + 1) * PART)) });
+      if (!r.ok) return errSay(""), fail(r);
+    }
+    errSay("البيسي قاعد يقرا الصورة…");
+    const e = await cmd("err.end", { sid: b.data.sid }, 45000);
+    errSay("");
+    if (!e.ok) return fail(e);
+    buzz(30);
+    paintErr(e.data);
+  } finally {
+    done();
+  }
+}
+const ERR_NOTES = { restart: "خلصنا. البيسي يبي إعادة تشغيل عشان يكمّل.", partial: "ثبّتنا جزء منها، والباقي ما زبط. جرّب مرة ثانية.", steam: "ستيم قاعد يفحص ملفاتها. إذا خلص جرّب اللعبة.", opened: "فتحنا الصفحة على البيسي.", admin: "فتحنا أداة ويندوز على البيسي. لازم أحد يوافق على نافذتها هناك.", dry: "نسخة تجربة: ما تغيّر شي على البيسي." };
+async function errFix() {
+  if (!errView?.cause) return;
+  const done = working($("errFix"), "نصلّحها…");
+  try {
+    if (errView.cause.atPc) errSay("وافق على نافذة ويندوز بالبيسي…");
+    // installing can take minutes (downloads + Windows' window)
+    const r = await cmd("err.fix", { id: errView.id, check: errView.cause.check }, 10 * 60e3);
+    errSay("");
+    if (!r.ok) return r.error === "TIMEOUT" ? toast("لسا يشتغل على البيسي. شوف شاشته.", true) : fail(r);
+    buzz(30);
+    const v = r.data.view;
+    const stillBad = !v.fixed && v.cause && v.cause.check === errView.cause.check;
+    const text = ERR_NOTES[r.data.note] || (stillBad ? "سوّيناها، بس الفحص للحين يشوف نفس الشي. جرّب اللعبة." : "انحلّت ✓ جرّب اللعبة الحين");
+    paintErr(v, { text, good: !stillBad || ["restart", "steam", "opened", "admin"].includes(r.data.note) });
+  } finally {
+    done?.();
+  }
+}
+$("errGo").addEventListener("click", () => $("errIn").click());
+$("errIn").addEventListener("change", (e) => {
+  const f = e.target.files?.[0];
+  e.target.value = "";
+  if (f) void errSend(f);
+});
 
 // ---- 👀 «راقب البيسي» ----
 let guardNow = null;
