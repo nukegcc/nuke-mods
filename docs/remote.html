@@ -174,6 +174,22 @@
   .pcrow small { font-weight: 500; font-size: 12px; color: var(--dim); }
   .sendbox { height: auto; min-height: 52px; max-height: 140px; padding: 12px 14px; resize: none; line-height: 1.6; display: block; margin-bottom: 8px; }
   .linkrow { display: flex; gap: 8px; }
+  /* categories on top of a tab: one shows at a time */
+  .cats { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 12px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .cats::-webkit-scrollbar { display: none; }
+  .cats button { flex-shrink: 0; white-space: nowrap; min-height: 40px; padding: 0 15px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line); font-weight: 700; font-size: 13.5px; color: rgba(255,255,255,.72); transition: background .15s, color .15s; }
+  .cats button.on { background: var(--red); border-color: var(--red); color: #fff; }
+  .catoff { display: none !important; }
+  .catempty { text-align: center; color: var(--dim); font-size: 13.5px; line-height: 1.7; padding: 34px 16px; background: var(--card); border: 1px dashed var(--line); border-radius: 24px; margin: 0 0 12px; }
+  /* settings: groups that open */
+  details.grp { background: var(--card); border: 1px solid var(--line); border-radius: 24px; margin-bottom: 10px; overflow: hidden; }
+  details.grp > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 16px; font-weight: 700; font-size: 15px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  details.grp > summary::-webkit-details-marker { display: none; }
+  details.grp > summary i { font-style: normal; font-size: 18px; }
+  details.grp > summary small { margin-inline-start: auto; color: var(--dim); font-weight: 500; font-size: 12.5px; }
+  details.grp > summary::after { content: ""; flex-shrink: 0; width: 8px; height: 8px; border-right: 2px solid var(--dim); border-bottom: 2px solid var(--dim); transform: rotate(45deg); margin-top: -4px; transition: transform .2s; }
+  details.grp[open] > summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  details.grp > .in { padding: 0 12px 14px; }
   /* «صوّر الخطأ بجوالك» */
   .errcall { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 4px 2px 2px; }
   .errcall svg { width: 30px; height: 30px; color: #ff8a1f; }
@@ -476,20 +492,28 @@
     <!-- 🎮 games -->
     <div id="tab-games" class="tab on">
       <div class="tabhead"><img src="ban-games.jpg" alt="" /><div><b>ألعابي</b><small>ألعابك وصورها وتحميلاتها</small></div></div>
-      <div id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div><div id="nowLimit" class="limitline hidden"><span id="nowLimitText"></span><button id="nowSnooze">خلّني نص ساعة</button></div></div></div>
-      <section id="steamBox" class="hidden">
+      <div class="cats" role="tablist"><button role="tab" data-cat="mine" data-empty="ما لقينا ألعاب للحين.">ألعابك</button><button role="tab" data-cat="friends" data-empty="ثبّت مودات للعبة بالبيسي، وتقدر تسوي لها كود لربعك هنا.">ربعك</button><button role="tab" data-cat="shots" data-empty="ما لقينا صور من ألعابك. صوّر وأنت تلعب (F12 بستيم) وتطلع هنا.">صورك</button><button role="tab" data-cat="steam" data-empty="ما فيه تحميلات ستيم الحين.">التحميلات</button></div>
+      <p class="catempty hidden"></p>
+      <div data-cat="mine" id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div><div id="nowLimit" class="limitline hidden"><span id="nowLimitText"></span><button id="nowSnooze">خلّني نص ساعة</button></div></div></div>
+      <section data-cat="steam" id="steamBox" class="hidden">
         <h2><span>تحميلات ستيم</span><span id="steamNote" class="was"></span></h2>
         <div id="steamList"></div>
       </section>
-      <section id="weekBox" class="hidden">
+      <section data-cat="mine" id="weekBox" class="hidden">
         <h2><span>أسبوعك</span></h2>
         <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض 🔥</span></div><div><b id="wLevel">—</b><span>مستواك 👑</span></div></div>
       </section>
-      <section id="shotsBox" class="hidden">
+      <section data-cat="friends" id="frBox" class="hidden">
+        <h2><span>العب مع ربعك</span></h2>
+        <p class="hint" style="margin:0 2px 10px">سوّ كود لمودات لعبة، وربعك يكتبونه في NUKE Mods وينزّل عندهم نفس موداتك.</p>
+        <div id="frList"></div>
+        <div id="frCode" class="errres hidden"></div>
+      </section>
+      <section data-cat="shots" id="shotsBox" class="hidden">
         <h2><span>صور لعبك</span><button id="shotsAll" class="more">كل الصور</button></h2>
         <div id="shots" class="shots"></div>
       </section>
-      <section>
+      <section data-cat="mine">
         <h2><span>ألعابك</span><span id="gCount"></span></h2>
         <input id="gSearch" class="search" placeholder="دوّر لعبة…" dir="auto" />
         <div id="games" class="games"><p class="muted">نجيب ألعابك…</p></div>
@@ -499,7 +523,9 @@
     <!-- 💻 PC -->
     <div id="tab-pc" class="tab">
       <div class="tabhead"><img src="ban-pc.jpg" alt="" /><div><b>البيسي</b><small>تحكم فيه من مكانك</small></div></div>
-      <section id="errBox">
+      <div class="cats" role="tablist"><button role="tab" data-cat="quick" data-empty="">سريع</button><button role="tab" data-cat="send" data-empty="">أرسل</button><button role="tab" data-cat="apps" data-empty="">البرامج</button><button role="tab" data-cat="sound" data-empty="">الصوت والشاشة</button><button role="tab" data-cat="power" data-empty="">التشغيل</button></div>
+      <p class="catempty hidden"></p>
+      <section data-cat="quick" id="errBox">
         <div class="errcall">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
           <b>طلع لك خطأ؟</b>
@@ -510,11 +536,11 @@
         <p id="errState" class="hint hidden"></p>
         <div id="errOut" class="errres hidden"></div>
       </section>
-      <section id="deckBox">
+      <section data-cat="quick" id="deckBox">
         <h2><span>أزرارك</span><button id="deckEdit" class="more">عدّل</button></h2>
         <div id="deck" class="deck"><p class="muted">نجيب أزرارك…</p></div>
       </section>
-      <section>
+      <section data-cat="send">
         <h2><span>أرسل للبيسي</span></h2>
         <textarea id="sendIn" class="search sendbox" rows="2" dir="auto" placeholder="الصق رابط أو اكتب أي شي…" autocomplete="off"></textarea>
         <div class="linkrow"><button id="sendPaste" class="ghost">الصق</button><button id="sendGo" disabled>أرسل</button></div>
@@ -529,18 +555,18 @@
         <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div></div>
         <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام ينحط بحافظته (الصقه بـ Ctrl+V). الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
       </section>
-      <section>
+      <section data-cat="send">
         <h2><span>رسالة على شاشة البيسي</span></h2>
         <textarea id="msgIn" class="search sendbox" rows="2" dir="auto" maxlength="300" placeholder="مثلاً: تعال العشا 🍽️" autocomplete="off"></textarea>
         <div class="chips" id="msgQuick" style="margin:0 0 10px"><button class="chip">تعال العشا 🍽️</button><button class="chip">الصلاة 🕌</button><button class="chip">رد على جوالك 📱</button><button class="chip">نام بدري 😴</button></div>
         <div class="linkrow"><button id="msgGo" disabled>أرسلها للشاشة</button></div>
         <p id="msgState" class="hint">تطلع فوق كل شي مع صوت، واللي قدام البيسي يرد عليك بضغطة.</p>
       </section>
-      <section>
+      <section data-cat="send">
         <h2><span>تكلم من جوالك</span></h2>
         <div class="talk"><button id="talkBtn" aria-label="اضغط واستمر وتكلم">🎙️</button><p id="talkState">اضغط على الزر واستمر وأنت تتكلم، وأول ما تتركه يطلع صوتك من سماعات البيسي.</p></div>
       </section>
-      <section>
+      <section data-cat="send">
         <h2><span>ملفات البيسي</span></h2>
         <div class="grid three roots">
           <button class="b" data-root="downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>التنزيلات</button>
@@ -549,12 +575,12 @@
         </div>
         <p class="hint">تختار أي ملف ويوصل جوالك. مع «متصل مباشرة ⚡» يوصل لين 4 جيجا (الآيفون لين 1 جيجا)، وبدونه لين 100 ميجا.</p>
       </section>
-      <section id="appsBox" class="hidden">
+      <section data-cat="apps" id="appsBox" class="hidden">
         <h2><span>برامجك</span><button id="appsAllBtn" class="more hidden">كل البرامج</button></h2>
         <div id="apps" class="apps"></div>
         <p id="appsEmpty" class="hint hidden" style="margin-top:0">اضغط «كل البرامج» وحط ⭐ على اللي تبيه، ويطلع هنا.</p>
       </section>
-      <section>
+      <section data-cat="sound">
         <h2><span>الصوت</span><span id="volNote"></span></h2>
         <div id="volBox" class="vol hidden"><input id="volRange" type="range" min="0" max="100" step="1" value="0" aria-label="مستوى الصوت" /><b id="volNum">—</b></div>
         <div class="grid three">
@@ -565,7 +591,7 @@
         <div id="outBox" class="hidden"><p class="sub">الصوت يطلع من</p><div id="outs" class="outs"></div></div>
         <div id="micRow" class="setrow hidden" style="padding-top:2px"><div><b>المايك</b><small id="micName" dir="auto"></small></div><button id="micBtn" class="mic">—</button></div>
       </section>
-      <section id="screenBox" class="hidden">
+      <section data-cat="sound" id="screenBox" class="hidden">
         <h2><span>الشاشة</span></h2>
         <div id="brightBox" class="vol bright hidden"><span class="sun">☀️</span><input id="brightRange" type="range" min="0" max="100" step="1" value="0" aria-label="سطوع الشاشة" /><b id="brightNum">—</b></div>
         <button id="scrOff" class="wide ghost" style="color:#fff">طفّ الشاشة والبيسي شغّال</button>
@@ -577,15 +603,15 @@
         </div>
         <p id="screenHint" class="hint">«طفّ الشاشة» تطفيها والبيسي شغّال، وأي حركة للماوس ترجّعها.</p>
       </section>
-      <section id="guardBox" class="hidden">
+      <section data-cat="power" id="guardBox" class="hidden">
         <div class="setrow"><div><b>👀 راقب البيسي</b><small>شغّله وأنت طالع: أول ما أحد يلمس الماوس أو الكيبورد يوصلك تنبيه.</small></div><button id="guardSw" class="sw" aria-label="راقب البيسي"></button></div>
         <div class="setrow"><div><b>إذا أحد لمسه، قفّله على طول</b><small>الشاشة تنقفل بنفس اللحظة.</small></div><button id="guardLockSw" class="sw" aria-label="قفّله إذا أحد لمسه"></button></div>
         <p id="guardHint" class="hint hidden" style="margin-top:4px">عشان يوصلك التنبيه، فعّل التنبيهات من «الإعدادات».</p>
       </section>
-      <section id="btBox" class="hidden">
+      <section data-cat="sound" id="btBox" class="hidden">
         <div class="setrow" style="padding:4px"><div><b>البلوتوث</b><small>للسماعة أو اليد اللاسلكية</small></div><button id="btSw" class="sw" aria-label="البلوتوث"></button></div>
       </section>
-      <section>
+      <section data-cat="apps">
         <h2><span>الأغاني والفيديو</span></h2>
         <div class="grid three" dir="ltr">
           <button class="b" data-a="media.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg><span dir="rtl">اللي قبل</span></button>
@@ -593,7 +619,7 @@
           <button class="b" data-a="media.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg><span dir="rtl">الجاية</span></button>
         </div>
       </section>
-      <section>
+      <section data-cat="power">
         <h2><span>البيسي</span></h2>
         <div class="grid">
           <button class="b" data-a="power.lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>قفل الشاشة</button>
@@ -602,7 +628,7 @@
         <div class="slide restart" data-slide="power.restart"><span>اسحب ← لإعادة التشغيل</span><div class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div></div>
         <div class="slide" data-slide="power.shutdown"><span>اسحب ← للإطفاء</span><div class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></div></div>
       </section>
-      <section>
+      <section data-cat="power">
         <h2><span>طفّ البيسي الساعة…</span></h2>
         <div class="timerow"><input id="offTime" class="tpick" type="time" dir="ltr" aria-label="وقت إطفاء البيسي" /><span id="offNote" class="muted"></span></div>
         <div class="linkrow"><button id="offGo">طفّه بهالوقت</button><button id="timerCancel" class="ghost">ألغِ المؤقت</button></div>
@@ -613,34 +639,36 @@
     <!-- 📊 the PC's state -->
     <div id="tab-stat" class="tab">
       <div class="tabhead"><img src="ban-stat.jpg" alt="" /><div><b>الحالة</b><small>كل شي عن جهازك</small></div></div>
-      <button id="dashOpen" class="dashbtn"><i>🎮</i><span><b>لوحة اللعب</b><small>حط جوالك جنبك وأنت تلعب، ويعرض حرارة الكرت والمعالج والرام والبنق مباشرة.</small></span></button>
-      <section>
+      <div class="cats" role="tablist"><button role="tab" data-cat="now" data-empty="">الحين</button><button role="tab" data-cat="net" data-empty="">النت</button><button role="tab" data-cat="device" data-empty="">الجهاز</button></div>
+      <p class="catempty hidden"></p>
+      <button data-cat="now" id="dashOpen" class="dashbtn"><i>🎮</i><span><b>لوحة اللعب</b><small>حط جوالك جنبك وأنت تلعب، ويعرض حرارة الكرت والمعالج والرام والبنق مباشرة.</small></span></button>
+      <section data-cat="now">
         <h2><span>حالة البيسي</span><span id="upt"></span></h2>
         <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
       </section>
-      <section id="gpuBox" class="hidden">
+      <section data-cat="now" id="gpuBox" class="hidden">
         <h2><span id="gpuName" dir="auto">كرت الشاشة</span></h2>
         <div id="gpuKv" class="kv"></div>
       </section>
-      <section>
+      <section data-cat="now">
         <h2><span>وش ماكل الجهاز؟</span><span class="seg"><button data-sort="cpu" class="on">المعالج</button><button data-sort="mem">الرام</button></span></h2>
         <div id="heavy"><p class="muted">نشوف البرامج…</p></div>
       </section>
-      <section>
+      <section data-cat="net">
         <h2><span>سرعة نت البيسي</span><span id="speedWhen" class="was"></span></h2>
         <div class="speed"><div id="spDownBox"><span>تنزيل</span><b id="spDown">—</b><small>ميجابت</small></div><div id="spUpBox"><span>رفع</span><b id="spUp">—</b><small>ميجابت</small></div><div id="spPingBox"><span>البنق</span><b id="spPing">—</b><small>مللي ثانية</small></div></div>
         <button id="speedGo" class="wide">قيس السرعة</button>
         <p class="hint">ياخذ 10 ثواني تقريباً، والأفضل وأنت ما تلعب أونلاين.</p>
       </section>
-      <section>
+      <section data-cat="device">
         <h2><span>الكاميرا والمايك</span></h2>
         <div id="privBox"><p class="muted">نشوف…</p></div>
       </section>
-      <section id="drivesBox" class="hidden">
+      <section data-cat="device" id="drivesBox" class="hidden">
         <h2><span>الهارديسكات</span></h2>
         <div id="drives"></div>
       </section>
-      <section id="specsBox" class="hidden">
+      <section data-cat="device" id="specsBox" class="hidden">
         <h2><span>مواصفات البيسي</span></h2>
         <div id="specs" class="kv"></div>
       </section>
@@ -653,11 +681,15 @@
         <h2><span>التنبيهات</span></h2>
         <button id="pushBtn" class="wide">فعّل التنبيهات</button>
         <p id="pushHint" class="hint">يوصلك على جوالك: انثبّت المود، اللعبة خلصت تنزيل، تحديث للعبة عندك، لعبة صارت مجانية، نزل سعر لعبة، وتنبيهات البيسي اللي تختارها تحت.</p>
+      </section>
+      <details class="grp" id="grpGames"><summary><i>🎮</i>تنبيهات الألعاب<small></small></summary><div class="in">
         <div id="gameAlerts" class="hidden">
           <div class="setrow"><div><b>تحديث للعبة عندك</b><small>أول ما تنزل ملاحظات تحديث لعبة على البيسي.</small></div><button id="upSw" class="sw" aria-label="تحديث للعبة عندك"></button></div>
           <div class="setrow"><div><b>لعبة مجانية جديدة</b><small>أي لعبة تصير مجانية بـ Epic أو Steam أو غيرها.</small></div><button id="freeSw" class="sw" aria-label="لعبة مجانية جديدة"></button></div>
           <div class="setrow"><div><b>نزل سعر لعبة تتابعها</b><small id="priceHint">تختار الألعاب من «الألعاب ← أرخص سعر» بالبيسي.</small></div><button id="priceSw" class="sw" aria-label="نزل سعر لعبة تتابعها"></button></div>
         </div>
+      </div></details>
+      <details class="grp" id="grpPc"><summary><i>💻</i>تنبيهات البيسي<small></small></summary><div class="in">
         <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
         <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت NVIDIA).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
         <div id="heatChips" class="chips" style="margin:0 4px 6px"><button class="chip" data-heat="80">80°</button><button class="chip" data-heat="85">85°</button><button class="chip" data-heat="90">90°</button></div>
@@ -665,20 +697,22 @@
         <div class="setrow"><div><b>الهارديسك قرّب يمتلي</b><small>إذا باقي أقل من 10 جيجا (أو أقل من 5%).</small></div><button id="diskSw" class="sw" aria-label="الهارديسك قرّب يمتلي"></button></div>
         <div class="setrow"><div><b>الويندوز يبي إعادة تشغيل</b><small>بعد تحديثاته، عشان تعيد التشغيل لما تخلص لعب.</small></div><button id="restartSw" class="sw" aria-label="الويندوز يبي إعادة تشغيل"></button></div>
         <div id="battRow" class="setrow hidden"><div><b>البطارية ضعفت</b><small>إذا وصلت 15% واللابتوب مو على الشاحن.</small></div><button id="battSw" class="sw" aria-label="البطارية ضعفت"></button></div>
-      </section>
-      <section id="limitBox" class="hidden">
-        <h2><span>وقت اللعب</span></h2>
+      </div></details>
+      <details class="grp hidden" id="limitBox"><summary><i>⏰</i>وقت اللعب<small></small></summary><div class="in">
         <div class="setrow top"><div><b>نبّهني إذا طوّلت باللعب</b><small>تنبيه على البيسي وجوالك، وبعدها كل ساعة.</small></div></div>
         <div class="chips pad"><button class="chip" data-remind="0">لا</button><button class="chip" data-remind="60">ساعة</button><button class="chip" data-remind="120">ساعتين</button><button class="chip" data-remind="180">3 ساعات</button></div>
         <div class="setrow"><div><b>سكّر الألعاب الساعة</b><small>اختار الوقت اللي تبيه. قبله بـ10 دقايق وبدقيقة يجيك تنبيه عشان تحفظ لعبتك.</small></div><button id="bedSw" class="sw" aria-label="سكّر الألعاب بوقت"></button></div>
         <div class="timerow"><input id="bedTime" class="tpick" type="time" value="00:00" dir="ltr" aria-label="وقت تسكير الألعاب" /><span id="bedNote" class="muted"></span></div>
         <button id="snoozeSet" class="wide ghost hidden">خلّني ألعب نص ساعة زيادة</button>
-      </section>
-      <section id="homeHint">
-        <h2><span>حطها على الشاشة الرئيسية</span></h2>
+      </div></details>
+      <details class="grp" id="grpPcs"><summary><i>🖥️</i>أجهزتك<small id="grpPcsN"></small></summary><div class="in">
+        <p class="hint" style="margin-top:0">البيسيات المربوطة بجوالك. تبدّل بينها من اسم البيسي فوق، أو من هنا.</p>
+        <button id="pcsOpen" class="wide ghost">أجهزتك</button>
+        <button id="byeBtn" class="wide ghost" style="margin-top:8px">افصل الجوال عن هالبيسي</button>
+      </div></details>
+      <details class="grp" id="homeHint"><summary><i>📱</i>حطها على الشاشة الرئيسية</summary><div class="in">
         <p class="hint" style="margin-top:0">تنفتح مثل تطبيق كامل بدون شريط المتصفح. بالآيفون: زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية». بالأندرويد: القائمة ⋮ ← «إضافة إلى الشاشة الرئيسية».</p>
-      </section>
-      <button id="byeBtn" class="wide ghost">افصل الجوال عن هالبيسي</button>
+      </div></details>
     </div>
   </div>
 </div>
@@ -1418,6 +1452,74 @@ const ERR = {
 // (only test copies of the app send a "detail")
 const fail = (r) => toast((ERR[r.error] || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
 
+// ---- categories on top of a tab (one shows at a time; the pick is remembered per tab) ----
+const CAT_KEY = "nk-remote-cat";
+const catsSaved = () => {
+  try {
+    return JSON.parse(localStorage.getItem(CAT_KEY) || "{}");
+  } catch {
+    return {};
+  }
+};
+function pickCat(tabEl, cat, keep = true) {
+  const row = tabEl.querySelector(".cats");
+  if (!row) return;
+  const btn = row.querySelector(`[data-cat="${cat}"]`) ?? row.querySelector("[data-cat]");
+  cat = btn.dataset.cat;
+  tabEl.dataset.cat = cat;
+  row.querySelectorAll("button").forEach((b) => {
+    b.classList.toggle("on", b === btn);
+    b.setAttribute("aria-selected", b === btn ? "true" : "false");
+  });
+  tabEl.querySelectorAll(":scope > [data-cat]").forEach((el) => el.classList.toggle("catoff", el.dataset.cat !== cat));
+  catEmpty(tabEl);
+  if (keep) {
+    try {
+      localStorage.setItem(CAT_KEY, JSON.stringify({ ...catsSaved(), [tabEl.id]: cat }));
+    } catch {}
+  }
+}
+// a category with nothing to show (no Steam downloads now…) says so instead of an empty screen
+function catEmpty(tabEl) {
+  const cat = tabEl.dataset.cat;
+  const note = tabEl.querySelector(".catempty");
+  if (!note || !cat) return;
+  const any = [...tabEl.querySelectorAll(`:scope > [data-cat="${cat}"]`)].some((el) => !el.classList.contains("hidden"));
+  const text = tabEl.querySelector(`.cats [data-cat="${cat}"]`)?.dataset.empty || "ما فيه شي هنا الحين.";
+  note.textContent = text;
+  note.classList.toggle("hidden", any);
+}
+document.querySelectorAll(".tab").forEach((tabEl) => {
+  const row = tabEl.querySelector(".cats");
+  if (!row) return;
+  row.querySelectorAll("button").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (tabEl.dataset.cat === b.dataset.cat) return;
+      buzz(6);
+      pickCat(tabEl, b.dataset.cat);
+      b.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }),
+  );
+  pickCat(tabEl, catsSaved()[tabEl.id], false);
+  // sections that show up later (a Steam download starting…) update the empty note
+  new MutationObserver(() => catEmpty(tabEl)).observe(tabEl, { subtree: false, childList: false, attributes: true, attributeFilter: ["class"] });
+  tabEl.querySelectorAll(":scope > [data-cat]").forEach((el) => new MutationObserver(() => catEmpty(tabEl)).observe(el, { attributes: true, attributeFilter: ["class"] }));
+});
+
+// ---- settings groups: how many are on, and a group with nothing in it stays out ----
+function syncGroups() {
+  for (const g of document.querySelectorAll("#tab-set details.grp")) {
+    const sws = [...g.querySelectorAll(".sw")].filter((x) => !x.closest(".hidden"));
+    const small = g.querySelector("summary small");
+    if (small && sws.length) small.textContent = `${sws.filter((x) => x.classList.contains("on")).length} من ${sws.length} شغّالة`;
+    if (g.id === "grpGames") g.classList.toggle("hidden", $("gameAlerts").classList.contains("hidden"));
+  }
+  const n = typeof pcs === "function" ? pcs().length : 0;
+  if ($("grpPcsN")) $("grpPcsN").textContent = n ? `${n}` : "";
+}
+document.getElementById("tab-set").addEventListener("click", () => setTimeout(syncGroups, 400));
+$("pcsOpen").addEventListener("click", () => $("pcBtn").click());
+
 // ---- tabs ----
 let tab = "games";
 document.querySelectorAll("nav [data-tab]").forEach((b) =>
@@ -1428,11 +1530,12 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
     document.querySelectorAll("nav [data-tab]").forEach((x) => x.classList.toggle("on", x === b));
     document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("on", t.id === `tab-${tab}`));
     scrollTo({ top: 0 });
+    if (tab === "set") setTimeout(syncGroups, 600);
     refresh();
   }),
 );
 function refresh() {
-  if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam()]);
+  if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam(), loadFriends()]);
   if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadGuard()]);
   if (tab === "stat") return Promise.all([loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed()]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
@@ -3437,6 +3540,57 @@ $("talkBtn").addEventListener("pointerdown", talkStart);
 for (const ev of ["pointerup", "pointercancel", "pointerleave"]) $("talkBtn").addEventListener(ev, talkStop);
 $("talkBtn").addEventListener("contextmenu", (e) => e.preventDefault());
 
+// ---- 👥 «العب مع ربعك» ----
+let frNow = null;
+async function loadFriends() {
+  const r = await cmd("friends.list");
+  $("frBox").classList.toggle("hidden", !r.ok || !r.data.length);
+  // a PC without «العب مع ربعك» yet (an older NUKE Mods): no «ربعك» category at all
+  const chip = document.querySelector('#tab-games .cats [data-cat="friends"]');
+  chip?.classList.toggle("hidden", !r.ok && r.error === "REMOTE_NOT_ALLOWED");
+  if (chip?.classList.contains("hidden") && $("tab-games").dataset.cat === "friends") pickCat($("tab-games"), "mine");
+  if (!r.ok) return;
+  $("frList").innerHTML = r.data
+    .map((g) => `<div class="pcrow" style="display:flex;align-items:center;gap:10px;padding:8px 2px"><b style="flex:1" dir="auto">${esc(g.name)}</b><small style="color:var(--dim)">${g.count} مود</small><button class="chip" data-fr="${esc(g.domain)}">${g.code ? "الكود" : "سوّ كود"}</button></div>`)
+    .join("");
+  $("frList").querySelectorAll("[data-fr]").forEach((b) => b.addEventListener("click", () => void frOpen(b.dataset.fr, b)));
+}
+async function frOpen(domain, btn) {
+  const done = working(btn, "");
+  try {
+    let r = await cmd("friends.get", { domain });
+    if (r.ok && !r.data) r = await cmd("friends.make", { domain }, 20000);
+    if (!r.ok) return fail(r);
+    frNow = r.data;
+    paintFriends();
+    void loadFriends();
+  } finally {
+    done();
+  }
+}
+function paintFriends() {
+  const v = frNow;
+  if (!v) return;
+  const o = $("frCode");
+  o.classList.remove("hidden");
+  const people = (v.members || []).filter((m) => !m.owner);
+  o.innerHTML =
+    `<b style="display:block;font-size:13px;color:var(--dim)">${esc(v.game)}</b>` +
+    `<div dir="ltr" style="font-size:28px;font-weight:800;letter-spacing:4px;text-align:center;color:var(--gold);margin:8px 0">${esc(v.shown)}</div>` +
+    `<div class="linkrow"><button id="frShare">أرسله لربعك</button></div>` +
+    `<p style="margin:10px 0 0">${people.length ? people.map((m) => `${esc(m.name)}: ${m.ready ? "✓ جاهز" : `ناقصه ${m.missing}`}`).join("<br>") : "محد دخل للحين."}</p>`;
+  $("frShare").addEventListener("click", async () => {
+    const text = `تعال نلعب ${v.game} بنفس موداتي 🎮\nافتح NUKE Mods ← «العب مع ربعك» واكتب الكود:\n${v.shown}`;
+    try {
+      if (navigator.share) await navigator.share({ text });
+      else {
+        await navigator.clipboard.writeText(text);
+        toast("نسخنا الرسالة، الصقها لربعك");
+      }
+    } catch {}
+  });
+}
+
 // ---- 📷 «صوّر الخطأ بجوالك» ----
 // the photo (camera or gallery) is made smaller on the phone (≤ 2000 px JPEG), sent in pieces, read on the PC; the card
 // it sends back is in words already (the PC has the words)
@@ -3648,7 +3802,12 @@ pendingByes();
 setInterval(() => document.visibilityState === "visible" && pendingByes(), 60e3);
 // a notification tapped: the page opens on its tab («الحالة» for "the RAM is full"…)
 const TABS = ["games", "pc", "stat", "set"];
-const goTab = (t) => TABS.includes(t) && document.querySelector(`nav [data-tab="${t}"]`)?.click();
+const goTab = (t) => {
+  const [name, cat] = String(t ?? "").split(":");
+  if (!TABS.includes(name)) return;
+  document.querySelector(`nav [data-tab="${name}"]`)?.click();
+  if (cat) pickCat($(`tab-${name}`), cat);
+};
 if (q.get("tab") && saved()) {
   goTab(q.get("tab"));
   history.replaceState(null, "", location.pathname);
