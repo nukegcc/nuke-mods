@@ -14,20 +14,25 @@
   No app, no pairing, no account: the QR carries a one-time key; everything about the session is sealed with it over
   NUKE's relay (AES-256-GCM, the same as the phone link), and the files go straight to the PC over a WebRTC data channel
   in raw pieces (full quality, nothing re-encoded) — or sealed pieces over the relay when no direct link opens.
+  Every piece carries its offset and the other side says how far it really is, so leaving the page, the screen going off
+  or the network changing only pauses a file: when the page is back it carries on from that byte (both ways). A phone
+  can't keep a web page running in the background for long (an iPhone stops it at once), so the page says so honestly
+  and keeps the screen on (Wake Lock) while something is moving.
 -->
 <style>
   :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --dim:rgba(255,255,255,.55); --red:#ef3b2d; --flame:#ff8a1f; --gold:#ffc93c; --green:#34d399; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: #fff; font-family: "IBM Plex Sans Arabic", system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
-  body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
+  body { min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); overflow-x: hidden; }
   body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 30% at 50% 18%, rgba(239,59,45,.16), transparent 72%); }
   .wrap { position: relative; max-width: 480px; margin: 0 auto; }
   header { display: flex; align-items: center; gap: 12px; margin: 6px 0 18px; }
   header img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(239,59,45,.5)); }
-  header h1 { margin: 0; font-size: 19px; font-weight: 700; }
+  header h1 { margin: 0; font-size: 19px; font-weight: 700; overflow-wrap: anywhere; }
   header p { margin: 2px 0 0; font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); flex-shrink: 0; }
   .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .dot.warn { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 16px; margin-bottom: 12px; }
   .hidden { display: none !important; }
   button { font: inherit; color: inherit; border: 0; cursor: pointer; -webkit-user-select: none; user-select: none; }
@@ -45,23 +50,38 @@
   .hint { font-size: 12.5px; color: var(--dim); line-height: 1.7; margin: 10px 4px 0; text-align: center; }
   .sum { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 2px 10px; }
   .sum b { font-size: 15px; }
-  .sum span { font-size: 12.5px; color: var(--dim); direction: ltr; }
-  .bar { height: 8px; border-radius: 8px; background: rgba(255,255,255,.08); overflow: hidden; margin-bottom: 12px; }
+  .sum span { font-size: 12.5px; color: var(--dim); direction: ltr; white-space: nowrap; }
+  .bar { height: 8px; border-radius: 8px; background: rgba(255,255,255,.08); overflow: hidden; margin-bottom: 10px; }
   .bar > div { height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, var(--gold), var(--red)); transition: width .2s; }
+  .bar.stuck > div { background: var(--gold); opacity: .6; }
+  .note { font-size: 13px; line-height: 1.6; margin: -2px 2px 10px; color: var(--gold); font-weight: 600; }
+  .leave { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.65; color: var(--dim); background: rgba(255,255,255,.035); border-radius: 14px; padding: 9px 11px; margin: 0 0 12px; }
+  .leave b { color: #fff; font-weight: 600; }
   .list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .it { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: var(--card2); display: grid; place-items: center; font-size: 11px; color: var(--dim); text-align: center; padding: 4px; word-break: break-all; }
-  .it img, .it video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .it { position: relative; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: var(--card2); display: grid; place-items: center; font-size: 11px; color: var(--dim); text-align: center; padding: 4px; overflow-wrap: anywhere; transition: opacity .25s, transform .25s; }
+  .it img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .it .ring { position: absolute; inset: 0; background: rgba(14,10,10,.55); display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; direction: ltr; transition: opacity .3s; }
+  .it.wait .ring { font-size: 11px; direction: rtl; }
+  .it.stuck .ring { color: var(--gold); }
   .it.done .ring { opacity: 0; }
   .it .ok { position: absolute; bottom: 5px; inset-inline-start: 5px; width: 20px; height: 20px; border-radius: 50%; background: var(--green); color: #0e0a0a; display: grid; place-items: center; font-size: 12px; font-weight: 700; transform: scale(0); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
   .it.done .ok { transform: scale(1); }
+  .it .x { position: absolute; top: 3px; inset-inline-end: 3px; width: 28px; height: 28px; border-radius: 50%; background: rgba(14,10,10,.75); color: #fff; font-size: 15px; line-height: 1; display: grid; place-items: center; z-index: 2; }
+  .it.done .x, .it.gone .x { display: none; }
+  .it.out { opacity: 0; transform: scale(.7); }
+  .it.gone { opacity: .45; }
+  .it.gone .ring { opacity: 1; font-size: 11px; direction: rtl; background: rgba(14,10,10,.7); }
+  .it.gone .ok { display: none; }
   .done-card { text-align: center; padding: 22px 16px; }
   .done-card .big-ok { font-size: 46px; animation: pop .5s cubic-bezier(.2,1.6,.4,1); }
   @keyframes pop { from { transform: scale(.3); opacity: 0; } }
-  .rx { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 16px; background: var(--card2); margin-top: 8px; }
+  .rx { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 16px; background: var(--card2); margin-top: 8px; min-height: 58px; }
   .rx .n { flex: 1; min-width: 0; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .rx button { min-height: 38px; padding: 0 14px; border-radius: 12px; background: var(--red); font-weight: 700; font-size: 13px; }
-  .rx .pct { font-size: 12px; color: var(--dim); direction: ltr; }
+  .rx .n small { display: block; font-size: 11.5px; color: var(--dim); }
+  .rx .n small.warn { color: var(--gold); }
+  .rx .save { min-height: 38px; padding: 0 14px; border-radius: 12px; background: var(--red); font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .rx .pct { font-size: 12px; color: var(--dim); direction: ltr; flex-shrink: 0; }
+  .rx .x2 { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.08); font-size: 15px; flex-shrink: 0; }
   .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
   .confetti i { position: absolute; top: -10px; width: 8px; height: 14px; border-radius: 2px; animation: fall 1.8s ease-in forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .6; } }
@@ -101,9 +121,17 @@
       <p id="hint" class="hint">توصل بجودتها الأصلية. وعلى نفس الواي فاي توصل بأسرع شي.</p>
     </div>
 
+    <div id="leftCard" class="card hidden">
+      <b style="font-size:14px">ما كمل من قبل</b>
+      <p class="hint" style="text-align:start;margin:4px 2px 0">اختر نفس الملف مرة ثانية ويكمل من مكانه.</p>
+      <div id="leftList"></div>
+    </div>
+
     <div id="sending" class="card hidden">
       <div class="sum"><b id="sumText">نرسل…</b><span id="speed"></span></div>
-      <div class="bar"><div id="bar"></div></div>
+      <div id="barBox" class="bar"><div id="bar"></div></div>
+      <p id="note" class="note hidden"></p>
+      <p id="leave" class="leave hidden"></p>
       <div id="list" class="list"></div>
     </div>
 
@@ -129,9 +157,16 @@ const dec = new TextDecoder();
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const COLORS = ["#ef3b2d", "#ff8a1f", "#ffc93c", "#34d399", "#38bdf8", "#a78bfa", "#f472b6"];
 const ICE = [{ urls: ["stun:stun.cloudflare.com:3478", "stun:stun.l.google.com:19302"] }];
-const PIECE = 192 * 1024; // a data channel message tops out at 256 KB (with the 4-byte header)
+const PIECE = 192 * 1024; // a data channel message tops out at 256 KB (with the 12-byte header)
 const RELAY_PIECE = 96 * 1024;
-const mb = (n) => (n >= 1024 ** 3 ? `${(n / 1024 ** 3).toFixed(1)} GB` : `${Math.max(0.1, n / 1024 ** 2).toFixed(n < 10 * 1024 ** 2 ? 1 : 0)} MB`);
+const RELAY_MAX = 200 * 1024 ** 2; // bigger files only go over the direct link
+const RELAY_WINDOW = 8 * RELAY_PIECE;
+const AHEAD = 48 * 1024 ** 2; // bytes sent beyond what the PC said it has
+const STALL_MS = 8000;
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+// sizes stay left to right inside Arabic lines ("300 MB", never "MB 300")
+const mb = (n) => `⁦${n >= 1024 ** 3 ? `${(n / 1024 ** 3).toFixed(1)} GB` : `${Math.max(0.1, n / 1024 ** 2).toFixed(n < 10 * 1024 ** 2 ? 1 : 0)} MB`}⁩`;
+const pct = (a, b) => `⁦${Math.floor((a / Math.max(1, b)) * 100)}%⁩`;
 
 // ---- the key from the QR (never sent anywhere: only its hash names the relay room) ----
 const b64u = (u8) => {
@@ -140,8 +175,16 @@ const b64u = (u8) => {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 };
 const fromB64u = (s) => Uint8Array.from(atob(String(s).replace(/-/g, "+").replace(/_/g, "/") + "===".slice((String(s).length + 3) % 4)), (c) => c.charCodeAt(0));
+const b64 = (u8) => {
+  let bin = "";
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode(...u8.subarray(i, i + 0x8000));
+  return btoa(bin);
+};
 const q = new URLSearchParams(location.hash.slice(1));
-const raw = q.get("k") ? fromB64u(q.get("k")) : null;
+let raw = null;
+try {
+  raw = q.get("k") ? fromB64u(q.get("k")) : null;
+} catch {}
 const pcLabel = q.get("n") || "البيسي";
 $("title").textContent = `ترسل لـ ${pcLabel}`;
 document.title = `أرسل لـ ${pcLabel} · NUKE`;
@@ -164,29 +207,34 @@ async function unseal(m) {
   }
 }
 
-// ---- who I am (kept on this phone) ----
+// ---- who I am (kept on this phone; the same id for this code, so a page opened again is the same sender) ----
+const store = (k, v) => {
+  try {
+    if (v === undefined) return localStorage.getItem(k);
+    localStorage.setItem(k, v);
+  } catch {}
+  return null;
+};
 const ME = (() => {
-  let id = sessionStorage.getItem("nk-send-id");
-  if (!id) sessionStorage.setItem("nk-send-id", (id = crypto.randomUUID().slice(0, 12)));
+  let id = store(`nk-send-id:${chanName}`);
+  if (!id || !/^[0-9a-f-]{8,40}$/.test(id)) store(`nk-send-id:${chanName}`, (id = crypto.randomUUID().slice(0, 12)));
   let saved = {};
   try {
-    saved = JSON.parse(localStorage.getItem("nk-send-me") || "{}");
+    saved = JSON.parse(store("nk-send-me") || "{}");
   } catch {}
-  return { id, name: saved.name || "", color: COLORS.includes(saved.color) ? saved.color : COLORS[Math.floor(Math.random() * COLORS.length)] };
+  return { id, name: String(saved.name || "").slice(0, 24), color: COLORS.includes(saved.color) ? saved.color : COLORS[Math.floor(Math.random() * COLORS.length)] };
 })();
 function paintMe() {
   $("av").style.background = ME.color;
   $("av").style.color = "#0e0a0a";
-  $("av").textContent = (ME.name.trim()[0] || "؟").toUpperCase();
+  $("av").textContent = ([...ME.name.trim()][0] || "؟").toUpperCase();
   $("colors").innerHTML = COLORS.map((c) => `<button aria-label="لون" data-c="${c}" style="background:${c}" class="${c === ME.color ? "on" : ""}"></button>`).join("");
   $("colors").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => ((ME.color = b.dataset.c), saveMe())));
 }
 function saveMe() {
-  try {
-    localStorage.setItem("nk-send-me", JSON.stringify({ name: ME.name, color: ME.color }));
-  } catch {}
+  store("nk-send-me", JSON.stringify({ name: ME.name, color: ME.color }));
   paintMe();
-  if (welcomed) void say({ t: "hello", id: ME.id, name: ME.name, color: ME.color });
+  if (welcomed) void sayHello();
 }
 $("name").value = ME.name;
 let nameT;
@@ -198,19 +246,50 @@ $("name").addEventListener("input", () => {
 });
 paintMe();
 
+// ---- small waits: "a:<fid>" (an ack), "w:<fid>" (the PC's answer about a file), "link" (a link came back) ----
+const waits = new Map();
+function waitFor(k, ms) {
+  return new Promise((resolve) => {
+    const list = waits.get(k) ?? [];
+    const done = (v) => {
+      clearTimeout(t);
+      const l = waits.get(k);
+      if (l) {
+        l.splice(l.indexOf(done) >>> 0, 1);
+        if (!l.length) waits.delete(k);
+      }
+      resolve(v);
+    };
+    const t = setTimeout(() => done(null), ms);
+    list.push(done);
+    waits.set(k, list);
+  });
+}
+const poke = (k, v = true) => [...(waits.get(k) ?? [])].forEach((f) => f(v));
+const nap = (ms) => waitFor("link", ms);
+
 // ---- NUKE's relay (only the session's sealed messages) ----
 let ws = null;
 let tries = 0;
+let reT = 0;
 let welcomed = false;
+let ended = false;
+let fresh = true; // until the PC has seen this page once: it may hold half files from an earlier visit
 function relay() {
-  ws = new WebSocket(`${RELAY_URL}?ch=${encodeURIComponent(chanName)}`);
-  ws.onopen = () => {
+  if (ended) return;
+  clearTimeout(reT);
+  const sock = new WebSocket(`${RELAY_URL}?ch=${encodeURIComponent(chanName)}`);
+  ws = sock;
+  sock.lastIn = Date.now();
+  sock.onopen = () => {
     tries = 0;
-    void say({ t: "hello", id: ME.id, name: ME.name, color: ME.color });
-    clearInterval(ws.ping);
-    ws.ping = setInterval(() => ws.readyState === 1 && ws.send("ping"), 45e3);
+    sock.lastIn = Date.now();
+    void sayHello();
+    sock.ping = setInterval(() => sock.readyState === 1 && sock.send("ping"), 30e3);
+    status();
   };
-  ws.onmessage = async (e) => {
+  sock.onmessage = async (e) => {
+    sock.lastIn = Date.now();
     if (typeof e.data !== "string" || e.data === "pong") return;
     let p;
     try {
@@ -222,31 +301,76 @@ function relay() {
     const m = await unseal(p.s);
     if (m) onPc(m, "relay");
   };
-  ws.onclose = () => setTimeout(relay, Math.min(15e3, 1000 * 2 ** tries++));
+  sock.onclose = () => {
+    clearInterval(sock.ping);
+    if (ws !== sock) return;
+    ws = null;
+    status();
+    if (!ended) reT = setTimeout(relay, document.visibilityState === "visible" ? Math.min(15e3, 1000 * 2 ** tries++) : 5000);
+  };
 }
 async function say(msg) {
-  if (ws?.readyState !== 1) return false;
-  ws.send(JSON.stringify({ from: ME.id, s: await seal(msg) }));
-  return true;
+  const sock = ws;
+  if (sock?.readyState !== 1) return false;
+  const body = JSON.stringify({ from: ME.id, s: await seal(msg) });
+  try {
+    if (sock.readyState !== 1) return false;
+    sock.send(body);
+    return true;
+  } catch {
+    return false;
+  }
 }
-const send = (msg) => (dc?.readyState === "open" ? (dc.send(JSON.stringify(msg)), true) : say(msg));
+const sayHello = () => say({ t: "hello", id: ME.id, name: ME.name, color: ME.color, fresh });
+const dcOpen = () => dc?.readyState === "open";
+function send(msg) {
+  if (dcOpen()) {
+    try {
+      dc.send(JSON.stringify(msg));
+      return true;
+    } catch {}
+  }
+  return say(msg);
+}
 
 // ---- the direct link ----
 let pc = null;
 let dc = null;
+let rtcAt = 0;
 function status() {
-  const on = welcomed;
-  $("dot").className = "dot" + (on ? " on" : "");
-  $("status").textContent = !on ? "نتصل… (لازم «استقبل من جوال» يكون مفتوح بالبيسي)" : dc?.readyState === "open" ? "متصل مباشرة ⚡" : "متصل";
+  const relayOn = ws?.readyState === 1;
+  const on = welcomed && (relayOn || dcOpen());
+  $("dot").className = "dot" + (on ? " on" : welcomed ? " warn" : "");
+  $("status").textContent = ended ? "انتهى" : !welcomed ? "نتصل… (لازم «استقبل من جوال» يكون مفتوح بالبيسي)" : dcOpen() ? "متصل مباشرة ⚡" : relayOn ? "متصل" : "نرجع نتصل…";
 }
 async function direct() {
-  if (!window.RTCPeerConnection || pc) return;
-  pc = new RTCPeerConnection({ iceServers: ICE });
-  const ch = pc.createDataChannel("nk", { ordered: true });
+  if (!window.RTCPeerConnection || !welcomed || ended || dcOpen()) return;
+  if (pc && Date.now() - rtcAt < 15e3) return; // one try at a time
+  try {
+    pc?.close();
+  } catch {}
+  rtcAt = Date.now();
+  const me = (pc = new RTCPeerConnection({ iceServers: ICE }));
+  const ch = me.createDataChannel("nk", { ordered: true });
   ch.binaryType = "arraybuffer";
-  ch.onopen = () => ((dc = ch), status());
-  ch.onclose = () => ((dc = null), (pc = null), status());
+  ch.onopen = () => {
+    if (pc !== me) return void ch.close();
+    dc = ch;
+    ch.lastIn = Date.now();
+    status();
+    poke("link");
+    rxResumeAll();
+    void upPump();
+  };
+  ch.onclose = () => {
+    if (dc === ch) dc = null;
+    if (pc === me) pc = null;
+    status();
+    // something was moving: the direct link again in a moment (big files wait for it)
+    if (pc === null && busy()) setTimeout(() => document.visibilityState === "visible" && direct(), 1500);
+  };
   ch.onmessage = (e) => {
+    ch.lastIn = Date.now();
     if (e.data instanceof ArrayBuffer) return onPiece(e.data);
     if (typeof e.data === "string" && e.data !== "hb") {
       try {
@@ -254,163 +378,363 @@ async function direct() {
       } catch {}
     }
   };
-  pc.onicecandidate = (e) => e.candidate && say({ t: "rtc-ice", c: e.candidate.toJSON() });
-  pc.onconnectionstatechange = () => ["failed", "closed"].includes(pc?.connectionState) && ((dc = null), (pc = null), status());
-  await pc.setLocalDescription(await pc.createOffer());
-  await say({ t: "rtc-offer", sdp: pc.localDescription.sdp });
-  setTimeout(() => pc && !dc && ((pc = null), status()), 15e3);
+  me.onicecandidate = (e) => e.candidate && say({ t: "rtc-ice", c: e.candidate.toJSON() });
+  me.onconnectionstatechange = () => {
+    if (!["failed", "closed", "disconnected"].includes(me.connectionState) || pc !== me) return;
+    if (me.connectionState === "disconnected") return; // (it often comes back by itself; "failed" follows if not)
+    pc = null;
+    if (dc === ch) dc = null;
+    status();
+    if (busy()) setTimeout(() => document.visibilityState === "visible" && direct(), 1500);
+  };
+  try {
+    await me.setLocalDescription(await me.createOffer());
+    await say({ t: "rtc-offer", sdp: me.localDescription.sdp });
+  } catch {}
+}
+// a link that died while the phone was away still says "open": a quick knock tells
+function knock() {
+  if (dcOpen()) {
+    const ch = dc;
+    const t0 = Date.now();
+    try {
+      ch.send("hb");
+    } catch {}
+    setTimeout(() => {
+      if (dc === ch && ch.lastIn < t0) {
+        try {
+          pc?.close();
+        } catch {}
+        dc = null;
+        pc = null;
+        status();
+        void direct();
+      }
+    }, 3500);
+  }
+  if (ws?.readyState === 1) {
+    const sock = ws;
+    const t0 = Date.now();
+    try {
+      sock.send("ping");
+    } catch {}
+    setTimeout(() => sock === ws && sock.lastIn < t0 && sock.close(), 4000);
+  }
 }
 
 // ---- what the PC says ----
-const waits = new Map(); // "go:<bid>" / "got:<fid>" / "pack:<fid>:<i>" → resolve
 function onPc(m, via) {
   if (m.t === "welcome") {
+    const first = !welcomed;
     welcomed = true;
+    fresh = false;
+    if (!preSealed.bye) void reseal();
     $("title").textContent = `ترسل لـ ${m.pc || pcLabel}`;
     $("main").classList.remove("hidden");
     status();
     void direct();
-  } else if (m.t === "rtc-answer") pc?.setRemoteDescription({ type: "answer", sdp: m.sdp }).catch(() => {});
+    // a batch whose answer got lost on the way: asked again (the PC answers the same)
+    for (const b of batches.values()) void send(b.msg);
+    rxResumeAll();
+    poke("link");
+    void upPump();
+    if (first) render();
+  } else if (m.t === "who") void sayHello();
+  else if (m.t === "rtc-answer") pc?.setRemoteDescription({ type: "answer", sdp: m.sdp }).catch(() => {});
   else if (m.t === "rtc-ice") pc?.addIceCandidate(m.c).catch(() => {});
-  else if (m.t === "go" || m.t === "no") waits.get(`go:${m.bid}`)?.(m);
-  else if (m.t === "got") (waits.get(`got:${m.fid}`)?.(), markDone(m.fid));
-  else if (m.t === "pack") waits.get(`pack:${m.fid}:${m.i}`)?.();
+  else if (m.t === "go" || m.t === "no") onAnswer(m);
+  else if (m.t === "ack") {
+    const x = ups.get(m.fid);
+    if (x && Number(m.got) > x.acked) ((x.acked = Math.min(x.size, Number(m.got))), (x.last = Date.now()));
+    poke(`a:${m.fid}`);
+    renderSoon();
+  } else if (m.t === "at") {
+    const x = ups.get(m.fid);
+    if (x && x.state !== "done") Object.assign(x, { acked: Math.min(x.size, Math.max(0, Number(m.got) || 0)), restart: true, last: Date.now() });
+    poke(`w:${m.fid}`, m);
+    poke(`a:${m.fid}`);
+  } else if (m.t === "got") {
+    const x = ups.get(m.fid);
+    if (x && x.state !== "cancel") Object.assign(x, { state: "done", acked: x.size });
+    poke(`w:${m.fid}`, m);
+    render();
+  } else if (m.t === "cancel") onCancel(m);
+  else if (m.t === "removed") {
+    const x = ups.get(m.fid);
+    if (x) ((x.state = "removed"), render());
+  } else if (m.t === "left") showLeft(m.files);
   else if (m.t === "incoming") incoming(m);
-  else if (m.t === "fend") rxEnd(m.fid);
+  else if (m.t === "rp" && via === "relay") onPiece(null, m);
+  else if (m.t === "fend") rxEnd(m);
   else if (m.t === "bye") {
+    ended = true;
     $("main").classList.add("hidden");
     $("bad").classList.remove("hidden");
     try {
       ws.onclose = null;
       ws.close();
+      pc?.close();
     } catch {}
+    status();
+    void lockCheck();
   }
 }
-const wait = (k, ms) => new Promise((resolve) => {
-  waits.set(k, (v) => (waits.delete(k), resolve(v ?? true)));
-  if (ms) setTimeout(() => waits.has(k) && (waits.delete(k), resolve(null)), ms);
-});
 
-// ---- sending ----
-let fidN = Math.floor(Math.random() * 1e6) + 1;
-let busy = false;
-const tiles = new Map();
-function tile(f, fid) {
+// ---- sending: a queue of files, each one resumable ----
+// x: { fid, f, fk, bid, name, size, type, acked, state: ask | queue | send | done | cancel | no | removed, el, last }
+const ups = new Map();
+const batches = new Map(); // bid → { fids, msg }
+let shown = []; // the files on the card now
+let fidN = Math.floor(Math.random() * 0x40000000) + 1;
+let note = ""; // a short line about something that happened (refused, cancelled by the PC)
+let celebrated = true;
+const live = (x) => x.state === "ask" || x.state === "queue" || x.state === "send";
+function tile(x) {
   const el = document.createElement("div");
   el.className = "it";
-  if (/^image\//.test(f.type)) {
+  if (/^image\//.test(x.type)) {
     const img = document.createElement("img");
-    img.src = URL.createObjectURL(f);
+    img.loading = "lazy"; // (a hundred full-size photos at once would fill a phone's memory)
+    img.decoding = "async";
+    img.src = URL.createObjectURL(x.f);
     img.onload = () => URL.revokeObjectURL(img.src);
     // a kind this browser can't draw (HEIC on Android / a PC): its name instead of a broken picture
-    img.onerror = () => (URL.revokeObjectURL(img.src), img.replaceWith(f.name.slice(0, 40)));
+    img.onerror = () => (URL.revokeObjectURL(img.src), img.replaceWith(x.name.slice(0, 40)));
     el.append(img);
-  } else el.textContent = f.name.slice(0, 40);
-  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok">✓</div>`);
+  } else el.append(x.name.slice(0, 40));
+  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok">✓</div><button class="x" aria-label="ألغِ هالملف">✕</button>`);
+  el.querySelector(".x").addEventListener("click", (e) => (e.stopPropagation(), cancelUp(x)));
   $("list").append(el);
-  tiles.set(fid, el);
   return el;
 }
-function markDone(fid) {
-  tiles.get(fid)?.classList.add("done");
-}
-async function sendFiles(list) {
-  if (busy || !list.length) return;
-  if (!welcomed) return;
-  busy = true;
-  $("doneCard").classList.add("hidden");
-  $("sending").classList.remove("hidden");
-  $("list").innerHTML = "";
-  const files = [...list].map((f) => ({ f, fid: fidN++ }));
-  const total = files.reduce((a, x) => a + x.f.size, 0);
+function pickFiles(list) {
+  if (!list.length || ended) return;
+  if (!shown.some((fid) => live(ups.get(fid)))) {
+    for (const [fid, x] of ups) if (!live(x)) ups.delete(fid); // (finished ones leave the card and the memory)
+    shown = [];
+    $("list").innerHTML = "";
+    note = "";
+  }
   const bid = crypto.randomUUID().slice(0, 12);
-  for (const x of files) tile(x.f, x.fid);
-  $("sumText").textContent = `${files.length} ${files.length === 1 ? "ملف" : "ملفات"} · ${mb(total)}`;
-  await send({ t: "batch", bid, files: files.map((x) => ({ fid: x.fid, name: x.f.name, size: x.f.size, type: x.f.type })) });
-  $("speed").textContent = "ننتظر البيسي…";
-  const ans = await wait(`go:${bid}`, 5 * 60e3);
-  if (!ans || ans.t === "no") {
-    $("sumText").textContent = ans?.why === "DISK_FULL" ? "البيسي ما فيه مساحة كافية" : ans ? "صاحب البيسي ما قبل" : "البيسي ما رد";
-    $("speed").textContent = "";
-    busy = false;
-    return;
+  const fids = [];
+  for (const f of list) {
+    const x = { fid: fidN++, f, fk: `${f.name}|${f.size}|${f.lastModified}`, bid, name: f.name, size: f.size, type: f.type, acked: 0, state: "ask", last: Date.now() };
+    x.el = tile(x);
+    ups.set(x.fid, x);
+    shown.push(x.fid);
+    fids.push(x.fid);
+    dropLeft(x.fk);
   }
-  try {
-    await pushAll(files, total);
-  } catch {
-    $("sumText").textContent = "انقطع الاتصال. جرّب مرة ثانية.";
-    $("speed").textContent = "";
-    busy = false;
-    return;
-  }
-  $("bar").style.width = "100%";
-  $("sumText").textContent = "خلصنا ✓";
-  $("speed").textContent = "";
-  $("doneText").textContent = files.length === 1 ? "وصل الملف" : `وصلت ${files.length} ملفات`;
-  setTimeout(() => $("doneCard").classList.remove("hidden"), 400);
-  confetti();
-  navigator.vibrate?.(40);
-  busy = false;
+  const msg = { t: "batch", bid, files: fids.map((fid) => ups.get(fid)).map((x) => ({ fid: x.fid, fk: x.fk, name: x.name, size: x.size, type: x.type })) };
+  batches.set(bid, { fids, msg });
+  celebrated = false;
+  $("doneCard").classList.add("hidden");
+  void send(msg);
+  render();
 }
-async function pushAll(files, total) {
-  let sent = 0;
-  const t0 = performance.now();
-  const tick = () => {
-    $("bar").style.width = `${Math.round((sent / Math.max(1, total)) * 100)}%`;
-    const s = (performance.now() - t0) / 1000;
-    if (s > 0.5) $("speed").textContent = `${mb(sent / s)}/s`;
-  };
-  for (const { f, fid } of files) {
-    const el = tiles.get(fid);
-    const ring = el.querySelector(".ring");
-    let got = 0;
-    if (dc?.readyState === "open") {
-      // straight to the PC: raw pieces [4-byte id][bytes], paced by the channel's buffer
-      const reader = f.stream().getReader();
-      let carry = new Uint8Array(0);
-      for (;;) {
-        const { value, done } = await reader.read();
-        if (value || (done && carry.length)) {
-          let buf = !value ? carry : carry.length ? concat(carry, value) : value;
-          while (buf.length >= PIECE || (done && buf.length)) {
-            const part = buf.subarray(0, PIECE);
-            buf = buf.subarray(part.length);
-            const out = new Uint8Array(4 + part.length);
-            new DataView(out.buffer).setUint32(0, fid, true);
-            out.set(part, 4);
-            if (dc.bufferedAmount > 8 * 1024 * 1024) await new Promise((r) => ((dc.bufferedAmountLowThreshold = 1024 * 1024), dc.addEventListener("bufferedamountlow", r, { once: true })));
-            dc.send(out);
-            got += part.length;
-            sent += part.length;
-            ring.textContent = `${Math.round((got / Math.max(1, f.size)) * 100)}%`;
-            tick();
-          }
-          carry = buf;
-        }
-        if (done) break;
-      }
-      dc.send(JSON.stringify({ t: "fend", fid }));
-    } else {
-      // through the relay: sealed pieces, each acknowledged (slower; up to 200 MB a file)
-      for (let i = 0; i * RELAY_PIECE < f.size; i++) {
-        const part = new Uint8Array(await f.slice(i * RELAY_PIECE, (i + 1) * RELAY_PIECE).arrayBuffer());
-        let ok = null;
-        for (let t = 0; t < 3 && !ok; t++) {
-          await say({ t: "p", fid, i, d: b64(part) });
-          ok = await wait(`pack:${fid}:${i}`, 15e3);
-        }
-        if (!ok) throw new Error("QS_LOST");
-        got += part.length;
-        sent += part.length;
-        ring.textContent = `${Math.round((got / Math.max(1, f.size)) * 100)}%`;
-        tick();
-      }
-      await say({ t: "fend", fid });
+function onAnswer(m) {
+  const b = batches.get(m.bid);
+  if (!b) return;
+  batches.delete(m.bid);
+  for (const fid of b.fids) {
+    const x = ups.get(fid);
+    if (!x) continue;
+    if (x.state === "cancel") {
+      if (m.t === "go") void send({ t: "cancel", fid }); // ✕ pressed while waiting
+      continue;
     }
+    if (m.t === "go") Object.assign(x, { state: "queue", acked: Math.min(x.size, Number(m.at?.[fid]) || 0), last: Date.now() });
+    else x.state = "no";
   }
-  // the PC says it has the last one whole before the confetti
-  $("speed").textContent = "";
-  await wait(`got:${files[files.length - 1].fid}`, 60e3);
+  if (m.t === "no") note = m.why === "DISK_FULL" ? "البيسي ما فيه مساحة كافية لهالملفات" : m.why === "WRITE_FAILED" ? "البيسي ما قدر يحفظها." : "صاحب البيسي ما قبل";
+  render();
+  void upPump();
+}
+function cancelUp(x) {
+  if (!live(x)) return;
+  const was = x.state;
+  x.state = "cancel";
+  poke(`a:${x.fid}`);
+  poke(`w:${x.fid}`);
+  if (was === "ask") {
+    const b = batches.get(x.bid);
+    if (b && b.fids.every((fid) => ups.get(fid)?.state === "cancel")) {
+      batches.delete(x.bid);
+      void send({ t: "bcancel", bid: x.bid });
+    }
+  } else void send({ t: "cancel", fid: x.fid });
+  dropTile(x);
+}
+function dropTile(x) {
+  const el = x.el;
+  el?.classList.add("out");
+  setTimeout(() => el?.remove(), 260);
+  shown = shown.filter((fid) => fid !== x.fid);
+  render();
+}
+function onCancel(m) {
+  const x = ups.get(m.fid);
+  if (x && live(x)) {
+    x.state = "cancel";
+    poke(`a:${x.fid}`);
+    poke(`w:${x.fid}`);
+    note =
+      m.why === "DISK_FULL"
+        ? `ما كمل «${x.name}»: البيسي ما فيه مساحة`
+        : m.why === "WRITE_FAILED"
+          ? `ما كمل «${x.name}»: البيسي ما قدر يحفظه`
+          : m.why === "closed" || m.why === "gone"
+            ? `ما كمل «${x.name}»`
+            : `صاحب البيسي لغى «${x.name}»`;
+    dropTile(x);
+  }
+  const r = rx.get(m.fid);
+  if (r && r.state === "get") rxDrop(r, "لغاه صاحب البيسي");
+  dropLeft(null, m.fid);
+}
+
+let upBusy = false;
+async function upPump() {
+  if (upBusy) return;
+  upBusy = true;
+  void lockCheck();
+  try {
+    for (;;) {
+      const x = [...ups.values()].find((y) => y.state === "queue" || y.state === "send");
+      if (!x || ended) break;
+      if (!welcomed || (ws?.readyState !== 1 && !dcOpen())) {
+        await nap(1500);
+        continue;
+      }
+      x.state = "send";
+      try {
+        await upload(x);
+      } catch (e) {
+        if (x.state !== "send" || e?.message === "restart") continue;
+        // the phone can't read the file any more (deleted, or the browser lost its permission): that one stops
+        if (["NotReadableError", "NotFoundError", "SecurityError"].includes(e?.name)) {
+          x.state = "cancel";
+          void send({ t: "cancel", fid: x.fid });
+          note = `ما قدرنا نقرا «${x.name}» من جوالك. اختره مرة ثانية.`;
+          dropTile(x);
+          continue;
+        }
+        await nap(800);
+        if (x.state === "send") await askWhere(x);
+      }
+    }
+  } finally {
+    upBusy = false;
+    render();
+    void lockCheck();
+  }
+}
+// where is this file on the PC? ("at" with its bytes / "got" when whole / "cancel")
+async function askWhere(x) {
+  if (!(await send({ t: "resume", fid: x.fid }))) return;
+  await waitFor(`w:${x.fid}`, 10e3);
+}
+function guard(x, ch) {
+  if (x.state !== "send") throw new Error("stop");
+  if (x.restart) throw new Error("restart");
+  if (ch && (ch !== dc || ch.readyState !== "open")) throw new Error("lost");
+}
+async function upload(x) {
+  x.restart = false;
+  x.waitDirect = !dcOpen() && x.size > RELAY_MAX;
+  if (dcOpen()) await sendDirect(x);
+  else if (x.waitDirect) {
+    // too big for the relay: wait for the direct link (tried again every few seconds)
+    x.waitDirect = true;
+    render();
+    void direct();
+    await nap(3000);
+    throw new Error("restart");
+  } else await sendRelay(x);
+  x.waitDirect = false;
+  guard(x, null);
+  // every byte is out: the PC says it has it whole ("got") or how far it is ("at" → carry on from there)
+  await send({ t: "fend", fid: x.fid });
+  const r = await waitFor(`w:${x.fid}`, 25e3);
+  if (x.state !== "send" || r?.t === "at") throw new Error("restart");
+  if (!r) throw new Error("lost");
+}
+function frameOf(fid, off, part) {
+  const out = new Uint8Array(12 + part.length);
+  const v = new DataView(out.buffer);
+  v.setUint32(0, fid, true);
+  v.setUint32(4, off % 0x100000000, true);
+  v.setUint32(8, Math.floor(off / 0x100000000), true);
+  out.set(part, 12);
+  return out;
+}
+const low = (ch) =>
+  new Promise((r) => {
+    const stop = new AbortController();
+    const done = () => (clearTimeout(t), stop.abort(), r());
+    const t = setTimeout(done, 4000);
+    ch.bufferedAmountLowThreshold = 1024 * 1024;
+    ch.addEventListener("bufferedamountlow", done, { once: true, signal: stop.signal });
+    ch.addEventListener("close", done, { once: true, signal: stop.signal });
+  });
+// straight to the PC: raw pieces [fid][offset][bytes], paced by the channel's buffer and by what the PC said it has
+async function sendDirect(x) {
+  const ch = dc;
+  let pos = x.acked;
+  const reader = x.f.slice(pos).stream().getReader();
+  let carry = null;
+  try {
+    for (;;) {
+      guard(x, ch);
+      const { value, done } = await reader.read();
+      let buf = value ? (carry ? concat(carry, value) : value) : carry;
+      carry = null;
+      while (buf && (buf.length >= PIECE || (done && buf.length))) {
+        const part = buf.subarray(0, PIECE);
+        buf = buf.subarray(part.length);
+        guard(x, ch);
+        while (ch.bufferedAmount > 8 * 1024 * 1024) (await low(ch), guard(x, ch));
+        while (pos - x.acked > AHEAD) {
+          const was = x.acked;
+          await waitFor(`a:${x.fid}`, 15e3);
+          guard(x, ch);
+          if (x.acked === was && Date.now() - x.last > 20e3) throw new Error("lost");
+        }
+        ch.send(frameOf(x.fid, pos, part));
+        pos += part.length;
+      }
+      carry = buf?.length ? buf : null;
+      if (done) break;
+    }
+    // what is still on its way: wait until the PC has it (or the link breaks)
+    while (x.acked < x.size) {
+      const was = x.acked;
+      await waitFor(`a:${x.fid}`, 15e3);
+      guard(x, ch);
+      if (x.acked === was && Date.now() - x.last > 20e3) throw new Error("lost");
+    }
+  } finally {
+    reader.cancel().catch(() => {});
+  }
+}
+// through the relay: sealed pieces with their offset, a few on the way at once (slower; up to 200 MB a file)
+async function sendRelay(x) {
+  let pos = x.acked;
+  while (x.acked < x.size) {
+    if (x.state !== "send") throw new Error("stop");
+    if (dcOpen()) throw new Error("restart"); // the direct link came: much faster
+    if (x.restart) ((x.restart = false), (pos = x.acked));
+    if (pos < x.acked) pos = x.acked;
+    if (pos < x.size && pos - x.acked < RELAY_WINDOW) {
+      const part = new Uint8Array(await x.f.slice(pos, pos + RELAY_PIECE).arrayBuffer());
+      if (!(await say({ t: "p", fid: x.fid, o: pos, d: b64(part) }))) throw new Error("lost");
+      pos += part.length;
+      continue;
+    }
+    const was = x.acked;
+    await waitFor(`a:${x.fid}`, 12e3);
+    if (x.acked === was && Date.now() - x.last > 12e3) pos = x.acked; // a piece got lost: again from what the PC has
+  }
 }
 const concat = (a, b) => {
   const out = new Uint8Array(a.length + b.length);
@@ -418,11 +742,81 @@ const concat = (a, b) => {
   out.set(b, a.length);
   return out;
 };
-const b64 = (u8) => {
-  let bin = "";
-  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode(...u8.subarray(i, i + 0x8000));
-  return btoa(bin);
-};
+
+// ---- the card: totals, speed, «علّق», what happens if you leave ----
+let renderT = 0;
+const renderSoon = () => (renderT ||= setTimeout(() => ((renderT = 0), render()), 200));
+let speedAt = 0;
+let speedBytes = 0;
+let rate = 0;
+function render() {
+  const items = shown.map((fid) => ups.get(fid)).filter((x) => x && x.state !== "cancel");
+  const any = items.length > 0;
+  // nothing left on the card: hidden — unless the PC stopped something (then it says so)
+  $("sending").classList.toggle("hidden", !any && !note);
+  if (!any) {
+    $("speed").textContent = "";
+    $("sumText").textContent = "ما فيه شي ينرسل الحين";
+    $("bar").style.width = "0";
+    $("note").textContent = note;
+    $("note").classList.toggle("hidden", !note);
+    $("leave").classList.add("hidden");
+    return void showDone();
+  }
+  const now = Date.now();
+  const counted = items.filter((x) => x.state !== "no");
+  const total = counted.reduce((a, x) => a + x.size, 0);
+  const have = counted.reduce((a, x) => a + (x.state === "done" || x.state === "removed" ? x.size : x.acked), 0);
+  const waiting = items.some((x) => x.state === "ask");
+  const sending = items.filter((x) => x.state === "queue" || x.state === "send");
+  const stuck = sending.some((x) => x.state === "send" && now - x.last > STALL_MS);
+  const linkDown = !welcomed || (ws?.readyState !== 1 && !dcOpen());
+  const bigWait = sending.some((x) => x.waitDirect);
+  // speed: bytes the PC confirmed over the last few seconds
+  if (now - speedAt >= 900) {
+    if (speedAt && have >= speedBytes) rate = rate * 0.5 + ((have - speedBytes) / ((now - speedAt) / 1000)) * 0.5;
+    speedAt = now;
+    speedBytes = have;
+  }
+  $("bar").style.width = `${Math.floor((have / Math.max(1, total)) * 100)}%`;
+  $("barBox").classList.toggle("stuck", stuck || linkDown);
+  $("sumText").textContent = waiting && !sending.length ? "ننتظر صاحب البيسي يقبل…" : sending.length ? `${counted.length} ${counted.length === 1 ? "ملف" : "ملفات"} · ${mb(total)}` : counted.length ? "خلصنا ✓" : "ما انرسل شي";
+  $("speed").textContent = sending.length && !stuck && rate > 1024 ? `${mb(rate)}/s` : sending.length ? pct(have, total) : "";
+  const line = sending.length && linkDown ? "انقطع الاتصال… أول ما يرجع نكمل من مكانه" : bigWait ? "الملف كبير ويحتاج اتصال مباشر. ننتظره…" : stuck ? "علّق… نحاول نكمل من نفس المكان" : note;
+  $("note").textContent = line;
+  $("note").classList.toggle("hidden", !line);
+  // the truth about leaving the page, while something is moving
+  const leave = sending.length || waiting;
+  $("leave").classList.toggle("hidden", !leave);
+  if (leave)
+    $("leave").innerHTML = isIOS
+      ? "<span><b>خلّك بالصفحة لين يخلص.</b> الآيفون يوقّف الإرسال لو طلعت أو قفلت الشاشة، ولما ترجع يكمل من نفس المكان.</span>"
+      : "<span><b>تقدر تطلع شوي،</b> ولما ترجع يكمل من نفس المكان. الأسرع تخلّي الصفحة مفتوحة والشاشة شغالة.</span>";
+  for (const x of items) {
+    const el = x.el;
+    if (!el) continue;
+    const ring = el.querySelector(".ring");
+    el.classList.toggle("done", x.state === "done");
+    el.classList.toggle("gone", x.state === "removed" || x.state === "no");
+    el.classList.toggle("wait", x.state === "ask" || x.state === "queue");
+    el.classList.toggle("stuck", x.state === "send" && (now - x.last > STALL_MS || linkDown));
+    ring.textContent = x.state === "removed" ? "انحذف من البيسي" : x.state === "no" ? "ما انرسل" : x.state === "ask" ? "ننتظر" : x.state === "queue" && !x.acked ? "بالدور" : pct(x.acked, x.size);
+  }
+  showDone();
+}
+function showDone() {
+  const items = shown.map((fid) => ups.get(fid)).filter((x) => x && x.state !== "cancel");
+  const done = items.filter((x) => x.state === "done");
+  const finished = items.length && !items.some(live) && done.length;
+  if (finished && !celebrated) {
+    celebrated = true;
+    $("doneText").textContent = done.length === 1 ? "وصل الملف" : `وصلت ${done.length} ملفات`;
+    setTimeout(() => $("doneCard").classList.remove("hidden"), 400);
+    confetti();
+    navigator.vibrate?.(40);
+  }
+  if (!finished) $("doneCard").classList.add("hidden");
+}
 function confetti() {
   const box = $("confetti");
   box.innerHTML = Array.from({ length: 36 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${COLORS[i % COLORS.length]};animation-delay:${Math.random() * 0.4}s;transform:rotate(${Math.random() * 180}deg)"></i>`).join("");
@@ -430,53 +824,259 @@ function confetti() {
 }
 $("pickPhotos").addEventListener("click", () => $("inPhotos").click());
 $("pickFiles").addEventListener("click", () => $("inFiles").click());
-for (const id of ["inPhotos", "inFiles"]) $(id).addEventListener("change", (e) => {
-  const list = [...(e.target.files || [])];
-  e.target.value = "";
-  void sendFiles(list);
-});
+for (const id of ["inPhotos", "inFiles"])
+  $(id).addEventListener("change", (e) => {
+    const list = [...(e.target.files || [])];
+    e.target.value = "";
+    pickFiles(list);
+  });
 
-// ---- from the PC to this phone ----
-const rx = new Map(); // fid → { name, size, type, parts: [], got, el }
+// ---- half files from an earlier visit (the page was closed): pick the same file again → carries on ----
+let left = [];
+function showLeft(files) {
+  left = (Array.isArray(files) ? files : []).filter((f) => ![...ups.values()].some((x) => x.fk === f.fk && live(x)));
+  paintLeft();
+}
+function dropLeft(fk, fid) {
+  const n = left.length;
+  left = left.filter((f) => (fk ? f.fk !== fk : f.fid !== fid));
+  if (left.length !== n) paintLeft();
+}
+function paintLeft() {
+  $("leftCard").classList.toggle("hidden", !left.length);
+  $("leftList").innerHTML = left.map((f) => `<div class="rx" data-fid="${Number(f.fid)}"><span class="n">${esc(f.name)}<small>${pct(f.got, f.size)} من ${mb(f.size)}</small></span><button class="x2" aria-label="احذفه">✕</button></div>`).join("");
+  $("leftList").querySelectorAll(".rx").forEach((row) =>
+    row.querySelector("button").addEventListener("click", () => {
+      const fid = Number(row.dataset.fid);
+      void send({ t: "cancel", fid });
+      dropLeft(null, fid);
+    }),
+  );
+}
+
+// ---- from the PC to this phone (resumable too: this page says how far it has each file) ----
+// r: { fid, name, size, type, got, blobs, parts, partBytes, el, state: get | done | cancel, last }
+const rx = new Map();
 function incoming(m) {
-  $("rxCard").classList.remove("hidden");
-  const el = document.createElement("div");
-  el.className = "rx";
-  el.innerHTML = `<span class="n">${esc(m.name)}</span><span class="pct">0%</span>`;
-  $("rx").prepend(el);
-  rx.set(m.fid, { name: m.name, size: m.size, type: m.type || "application/octet-stream", parts: [], got: 0, el });
+  const fid = Number(m.fid);
+  let r = rx.get(fid);
+  if (r?.state === "done") return void send({ t: "rgot", fid });
+  if (r?.state === "cancel") return void send({ t: "cancel", fid });
+  if (!r) {
+    $("rxCard").classList.remove("hidden");
+    const el = document.createElement("div");
+    el.className = "rx";
+    el.innerHTML = `<span class="n"><span class="nm"></span><small></small></span><span class="pct">0%</span><button class="x2" aria-label="ألغِه">✕</button>`;
+    el.querySelector(".nm").textContent = String(m.name ?? "ملف").slice(0, 120);
+    $("rx").prepend(el);
+    r = { fid, name: String(m.name ?? "file"), size: Math.max(0, Number(m.size) || 0), type: String(m.type || "application/octet-stream"), got: 0, blobs: [], parts: [], partBytes: 0, el, state: "get", last: Date.now(), ackGot: 0, ackAt: 0 };
+    el.querySelector(".x2").addEventListener("click", () => {
+      if (r.state !== "get") return;
+      void send({ t: "cancel", fid });
+      rxDrop(r, null);
+    });
+    rx.set(fid, r);
+  }
+  void send({ t: "rresume", fid, got: r.got });
+  void lockCheck();
+  paintRx(r);
 }
-function onPiece(buf) {
-  const fid = new DataView(buf).getUint32(0, true);
-  const r = rx.get(fid);
-  if (!r) return;
-  r.parts.push(new Uint8Array(buf, 4));
-  r.got += buf.byteLength - 4;
-  r.el.querySelector(".pct").textContent = `${Math.round((r.got / Math.max(1, r.size)) * 100)}%`;
+function rxResumeAll() {
+  for (const r of rx.values()) if (r.state === "get") void send({ t: "rresume", fid: r.fid, got: r.got });
 }
-function rxEnd(fid) {
+function onPiece(buf, relayMsg) {
+  let fid, off, bytes;
+  if (relayMsg) {
+    fid = Number(relayMsg.fid);
+    off = Number(relayMsg.o);
+    try {
+      bytes = Uint8Array.from(atob(String(relayMsg.d ?? "")), (c) => c.charCodeAt(0));
+    } catch {
+      return;
+    }
+  } else {
+    if (buf.byteLength < 12) return;
+    const v = new DataView(buf);
+    fid = v.getUint32(0, true);
+    off = v.getUint32(4, true) + v.getUint32(8, true) * 0x100000000;
+    bytes = new Uint8Array(buf, 12);
+  }
   const r = rx.get(fid);
-  if (!r) return;
-  const file = new File(r.parts, r.name, { type: r.type });
+  if (!r || r.state !== "get") {
+    if (r?.state !== "done") rateLimited(`c:${fid}`, () => send({ t: "cancel", fid }));
+    return;
+  }
+  if (off > r.got) return void rateLimited(`r:${fid}`, () => send({ t: "rresume", fid, got: r.got })); // a gap: from what we have
+  if (off + bytes.length <= r.got) return void (relayMsg && rack(r, true)); // had it already
+  const part = off < r.got ? bytes.subarray(r.got - off) : bytes;
+  r.parts.push(part);
+  r.got += part.length;
+  r.partBytes += part.length;
+  r.last = Date.now();
+  // kept as Blobs every 8 MB: the browser can keep those out of the page's memory
+  if (r.partBytes >= 8 * 1024 * 1024) (r.blobs.push(new Blob(r.parts)), (r.parts = []), (r.partBytes = 0));
+  rack(r, Boolean(relayMsg));
+  paintRx(r);
+}
+function rack(r, now) {
+  const t = Date.now();
+  clearTimeout(r.ackT);
+  if (now || r.got - r.ackGot >= 1024 * 1024 || t - r.ackAt >= 300 || r.got >= r.size) {
+    r.ackGot = r.got;
+    r.ackAt = t;
+    return void send({ t: "rack", fid: r.fid, got: r.got });
+  }
+  r.ackT = setTimeout(() => rack(r, true), 300);
+}
+const limits = new Map();
+function rateLimited(k, fn) {
+  if (Date.now() - (limits.get(k) ?? 0) < 1500) return;
+  limits.set(k, Date.now());
+  fn();
+}
+function rxEnd(m) {
+  const r = rx.get(Number(m.fid));
+  if (!r) return void send({ t: "cancel", fid: Number(m.fid) });
+  if (r.state === "done") return void send({ t: "rgot", fid: r.fid });
+  if (r.state !== "get") return;
+  if (r.got < r.size) return void send({ t: "rresume", fid: r.fid, got: r.got });
+  const file = new File([...r.blobs, ...r.parts], r.name, { type: r.type });
+  r.blobs = [];
   r.parts = [];
-  r.el.querySelector(".pct").remove();
+  r.state = "done";
+  r.file = file;
+  void send({ t: "rgot", fid: r.fid });
   const b = document.createElement("button");
+  b.className = "save";
   b.textContent = "احفظه";
   b.addEventListener("click", async () => {
     try {
       if (navigator.canShare?.({ files: [file] })) return void (await navigator.share({ files: [file] }));
-    } catch {}
+    } catch (e) {
+      if (e?.name === "AbortError") return; // closed the share sheet
+    }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(file);
     a.download = r.name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
   });
+  r.el.querySelector(".x2").remove();
+  r.el.querySelector(".pct").remove();
   r.el.append(b);
+  paintRx(r);
   navigator.vibrate?.(30);
+  void lockCheck();
+}
+function rxDrop(r, why) {
+  r.state = "cancel";
+  r.blobs = [];
+  r.parts = [];
+  if (why) {
+    const sm = r.el.querySelector("small");
+    sm.textContent = why;
+    sm.className = "warn";
+    r.el.querySelector(".x2")?.remove();
+    r.el.querySelector(".pct")?.remove();
+    r.el.style.opacity = ".55";
+    setTimeout(() => r.el.remove(), 6000);
+  } else r.el.remove();
+  void lockCheck();
+}
+function paintRx(r) {
+  if (r.state === "done") {
+    r.el.querySelector("small").textContent = mb(r.size);
+    r.el.querySelector("small").className = "";
+    return;
+  }
+  const pe = r.el.querySelector(".pct");
+  if (pe) pe.textContent = pct(r.got, r.size);
+  // the PC sends one file at a time: the others wait their turn (that isn't "stuck")
+  const moving = [...rx.values()].find((x) => x.state === "get" && x.got > 0 && x.got < x.size);
+  const queued = r.got === 0 && moving && moving !== r;
+  const stuck = !queued && Date.now() - r.last > STALL_MS;
+  const sm = r.el.querySelector("small");
+  sm.textContent = queued ? `بالدور · ${mb(r.size)}` : stuck ? (r.got ? "علّق… يكمل من نفس المكان" : "ننتظر البيسي…") : `${mb(r.got)} من ${mb(r.size)}`;
+  sm.className = stuck ? "warn" : "";
 }
 
-addEventListener("pagehide", () => void say({ t: "bye", id: ME.id }));
+// ---- keep the screen on while something is moving ----
+let lock = null;
+const busy = () => [...ups.values()].some(live) || [...rx.values()].some((r) => r.state === "get");
+async function lockCheck() {
+  if (busy() && document.visibilityState === "visible" && !ended) {
+    if (lock || !navigator.wakeLock) return;
+    try {
+      lock = await navigator.wakeLock.request("screen");
+      lock.addEventListener("release", () => (lock = null));
+    } catch {}
+  } else if (lock) {
+    const l = lock;
+    lock = null;
+    l.release().catch(() => {});
+  }
+}
+
+// ---- leaving and coming back ----
+function comeBack() {
+  if (ended) return;
+  if (!ws || ws.readyState > 1) {
+    tries = 0;
+    relay();
+  } else if (welcomed) void send({ t: "back" });
+  knock();
+  if (welcomed && !dcOpen()) void direct();
+  rxResumeAll();
+  poke("link");
+  void upPump();
+  void lockCheck();
+  render();
+}
+// "away" / "bye" sealed ahead of time: when the page is hidden or closed there's no time to wait for the encryption
+const preSealed = {};
+async function reseal() {
+  for (const t of ["away", "bye"]) preSealed[t] = await seal({ t });
+}
+setInterval(() => welcomed && void reseal(), 4 * 60e3);
+function sayNow(t) {
+  if (dcOpen()) {
+    try {
+      return void dc.send(JSON.stringify({ t }));
+    } catch {}
+  }
+  if (ws?.readyState === 1 && preSealed[t]) {
+    try {
+      ws.send(JSON.stringify({ from: ME.id, s: preSealed[t] }));
+    } catch {}
+  }
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    if (welcomed && busy()) sayNow("away");
+  } else comeBack();
+});
+document.addEventListener("resume", comeBack); // (a frozen page woken again)
+addEventListener("online", comeBack);
+addEventListener("pageshow", (e) => e.persisted && comeBack());
+addEventListener("pagehide", (e) => {
+  // closed for good → the PC keeps its half files a while; only put aside (it may come back) → just "away"
+  if (welcomed) sayNow(e.persisted ? "away" : "bye");
+});
+// once a second while something is moving: «علّق» shows by itself, the direct link is tried again
+let tick = 0;
+setInterval(() => {
+  if (document.visibilityState !== "visible") return;
+  if (busy()) {
+    render();
+    for (const r of rx.values()) if (r.state === "get") paintRx(r);
+  }
+  if (++tick % 20 === 0 && welcomed && !dcOpen()) void direct();
+  if (tick % 60 === 0 && welcomed) void send({ t: "here" }); // (the PC knows the page is still open)
+}, 1000);
+
+// a new code opened in the same tab (only the part after # changes, so the browser wouldn't load the page again)
+addEventListener("hashchange", () => location.reload());
+
 status();
 relay();
 </script>
