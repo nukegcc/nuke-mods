@@ -2343,6 +2343,7 @@ function paintStatus(s, staleAt = null) {
     tile("الرام", ram != null ? perc(ram) : "—", s.ram ? `${size(s.ram.used)} من ${size(s.ram.total)}` : "", spark(h.t, h.ram, 100)) +
     tile("كرت الشاشة", s.gpu ? perc(s.gpu.use) : "—", s.gpu ? (s.gpu.temp ? `الحرارة ${s.gpu.temp}°` : "") : "تفاصيله لكروت NVIDIA بس", spark(h.t, h.gpu, 100)) +
     (net ? tile("النت (التنزيل)", speed(net.down), [net.up != null ? `الرفع ${speed(net.up)}` : "", net.ping != null ? `البنق ${ltr(`${net.ping} ms`)}` : "ما وصلنا للنت"].filter(Boolean).join("، "), spark(h.t, h.down)) : tile("الهارديسك", s.disk ? `باقي ${gb(s.disk.free)}` : "—", "", ""));
+  for (const p of s.pads ?? []) html += tile(p.kind === "ds5" ? "يد بلايستيشن ٥" : "يد بلايستيشن ٤", perc(p.battery), [p.charging ? "تشحن" : "", p.conn === "bt" ? "بلوتوث" : "بالكيبل", p.hz ? `${ltr(`${p.hz}`)} مرة بالثانية` : ""].filter(Boolean).join("، "), "", true);
   if (s.battery) html += tile("البطارية", perc(s.battery.percent), s.battery.charging ? "يشحن" : s.battery.plugged ? "على الشاحن" : s.battery.minutesLeft ? `باقي ${span(s.battery.minutesLeft * 60)}` : "", "", true);
   $("stats").innerHTML = html;
   $("stats").classList.toggle("stale", Boolean(staleAt));
