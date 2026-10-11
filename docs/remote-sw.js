@@ -131,7 +131,7 @@ self.addEventListener("push", (event) => {
     data = { body: event.data ? event.data.text() : "" };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || "NUKE Mods", {
+    self.registration.showNotification(data.title || "NUKE GG", {
       body: data.body || "",
       icon: "remote-icon.png",
       // (no badge: Android paints it as a flat white shape, and the full-colour icon would be a white square)
