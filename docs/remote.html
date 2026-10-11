@@ -440,7 +440,7 @@
   <div id="intro" class="center">
     <img class="big" src="remote-icon.png" alt="" />
     <h2 id="introTitle">NUKE Remote</h2>
-    <p id="introText">افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.</p>
+    <p id="introText">افتح NUKE GG على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.</p>
     <div id="introSpin" class="spin hidden"></div>
     <button id="scanBtn" class="wide hidden" style="max-width:320px;margin:0 auto">📷 صوّر الـ QR من هنا</button>
     <button id="introAlt" class="wide ghost hidden" style="max-width:320px;margin:10px auto 0"></button>
@@ -505,7 +505,7 @@
       </section>
       <section data-cat="friends" id="frBox" class="hidden">
         <h2><span>العب مع ربعك</span></h2>
-        <p class="hint" style="margin:0 2px 10px">سوّ كود لمودات لعبة، وربعك يكتبونه في NUKE Mods وينزّل عندهم نفس موداتك.</p>
+        <p class="hint" style="margin:0 2px 10px">سوّ كود لمودات لعبة، وربعك يكتبونه في NUKE GG وينزّل عندهم نفس موداتك.</p>
         <div id="frList"></div>
         <div id="frCode" class="errres hidden"></div>
       </section>
@@ -1081,7 +1081,7 @@ async function pairWith(rawKey, pc) {
     if (m.t === "welcome") {
       done = true;
       // the same PC paired again replaces its old entry (by the PC's own id: two PCs can have the same
-      // name; a PC without one, an older NUKE Mods, by its name); a new one is added
+      // name; a PC without one, an older NUKE GG, by its name); a new one is added
       const id = crypto.randomUUID();
       const same = (p) => (m.pcId ? p.pcId === m.pcId : p.pc === m.pc);
       savePcs([...pcs().filter((p) => !same(p)), { id, k: m.key, pc: m.pc, pcId: m.pcId || null, host: m.host || null, vapid: m.vapid }]);
@@ -1143,8 +1143,8 @@ async function start() {
   const s = saved();
   if (!s)
     return iosSafari
-      ? intro(IOS_TITLE, `${IOS_FIRST}\nعلى البيسي: NUKE Mods ← الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال».`, false, { scan: "📷 أو امسح الكود هنا بسفاري" })
-      : intro("NUKE Remote", "افتح NUKE Mods على البيسي، وروح الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال»، وبعدين اضغط الزر تحت وصوّر الـ QR.");
+      ? intro(IOS_TITLE, `${IOS_FIRST}\nعلى البيسي: NUKE GG ← الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال».`, false, { scan: "📷 أو امسح الكود هنا بسفاري" })
+      : intro("NUKE Remote", "افتح NUKE GG على البيسي، وروح الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال»، وبعدين اضغط الزر تحت وصوّر الـ QR.");
   $("intro").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("nav").classList.remove("hidden");
@@ -1206,7 +1206,7 @@ async function start() {
         pushInfo = m.push;
         syncPush(); // notifications on: this PC learns this phone's (one) subscription
       }
-      // a planned shutdown / restart (an older NUKE Mods doesn't say: then only what this page asked)
+      // a planned shutdown / restart (an older NUKE GG doesn't say: then only what this page asked)
       if ("power" in m) showPower(m.power);
       paint();
       // just connected, or back on screen: the open tab fills in (quietly: what's shown stays meanwhile)
@@ -1235,7 +1235,7 @@ async function start() {
       if (pcs().length) {
         toast(`انفصل ${s.pc || "البيسي"} عن هالجوال`, true);
         start();
-      } else intro("انفصل البيسي", "البيسي فصل هالجوال من عنده. تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
+      } else intro("انفصل البيسي", "البيسي فصل هالجوال من عنده. تقدر تربطه مرة ثانية من إعدادات NUKE GG.");
     }
   };
   relayName = await channelName(raw);
@@ -1406,7 +1406,7 @@ const ping = () => send({ t: "ping" });
 function paint() {
   const on = connected();
   $("dot").className = "dot" + (on ? " on" : "");
-  $("status").textContent = on ? (direct() ? "متصل مباشرة ⚡" : "متصل") : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE Mods يكون مفتوح عليه)";
+  $("status").textContent = on ? (direct() ? "متصل مباشرة ⚡" : "متصل") : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE GG يكون مفتوح عليه)";
 }
 function cmd(action, args, wait = 9000) {
   const id = crypto.randomUUID();
@@ -1427,9 +1427,9 @@ function cmd(action, args, wait = 9000) {
   });
 }
 const ERR = {
-  TIMEOUT: "البيسي ما رد. تأكد إن NUKE Mods مفتوح عليه.",
+  TIMEOUT: "البيسي ما رد. تأكد إن NUKE GG مفتوح عليه.",
   REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.",
-  REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE Mods على البيسي.",
+  REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE GG على البيسي.",
   REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
   REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا.",
   REMOTE_BUSY: "فيه ملفات قاعدة تنرسل. انتظرها تخلص.",
@@ -2131,7 +2131,7 @@ function span(sec) {
 const REMIND = { 60: "ساعة", 120: "ساعتين", 180: "3 ساعات" };
 // the PC says when (its clock rules); the phone keeps it current between two looks
 // (a time in the day, 6 AM to 5:59 PM, keeps games closed 4 hours; one in the evening or the night, until 6 AM)
-// (`day` comes from the PC: an older NUKE Mods keeps every time until 6 AM)
+// (`day` comes from the PC: an older NUKE GG keeps every time until 6 AM)
 const isDayTime = (hm) => /^\d{2}:\d{2}$/.test(hm || "") && Number(hm.slice(0, 2)) >= 6 && Number(hm.slice(0, 2)) < 18;
 const bedUntil = () => limit?.until ?? (limit?.closeAt ? limit.closeAt + (limit.day === true ? 4 : 6) * 3600e3 : 0);
 const nearBed = () => Boolean(limit?.near || (limit?.closeAt && Date.now() >= limit.closeAt - 15 * 60e3 && Date.now() < bedUntil()));
@@ -2325,7 +2325,7 @@ async function loadStatus() {
   const r = await cmd("pc.status");
   if (!r.ok) return;
   paintStatus(r.data);
-  // a planned shutdown comes with it too (an older NUKE Mods doesn't send it)
+  // a planned shutdown comes with it too (an older NUKE GG doesn't send it)
   if (r.data && "power" in r.data) showPower(r.data.power);
   // kept for next time (the last 10 minutes aren't: old by then)
   const { hist, power, volume, ...rest } = r.data ?? {};
@@ -2557,7 +2557,7 @@ document.querySelectorAll("[data-slide]").forEach((el) => {
       label.textContent = text;
       if (!r.ok) fail(r);
       else {
-        // the PC says when (an older NUKE Mods doesn't: 15 seconds from now)
+        // the PC says when (an older NUKE GG doesn't: 15 seconds from now)
         showPower(r.data?.power ?? { kind: a === "power.restart" ? "restart" : "shutdown", left: 15e3 });
         toast(a === "power.restart" ? "البيسي بيعيد التشغيل بعد 15 ثانية. تقدر تلغيه من فوق." : "البيسي بيطفي بعد 15 ثانية. تقدر تلغيه من فوق.");
       }
@@ -2570,7 +2570,7 @@ document.querySelectorAll("[data-slide]").forEach((el) => {
 
 // ---- a planned shutdown / restart: a line at the top of every tab, with a live countdown and «ألغِ» ----
 // The PC remembers it and says so with every answer (pong, «الحالة», another phone's change), so it's here
-// after the page opens again. An older NUKE Mods doesn't: then only what this page asked is shown.
+// after the page opens again. An older NUKE GG doesn't: then only what this page asked is shown.
 let plan = null, planTimer = null; // plan: { kind, end (this phone's clock), timer }
 // p from the PC: { kind, left (ms), timer } — or as kept here: { kind, end, timer }; stale: kept from earlier
 function showPower(p, { stale = false } = {}) {
@@ -2654,7 +2654,7 @@ $("offGo").addEventListener("click", async () => {
   const had = plan;
   const sec = Math.round((nextAt(t) - Date.now()) / 1000);
   const done = working($("offGo"), "نجدوله…");
-  // (minutes too: a PC with an older NUKE Mods only knows those)
+  // (minutes too: a PC with an older NUKE GG only knows those)
   const r = await cmd("power.timer", { seconds: sec, minutes: Math.max(5, Math.round(sec / 60)) });
   done();
   paintOff();
@@ -2755,7 +2755,7 @@ $("byeBtn").addEventListener("click", async () => {
   if (pcs().length) {
     toast(`فصلنا ${s.pc || "البيسي"}`);
     start();
-  } else intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE Mods.");
+  } else intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE GG.");
   left.then(() => sayBye(s.k)).catch(() => {});
 });
 
@@ -3625,7 +3625,7 @@ let frNow = null;
 async function loadFriends() {
   const r = await cmd("friends.list");
   $("frBox").classList.toggle("hidden", !r.ok || !r.data.length);
-  // a PC without «العب مع ربعك» yet (an older NUKE Mods): no «ربعك» category at all
+  // a PC without «العب مع ربعك» yet (an older NUKE GG): no «ربعك» category at all
   const chip = document.querySelector('#tab-games .cats [data-cat="friends"]');
   chip?.classList.toggle("hidden", !r.ok && r.error === "REMOTE_NOT_ALLOWED");
   if (chip?.classList.contains("hidden") && $("tab-games").dataset.cat === "friends") pickCat($("tab-games"), "mine");
@@ -3660,7 +3660,7 @@ function paintFriends() {
     `<div class="linkrow"><button id="frShare">أرسله لربعك</button></div>` +
     `<p style="margin:10px 0 0">${people.length ? people.map((m) => `${esc(m.name)}: ${m.ready ? "✓ جاهز" : `ناقصه ${m.missing}`}`).join("<br>") : "محد دخل للحين."}</p>`;
   $("frShare").addEventListener("click", async () => {
-    const text = `تعال نلعب ${v.game} بنفس موداتي 🎮\nافتح NUKE Mods ← «العب مع ربعك» واكتب الكود:\n${v.shown}`;
+    const text = `تعال نلعب ${v.game} بنفس موداتي 🎮\nافتح NUKE GG ← «العب مع ربعك» واكتب الكود:\n${v.shown}`;
     try {
       if (navigator.share) await navigator.share({ text });
       else {
