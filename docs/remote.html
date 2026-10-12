@@ -776,7 +776,19 @@
   .soon-tba { font-size: 14px; color: var(--dim); }
   .soon-conf { position: fixed; inset: 0; z-index: 70; pointer-events: none; overflow: hidden; }
   .soon-conf i { position: absolute; top: -12px; width: 10px; height: 10px; animation: soondrop 1.6s ease-in forwards; }
-  @keyframes soondrop { to { transform: translateY(110vh) rotate(540deg); } }</style>
+  @keyframes soondrop { to { transform: translateY(110vh) rotate(540deg); } }
+  /* the category row as a grid of tiles (owner's pick «شبكة مربعات», 2026-10-12): every section seen at once, an icon
+     over its full name; a tile sinks under the finger, the picked one pops red and throws a few pixel bits (catBits) */
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: visible; margin-inline: 0; padding: 0 0 12px; }
+  .cats button { flex-shrink: initial; white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 64px; padding: 10px 4px 9px; font-size: 12.5px; line-height: 1.25; border-radius: 13px; transition: transform .1s, color .15s; touch-action: manipulation; }
+  .cats button svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .cats button::before { box-shadow: inset 0 2px 0 rgb(255 255 255 / .12), inset 0 -2px 0 rgb(0 0 0 / .5); }
+  .cats button:active { transform: translateY(2px); }
+  .cats button:active::before { box-shadow: inset 0 2px 0 rgb(0 0 0 / .45), inset 0 -1px 0 rgb(255 255 255 / .06); }
+  .cats button.on::before { box-shadow: inset 0 2px 0 rgb(255 138 124 / .55), inset 0 -2px 0 #6e1010; }
+  .cats button.on svg { filter: drop-shadow(1px 1px 0 rgb(0 0 0 / .45)); }
+  .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
+  @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }</style>
 </head>
 <body>
 <div class="wrap">
@@ -1869,6 +1881,50 @@ function catEmpty(tabEl) {
   note.textContent = text;
   note.classList.toggle("hidden", any);
 }
+// each category tile's line icon (the row is a grid of tiles: icon over its name)
+const CAT_ICONS = {
+  mine: '<rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/>',
+  friends: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  fun: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  soon: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/>',
+  shots: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/>',
+  steam: '<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
+  quick: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  send: '<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+  apps: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  sound: '<path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  power: '<path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/>',
+  now: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  net: '<path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16.2a5 5 0 0 1 7 0M12 20h.01"/>',
+  device: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+};
+document.querySelectorAll(".cats button[data-cat]").forEach((b) => {
+  const p = CAT_ICONS[b.dataset.cat];
+  if (p && !b.querySelector("svg")) b.insertAdjacentHTML("afterbegin", `<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`);
+});
+// the picked tile throws a few pixel bits in NUKE's colours, like a block button pressed on the PC
+function catBits(btn) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = btn.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const cols = ["#ef3b2d", "#ff8a1f", "#ffc93c", "#7a1010"];
+  for (let i = 0; i < 10; i++) {
+    const bit = document.createElement("i");
+    bit.className = "catbit";
+    bit.style.left = `${cx}px`;
+    bit.style.top = `${cy}px`;
+    bit.style.background = cols[i % 4];
+    document.body.appendChild(bit);
+    const a = (i / 10) * Math.PI * 2 + Math.random() * 0.5, d = 30 + Math.random() * 28;
+    bit.animate(
+      [
+        { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+        { transform: `translate(calc(-50% + ${(Math.cos(a) * d).toFixed(1)}px), calc(-50% + ${(Math.sin(a) * d + 14).toFixed(1)}px)) scale(.4) rotate(${Math.round(Math.random() * 180)}deg)`, opacity: 0 },
+      ],
+      { duration: 460 + Math.random() * 160, easing: "cubic-bezier(.2,.7,.4,1)" },
+    ).onfinish = () => bit.remove();
+    setTimeout(() => bit.remove(), 1000); // a page in the background never finishes its animations
+  }
+}
 document.querySelectorAll(".tab").forEach((tabEl) => {
   const row = tabEl.querySelector(".cats");
   if (!row) return;
@@ -1877,7 +1933,7 @@ document.querySelectorAll(".tab").forEach((tabEl) => {
       if (tabEl.dataset.cat === b.dataset.cat) return;
       buzz(6);
       pickCat(tabEl, b.dataset.cat);
-      b.scrollIntoView({ block: "nearest", inline: "nearest" });
+      catBits(b);
     }),
   );
   pickCat(tabEl, catsSaved()[tabEl.id], false);
