@@ -9,7 +9,7 @@
 //  2. Shows the notifications the PC sends (Web Push):
 //     • short title + one line; a newer one of the same kind replaces the older (`tag`), so they don't pile up
 //     • tapping one opens the page on its tab (e.g. «الحالة» for "the RAM is full")
-const CACHE = "nk-remote-v1";
+const CACHE = "nk-remote-v2";
 const PAGE_WAIT = 1500; // ms the internet gets before the kept page is shown
 
 self.addEventListener("install", (event) => {
