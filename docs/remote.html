@@ -595,6 +595,90 @@
   /* the waiting spinner: a lava ring */
   .spin { border-color: rgba(255,255,255,.12); border-top-color: #ff8a1f; }
   @media (prefers-reduced-motion: reduce) { .sw::before, .cats button.on { transition: none; animation: none; } }
+
+  /* ===== one type scale and one spacing rhythm (owner, 2026-10-12: "أحياناً حجم الخط مو متناسق… بعض الأشياء مو مرتبة"):
+     the same kind of thing is the same size everywhere; long text wraps, never cut ===== */
+  :root {
+    --fs-display: 24px;  /* a tab's name on its banner */
+    --fs-title: 18px;    /* the PC's name on top, a game's name on its card */
+    --fs-card: 15px;     /* a card / group / sheet title, the big buttons */
+    --fs-row: 14px;      /* a row's title (a setting, a program, a device, a file…) */
+    --fs-body: 13px;     /* section titles, tiles, chips, small buttons, plain text */
+    --fs-hint: 12.5px;   /* the line under a title, hints */
+    --fs-label: 11.5px;  /* tiny labels over numbers, the tab bar */
+    --fs-num-l: 28px; --fs-num-m: 22px; --fs-num-s: 17px;  /* numbers (Rajdhani) */
+    --lh-text: 1.6;      /* any text that may wrap */
+    --sp-section: 12px;  /* between cards */
+    --sp-card: 14px;     /* inside a card */
+    --sp-tile: 8px;      /* between tiles in a grid */
+    --sp-row: 10px;      /* a list row's top / bottom */
+    --h-btn: 50px;       /* big buttons */
+    --h-ctl: 40px;       /* chips, the category row, a row's own button */
+    --h-sm: 36px;        /* a small button inside a row or a card */
+  }
+  /* titles */
+  header h1 { font-size: var(--fs-title); }
+  header p, .tabhead small { font-size: var(--fs-hint); }
+  .tabhead b { font-size: var(--fs-display); }
+  section h2, p.sub, .errres > b:first-child { font-size: var(--fs-body); font-weight: 600; color: var(--dim); }
+  p.sub { margin: 14px 4px 10px; }
+  section h2 .more { font-size: var(--fs-body); }
+  details.grp > summary, .sheet h3, .errcall b, .errres h3, .dashbtn b, .apphead b, .vtop b { font-size: var(--fs-card); }
+  .now b { font-size: var(--fs-title); }
+  /* rows: title 14, the line under it 12.5 on its own line */
+  .setrow b, .priv b, .pr .t b, .out, .pcrow, .kv .r, .drv .n, .dl .n, .sd b, .frow b, .tr .n, .row .n, .arow .n, .stp, .toast { font-size: var(--fs-row); }
+  .setrow small, .priv small, .pr .t small, .out small, .pcrow small, .kv .r b small, .drv .n em, .dl .n em, .sd small, .frow small,
+  details.grp > summary small, .dashbtn small, .errcall small, .timerow .muted, .hint, .banner small, .crumbs, .apphead small, .vtop small {
+    font-size: var(--fs-hint); line-height: var(--lh-text);
+  }
+  .setrow small, .dashbtn small, .errcall small { display: block; margin-top: 2px; }
+  .setrow b, .priv b, .pr .t b, .frow b, .sd b, .dashbtn b, .errcall b { line-height: 1.45; }
+  .setrow { padding: var(--sp-row) 4px; }
+  .pr, .drv, .kv .r, .priv, .sd, .frow, .dl, .tr, .row { padding-top: var(--sp-row); padding-bottom: var(--sp-row); }
+  /* a list's names line up on the right like the line under them, with their icon (English names too) */
+  .out .t > span { display: block; }
+  :is(.frow b, .pr .t b, .out .t > *, .sd b, .setrow b, .pcrow span, .dl .n span, #frList b) { text-align: right; }
+  /* plain text */
+  .muted, .catempty, .talk p, .msgstate, .clip p, .errres p, .errres ul, .g .n, .limitline { font-size: var(--fs-body); }
+  .catempty, .talk p, .msgstate, .clip p, .errres p { line-height: var(--lh-text); }
+  .talk p, .msgstate { font-weight: 600; }
+  .msgstate.reply { font-size: var(--fs-row); font-weight: 700; }
+  /* tiny labels */
+  .stat span, .stat small, .week span, .speed span, .speed small, .g .s, .app, .arow .live, .tag, .g .pic i, nav button, #srvRegions .b small { font-size: var(--fs-label); }
+  .stat small { line-height: 1.5; }
+  /* numbers */
+  .vol b, .speed b { font-size: var(--fs-num-l); }
+  .stat b, .week b, .tpick { font-size: var(--fs-num-m); }
+  #srvRegions .b b { font-family: var(--f-num); font-weight: 700; font-size: var(--fs-num-s) !important; letter-spacing: .3px; }
+  /* buttons: one height per kind */
+  .wide, .linkrow button, .clip a { min-height: var(--h-btn); font-size: var(--fs-card); }
+  .linkrow { gap: var(--sp-tile); }
+  .chip, .cats button, .mic { min-height: var(--h-ctl); font-size: var(--fs-body); line-height: 1.3; }
+  .chip { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 14px; }
+  .mic { min-width: 104px; }
+  .chips { gap: var(--sp-tile); }
+  .g button, .pr button, .tr button, .frow .save, .now button { min-height: var(--h-sm); padding: 0 12px; font-size: var(--fs-body); line-height: 1.3; }
+  .seg button { font-size: var(--fs-hint); }
+  /* tiles: one size, one gap */
+  .b, .send3 .b, .roots .b { min-height: 78px; font-size: var(--fs-body); }
+  .mode, .scene { font-size: var(--fs-body); }
+  .scene.add { line-height: 1.5; }
+  .grid, .stats, .week, .apps, .deck, .modes, .speed, .games, .sgrid { gap: var(--sp-tile); }
+  /* cards: the same inside and between */
+  section, details.grp, .now, .catempty, .dashbtn, .banner { margin-bottom: var(--sp-section); }
+  section, .errres { padding: var(--sp-card); }
+  details.grp > .in { padding: 0 var(--sp-card) var(--sp-card); }
+  /* a settings group with nothing on its side keeps its arrow at the far edge, like the others */
+  details.grp > summary:not(:has(small))::after { margin-inline-start: auto; }
+  /* the category row runs to the screen's edges, so a long row scrolls out of sight instead of being cut at the card's edge */
+  .cats { margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
+  /* «العب مع ربعك»: the row's button keeps its distance from the edge */
+  #frList .pcrow { padding: 8px 14px 8px 8px !important; margin-bottom: var(--sp-tile); }
+  #frList .pcrow b { font-size: var(--fs-row); }
+  #frList .pcrow small { font-size: var(--fs-hint); }
+  /* the picked PC: its «الحين» readable on the red block */
+  .pcrow.on em { color: #fff; }
+  .pcrow em { font-size: var(--fs-hint); }
 </style>
 </head>
 <body>
