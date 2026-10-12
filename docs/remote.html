@@ -816,25 +816,59 @@
   .comeset .opts .chip { min-height: 38px; padding: 0 12px; font-size: 13px; }
   .comeset .opts .chip.x::after { content: " ✕"; color: var(--dim); }
   .comeset .wide { width: 100%; }
-  /* «كاميرا بثك»: the live preview, its tools, the settings under it */
-  .camv { margin-bottom: auto; text-align: right; display: grid; gap: 12px; }
-  .cam-prev { position: relative; aspect-ratio: 3 / 4; max-height: 52vh; width: 100%; border-radius: 20px; overflow: hidden; background: #000; box-shadow: inset 0 0 0 1.5px #241b1c; }
-  .cam-prev.wide169 { aspect-ratio: 16 / 9; }
-  .cam-prev video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* «كاميرا بثك»: the camera fills the screen, the settings in a sheet from the bottom (owner's pick, 2026-10-13) */
+  .camv2 { margin-bottom: auto; text-align: right; display: flex; flex-direction: column; gap: 10px; min-height: calc(100dvh - 120px); }
+  .cam-prev { position: relative; flex: 1; min-height: 46vh; width: 100%; border-radius: 20px; overflow: hidden; background: #000; box-shadow: inset 0 0 0 1.5px #241b1c; touch-action: none; }
+  .cam-prev video { width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0; transition: scale .12s; }
   .cam-prev.mirror video { transform: scaleX(-1); }
-  .cam-live { position: absolute; top: 10px; right: 10px; padding: 5px 11px; border-radius: 99px; background: #ef3b2d; font-size: 12px; font-weight: 800; display: flex; gap: 6px; align-items: center; }
+  .cam-live { position: absolute; z-index: 2; top: 10px; right: 10px; padding: 5px 11px; border-radius: 99px; background: #ef3b2d; font-size: var(--fs-xs, 12px); font-weight: 800; display: flex; gap: 6px; align-items: center; }
   .cam-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: camblink 1s infinite; }
+  .cam-live.back { background: #8a5a12; }
+  .cam-kind { position: absolute; z-index: 2; top: 44px; right: 10px; padding: 4px 10px; border-radius: 99px; background: rgb(14 10 10 / .65); backdrop-filter: blur(6px); font-size: var(--fs-xs, 12px); font-weight: 700; color: #fff; }
+  .cam-rec { position: absolute; z-index: 2; top: 10px; left: 10px; padding: 5px 11px; border-radius: 99px; background: rgb(14 10 10 / .7); font: 700 14px var(--f-num); color: #fff; display: flex; gap: 6px; align-items: center; direction: ltr; }
+  .cam-rec::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ef3b2d; animation: camblink 1s infinite; }
   @keyframes camblink { 50% { opacity: .2; } }
-  .cam-tools { position: absolute; inset: auto 10px 10px; display: flex; justify-content: center; gap: 8px; }
-  .cam-tools button { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: rgb(0 0 0 / .5); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .16); }
+  .cam-tools { position: absolute; z-index: 2; top: 50%; left: 10px; transform: translateY(-50%); display: grid; gap: 8px; }
+  .cam-tools button { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; color: #fff; background: rgb(0 0 0 / .5); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .16); }
   .cam-tools button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .cam-tools button.rec { color: #ef3b2d; }
+  .cam-tools button.rec.on { color: #fff; background: #ef3b2d; box-shadow: none; }
   .cam-tools svg { width: 20px; height: 20px; }
+  .cam-ring { position: absolute; z-index: 2; width: 70px; height: 70px; margin: -35px 0 0 -35px; border: 2px solid var(--gold); border-radius: 16px; opacity: 0; pointer-events: none; }
+  .cam-ring.on { animation: camring .9s ease-out forwards; }
+  @keyframes camring { 0% { opacity: 0; transform: scale(1.5); } 25% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+  .cam-zoom { position: absolute; z-index: 2; bottom: 12px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 99px; background: rgb(14 10 10 / .7); font: 700 15px var(--f-num); color: var(--gold); opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .cam-zoom.on { opacity: 1; }
   .cam-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; color: var(--dim); font-size: 13px; text-align: center; }
-  .camv h3 { margin: 4px 2px -4px; font-size: 13px; color: var(--dim); font-weight: 700; }
-  .camv .opts { display: flex; flex-wrap: wrap; gap: 7px; }
-  .camv .opts .chip { min-height: 38px; padding: 0 13px; font-size: 13px; }
+  /* the sheet: the tab row always there; a tab opens it over the bottom of the camera */
+  .cam-sheet { position: sticky; bottom: 0; z-index: 3; border-radius: 22px 22px 16px 16px; background: #150f10; box-shadow: 0 -8px 26px rgb(0 0 0 / .55), inset 0 0 0 1.5px #2e2324; padding: 6px 10px 10px; display: grid; gap: 10px; }
+  .cam-sheet.open { margin-top: -38vh; max-height: 62vh; overflow: auto; overscroll-behavior: contain; }
+  .cam-grip { width: 100%; height: 18px; display: grid; place-items: center; background: none; box-shadow: none; padding: 0; }
+  .cam-grip::before { content: ""; width: 40px; height: 4px; border-radius: 4px; background: #ffffff40; }
+  .cam-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: #0e0a0a; border-radius: 14px; padding: 4px; }
+  .cam-tabs button { min-height: 38px; border-radius: 11px; font-size: var(--fs-sm, 13px); font-weight: 700; color: var(--dim); background: none; box-shadow: none; padding: 0 4px; }
+  .cam-tabs button.on { color: #fff; background: #2a2021; box-shadow: inset 0 0 0 1.5px rgb(255 201 60 / .55); }
+  .cam-pane { display: grid; gap: 10px; padding-bottom: 6px; }
+  .cam-pane h3 { margin: 4px 2px -4px; font-size: 13px; color: var(--dim); font-weight: 700; }
+  .cam-pane .opts { display: flex; flex-wrap: wrap; gap: 7px; }
+  .cam-pane .opts .chip { min-height: 38px; padding: 0 13px; font-size: 13px; }
+  .cam-sl { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
+  .cam-sl input { width: 100%; accent-color: var(--gold); }
+  .cam-bgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .cam-bgt { position: relative; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; display: grid; align-items: end; padding: 0; box-shadow: inset 0 0 0 1.5px #2e2324; cursor: pointer; }
+  .cam-bgt span { font-size: 11px; font-weight: 800; color: #fff; background: rgb(0 0 0 / .45); padding: 3px 0; text-align: center; }
+  .cam-bgt.on { box-shadow: inset 0 0 0 2px var(--gold); }
+  .bg-lava { background: linear-gradient(45deg, #ef3b2d, #5a1610 55%, #0e0a0a); }
+  .bg-room { background: radial-gradient(circle at 70% 35%, rgb(255 138 31 / .6), transparent 55%), #1d1718; }
+  .bg-night { background: radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 2px), radial-gradient(circle at 70% 20%, #fff 0 1px, transparent 2px), linear-gradient(#0b1530, #1b1030); }
+  .bg-custom { background: repeating-linear-gradient(45deg, #241b1c 0 8px, #1a1314 8px 16px); }
   .cam-link { border-radius: 14px; padding: 12px; background: #120d0d; box-shadow: inset 0 0 0 1.5px #000, inset 0 0 0 2.5px rgb(255 201 60 / .35); display: grid; gap: 8px; }
+  .cam-link.warn { box-shadow: inset 0 0 0 1.5px #000, inset 0 0 0 2.5px rgb(239 59 45 / .55); }
   .cam-link code { direction: ltr; text-align: left; font-family: var(--f-num); font-size: 13px; color: var(--gold); word-break: break-all; }
+  .cam-net { border-radius: 14px; padding: 12px; background: #120d0d; box-shadow: inset 0 0 0 1.5px #2e2324; display: grid; gap: 4px; }
+  .cam-net b { font-size: 16px; }
+  .cam-net span { color: var(--dim); font-size: 13px; }
+  .cam-steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-size: 13px; color: var(--mut, #ffffffcc); line-height: 1.6; }
   .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
   @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }</style>
 </head>
@@ -4859,17 +4893,24 @@ $("comeEdit").addEventListener("click", () => {
   });
 });
 
-// ---- 📷 «كاميرا بثك» (owner's pick, 2026-10-12: «الاثنين مع إعدادات» — a window on the PC and a link for the streaming app) ----
+// ---- 📷 «كاميرا بثك» (owner's picks: 2026-10-12 «الاثنين مع إعدادات» — a window on the PC and a link for the streaming app;
+// 2026-10-13 the camera fills the screen with the settings in a sheet from the bottom (الصورة · الصوت · على البيسي · الاتصال),
+// background blur / swap, the view following the face, picture settings, focus by a tap, two-finger zoom, recording on the
+// PC, two phones, back by itself after a drop, and away from home: NUKE's server or a USB cable).
 // The preview starts when the view opens; «ابدأ» sends it over WebRTC to the PC (offer / answer in one sealed message each,
 // ICE gathered first). Changing the camera, the quality or the microphone while live swaps the track (no new link);
-// the window's look goes to the PC as it changes. The settings stay on this phone (nk-cam).
+// everything else goes to the PC as it changes (the PC's graphics card does the effects, not this phone).
+// The settings stay on this phone (nk-cam).
 const CAM_KEY = "nk-cam";
-const CAM_DEF = { q: "1080", fps: 30, facing: "user", mirror: true, mic: false, window: true, shape: "circle", size: "m", border: true, top: false };
+const FX_DEF = { bg: "none", img: "lava", follow: false, b: 0, c: 0, w: 0, s: 0, auto: false };
+const CAM_DEF = { q: "1080", fps: 30, facing: "user", mirror: true, mic: false, noise: true, window: true, shape: "round", size: "m", border: true, top: false, fx: FX_DEF };
 const camPrefs = () => {
   try {
-    return { ...CAM_DEF, ...JSON.parse(localStorage.getItem(CAM_KEY) || "{}") };
+    const p = { ...CAM_DEF, ...JSON.parse(localStorage.getItem(CAM_KEY) || "{}") };
+    p.fx = { ...FX_DEF, ...(p.fx || {}) };
+    return p;
   } catch {
-    return { ...CAM_DEF };
+    return { ...CAM_DEF, fx: { ...FX_DEF } };
   }
 };
 const camSave = (p) => {
@@ -4880,12 +4921,12 @@ const camSave = (p) => {
 let camCleanup = null; // set while the camera view is open
 const CAM_I = {
   flip: '<path d="M3 7h13l-3-3M21 17H8l3 3"/>',
-  zin: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M11 8v6M8 11h6"/>',
-  zout: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/>',
   torch: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
   mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>',
+  rec: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/>',
 };
 const camIc = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${CAM_I[k]}</svg>`;
+const KIND_SAY = { usb: "بالكيبل ⚡", lan: "على نفس الواي فاي ⚡", net: "مباشر عن طريق النت", relay: "عن طريق سيرفر نيوك" };
 $("camOpen").addEventListener("click", () => {
   buzz();
   const P = camPrefs();
@@ -4894,60 +4935,143 @@ $("camOpen").addEventListener("click", () => {
   let vSender = null;
   let aSender = null;
   let live = false;
+  let want = false; // the player pressed «ابدأ» and not «وقّف»: a drop is followed by a reconnect
+  let back = false; // reconnecting now
+  let backTry = 0;
+  let backTimer = null;
   let busy = false;
-  let zoom = null;
   let torch = false;
   let wakeCam = null;
   let link = null;
-  let vc = null; // «كاميرا نيوك» on the PC: { built, installed, on, win11 }
+  let vc = null; // «كاميرا نيوك» on the PC: { built, installed, on, win11, outdated }
+  let view = null; // cam.state: { slot, others, vcamMine, rec }
+  let tab = null; // the open sheet tab (null = only the tab row)
+  let ice = { ice: [], ready: false };
+  let stats = null; // { kind, kbps, w, h, fps }
+  let statsTimer = null;
+  let usb = null; // { cable, takesInternet }
+  let recSince = null;
+  let recTimer = null;
+  let focusLocked = false;
+  let hwZoom = null; // the camera's own zoom (Android)
   const vTrack = () => stream?.getVideoTracks()[0] ?? null;
   const aTrack = () => stream?.getAudioTracks()[0] ?? null;
-  const chips = (key, list) => `<div class="opts">${list.map(([v, t]) => `<button class="chip${String(P[key]) === String(v) ? " on" : ""}" data-set="${key}" data-v="${v}">${t}</button>`).join("")}</div>`;
-  const sw = (key, title, sub) => `<div class="setrow"><div><b>${title}</b><small>${sub}</small></div><button class="sw${(key === "vcam" ? vc?.on : P[key]) ? " on" : ""}" data-tog="${key}" aria-label="${title}"></button></div>`;
+  const caps = () => vTrack()?.getCapabilities?.() ?? {};
+  const chips = (key, list, fx) => `<div class="opts">${list.map(([v, t]) => `<button class="chip${String(fx ? P.fx[key] : P[key]) === String(v) ? " on" : ""}" data-${fx ? "fx" : "set"}="${key}" data-v="${v}">${t}</button>`).join("")}</div>`;
+  const sw = (key, title, sub, on, attr = "tog") => `<div class="setrow"><div><b>${title}</b>${sub ? `<small>${sub}</small>` : ""}</div><button class="sw${on ? " on" : ""}" data-${attr}="${key}" aria-label="${title}"></button></div>`;
+  const slider = (k, title, min) => `<label class="cam-sl"><span>${title}</span><input type="range" min="${min}" max="1" step="0.05" value="${P.fx[k]}" data-sl="${k}" aria-label="${title}"></label>`;
+  const fmtT = (ms) => {
+    const s = Math.max(0, Math.round(ms / 1000));
+    return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  function paneHtml() {
+    const c = caps();
+    if (tab === "pic")
+      return `<h3>الجودة</h3>${chips("q", [["720", "720"], ["1080", "1080"]])}
+        <h3>السرعة</h3>${chips("fps", [[30, "30 بالثانية"], [60, "60 بالثانية"]])}
+        <h3>الخلفية</h3>${chips("bg", [["none", "بدون"], ["blur", "طمس"], ["img", "صورة"]], true)}
+        ${P.fx.bg === "img" ? `<div class="cam-bgs">${[["lava", "حمم نيوك"], ["room", "غرفة"], ["night", "ليل"]].map(([v, t]) => `<button class="cam-bgt bg-${v}${P.fx.img === v ? " on" : ""}" data-fx="img" data-v="${v}"><span>${t}</span></button>`).join("")}<label class="cam-bgt bg-custom${P.fx.img === "custom" ? " on" : ""}"><input type="file" accept="image/*" id="camBgFile" hidden><span>من جوالك</span></label></div>` : ""}
+        <small class="hint" style="margin:0">الطمس والصورة والملاحقة يسويها البيسي بكرت الشاشة، جوالك ما يسخن.</small>
+        ${sw("follow", "يلحق وجهك", "لو تحركت، الصورة تقرّب وتلحقك وأنت بالنص.", P.fx.follow, "fxt")}
+        <h3>ضبط الصورة</h3>
+        ${slider("b", "إضاءة", -1)}${slider("c", "تباين", -1)}${slider("w", "دفا", -1)}${slider("s", "حدّة", 0)}
+        ${sw("auto", "صلّح الإضاءة", "لو الغرفة ظلمة يفتّح الصورة بروحه.", P.fx.auto, "fxt")}
+        <button class="wide ghost" data-reset="1">رجّع الصورة مثل ما كانت</button>
+        ${sw("mirror", "مرآة", "مثل ما تشوف نفسك بالمراية (للكاميرا الأمامية).", P.mirror)}
+        ${c.focusMode ? sw("focus", "قفل التركيز", "اضغط على الصورة عشان تركّز على مكان، وهذا يثبّته.", focusLocked, "lock") : '<small class="hint" style="margin:0">اضغط على الصورة عشان تركّز، وكبّر وصغّر بأصبعين.</small>'}`;
+    if (tab === "snd")
+      return `${sw("mic", "صوت الجوال", "مايك الجوال يوصل مع الرابط لبرنامج البث ومع التسجيل.", P.mic)}
+        ${sw("noise", "يخفّف الضجة", "يشيل صوت المروحة والضجة اللي ورا.", P.noise)}`;
+    if (tab === "pc") {
+      let vcHtml = "";
+      if (vc?.built) {
+        if (!vc.installed) vcHtml = `<div class="cam-link"><b>كاميرا نيوك</b><small class="hint" style="margin:0">خلّ جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG» تختارها بأي موقع أو برنامج. بالبيسي يطلع «نعم» من الويندوز مرة وحدة، لازم أحد يضغطها.</small><button class="wide" data-vcsetup="1">فعّلها</button></div>`;
+        else {
+          vcHtml = sw("vcam", "كاميرا نيوك", "جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG»: اخترها بأي موقع أو برنامج (أوم تي في، ديسكورد، زوم…).", vc.on);
+          if (vc.outdated) vcHtml += `<div class="cam-link"><small class="hint" style="margin:0">فيه نسخة أوضح من «كاميرا نيوك». بالبيسي يطلع «نعم» من الويندوز مرة وحدة.</small><button class="wide ghost" data-vcsetup="1">حدّثها</button></div>`;
+          if (vc.on && live && view?.others && !view.vcamMine) vcHtml += `<button class="wide ghost" data-vcfrom="1">خلّ «كاميرا نيوك» تاخذ صورة هالجوال</button>`;
+        }
+      }
+      return `${vcHtml}
+        ${sw("window", "نافذة على البيسي", "وجهك يطلع بنافذة فوق الشاشة، وبرنامج البث يلقطها مثل أي نافذة.", P.window)}
+        <h3>الشكل</h3>${chips("shape", [["circle", "دائرة"], ["round", "مدوّرة"], ["square", "مربعة"]])}
+        <h3>الحجم</h3>${chips("size", [["s", "صغيرة"], ["m", "وسط"], ["l", "كبيرة"]])}
+        ${sw("border", "شارة NUKE", "شارة صغيرة بزاوية النافذة.", P.border)}
+        ${sw("top", "فوق كل شي", "النافذة تبقى فوق اللعبة والبرامج.", P.top)}
+        ${link ? `<div class="cam-link"><b>رابط برنامج البث${view?.slot === 2 ? " (الجوال الثاني)" : ""}</b><code dir="ltr">${esc(link)}</code><small class="hint" style="margin:0">ببرنامج البث: ضيف «مصدر متصفح» والصق الرابط. يجيب الصورة وصوت الجوال.</small><button class="wide ghost" data-copy="1">انسخه بالبيسي</button></div>` : ""}
+        <div class="cam-link"><b>جوال ثاني = كاميرا ثانية</b><small class="hint" style="margin:0">اربط جوال ثاني بنفس البيسي (من البيسي: «جوالك» ← «اربط جوال»)، وافتح فيه «كاميرا بثك». كل جوال له نافذته ورابطه.</small></div>`;
+    }
+    if (tab === "net") {
+      const kind = stats?.kind;
+      const now = live && kind ? `<div class="cam-net"><b>${KIND_SAY[kind] ?? "متصل"}</b><span>${stats.kbps ? `<bdi class="num">${(stats.kbps / 1000).toFixed(1)}</bdi> ميقا` : ""}${stats.h ? ` · <bdi class="num">${stats.h}p ${stats.fps || ""}</bdi>` : ""}</span>${kind === "relay" ? '<small class="hint" style="margin:0">عن طريق سيرفر نيوك نخلّي الجودة 720 عشان باقة جوالك.</small>' : ""}</div>` : `<small class="hint" style="margin:0">${live ? "نقيس الاتصال…" : "ابدأ البث وتشوف هنا كيف يوصل الجوال."}</small>`;
+      const server = ice.ready ? "جاهز: لو الطريق المباشر مسكّر (بيانات الجوال مثلاً) تمر الصورة عن طريقه بروحها." : "للحين مو مفعّل: صاحب التطبيق يفعّله مرة وحدة. بدونه ببيانات الجوال أحياناً يمشي وأحياناً لا.";
+      const fix = usb?.takesInternet && !usb.alone ? `<div class="cam-link warn"><b>البيسي صار ياخذ النت من جوالك</b><small class="hint" style="margin:0">عشان ما ياكل باقتك، خلّ نت البيسي من الراوتر. بالبيسي يطلع «نعم» من الويندوز مرة وحدة.</small><button class="wide" data-usbfix="1">خلّ نت البيسي من الراوتر</button></div>` : "";
+      return `${now}
+        <h3>سيرفر نيوك</h3><small class="hint" style="margin:0">${server}</small>
+        <h3>بالكيبل (أوضح صورة وبدون تأخير)</h3>
+        <ol class="cam-steps"><li>اشبك الجوال بالبيسي بالكيبل.</li><li><b>أندرويد:</b> الإعدادات ← نقطة الاتصال ← «مشاركة الإنترنت بالكيبل».</li><li><b>آيفون:</b> الإعدادات ← نقطة الاتصال الشخصية ← شغّلها (البيسي يبيله برنامج آيتونز).</li><li>ابدأ البث: يطلع فوق «بالكيبل ⚡».</li></ol>
+        ${fix}`;
+    }
+    return "";
+  }
   function draw() {
-    const caps = vTrack()?.getCapabilities?.() ?? {};
-    $("funBody").innerHTML = `<div class="camv">
-      <div class="cam-prev${P.mirror && P.facing === "user" ? " mirror" : ""}">
+    const c = caps();
+    const rec = recSince ? `<span class="cam-rec">${fmtT(Date.now() - recSince)}</span>` : "";
+    const status = back ? '<span class="cam-live back">نرجّعه…</span>' : live ? `<span class="cam-live">على البيسي</span>` : "";
+    const kind = live && stats?.kind ? `<span class="cam-kind">${KIND_SAY[stats.kind]}</span>` : "";
+    $("funBody").innerHTML = `<div class="camv2">
+      <div class="cam-prev${P.mirror && P.facing === "user" ? " mirror" : ""}" id="camStage">
         <video id="camPrev" autoplay playsinline muted></video>
         ${stream ? "" : '<div class="cam-msg" id="camMsg">نفتح الكاميرا…</div>'}
-        ${live ? '<span class="cam-live">على البيسي</span>' : ""}
+        ${status}${kind}${rec}
+        <i class="cam-ring" id="camRing"></i><span class="cam-zoom" id="camZoom"></span>
         <div class="cam-tools">
           <button data-tool="flip" aria-label="بدّل الكاميرا">${camIc("flip")}</button>
-          ${caps.zoom ? `<button data-tool="zout" aria-label="بعّد">${camIc("zout")}</button><button data-tool="zin" aria-label="قرّب">${camIc("zin")}</button>` : ""}
-          ${caps.torch ? `<button data-tool="torch" class="${torch ? "on" : ""}" aria-label="الفلاش">${camIc("torch")}</button>` : ""}
+          ${c.torch ? `<button data-tool="torch" class="${torch ? "on" : ""}" aria-label="الفلاش">${camIc("torch")}</button>` : ""}
           <button data-tool="mic" class="${P.mic ? "on" : ""}" aria-label="صوت الجوال">${camIc("mic")}</button>
+          ${live ? `<button data-tool="rec" class="rec${recSince ? " on" : ""}" aria-label="${recSince ? "وقّف التسجيل" : "سجّل مقطع"}">${camIc("rec")}</button>` : ""}
         </div>
       </div>
-      <button class="wide${live ? " ghost" : ""}" id="camGo"${busy ? " disabled" : ""}>${busy ? "نوصّل…" : live ? "وقّف البث" : "ابدأ البث للبيسي"}</button>
-      <p class="hint" id="camNote">${live ? "لو طلعت من الصفحة أو قفلت الجوال، الكاميرا توقف. خلّه مفتوح." : "الأسرع لما الجوال والبيسي على نفس الواي فاي."}</p>
-      ${link ? `<div class="cam-link"><b>رابط برنامج البث</b><code dir="ltr">${esc(link)}</code><small class="hint" style="margin:0">ببرنامج البث: ضيف «مصدر متصفح» والصق الرابط. يجيب الصورة وصوت الجوال.</small><button class="wide ghost" data-copy="1">انسخه بالبيسي</button></div>` : ""}
-      ${vc?.built ? (vc.installed
-        ? sw("vcam", "كاميرا نيوك", "جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG»: اخترها بأي موقع أو برنامج (أوم تي في، ديسكورد، زوم…).")
-        : `<div class="cam-link"><b>كاميرا نيوك</b><small class="hint" style="margin:0">خلّ جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG» تختارها بأي موقع أو برنامج. بالبيسي يطلع «نعم» من الويندوز مرة وحدة، لازم أحد يضغطها.</small><button class="wide" data-vcsetup="1">فعّلها</button></div>`) : ""}
-      <h3>الجودة</h3>${chips("q", [["720", "720"], ["1080", "1080"]])}
-      <h3>السرعة</h3>${chips("fps", [[30, "30 بالثانية"], [60, "60 بالثانية"]])}
-      ${sw("mirror", "مرآة", "مثل ما تشوف نفسك بالمراية (للكاميرا الأمامية).")}
-      ${sw("mic", "صوت الجوال", "مايك الجوال يوصل مع الرابط لبرنامج البث.")}
-      ${sw("window", "نافذة على البيسي", "وجهك يطلع بنافذة صغيرة، برنامج البث يلقطها مثل أي نافذة.")}
-      <h3>شكل النافذة</h3>${chips("shape", [["circle", "دائرة"], ["round", "مدوّرة"], ["square", "مربعة"]])}
-      <h3>حجم النافذة</h3>${chips("size", [["s", "صغيرة"], ["m", "وسط"], ["l", "كبيرة"]])}
-      ${sw("border", "إطار أحمر", "خط نيوك الأحمر حول النافذة.")}
-      ${sw("top", "فوق كل شي", "النافذة تبقى فوق اللعبة والبرامج.")}
+      <button class="wide${live || back ? " ghost" : ""}" id="camGo"${busy ? " disabled" : ""}>${busy ? "نوصّل…" : live || back ? "وقّف البث" : "ابدأ البث للبيسي"}</button>
+      <div class="cam-sheet${tab ? " open" : ""}">
+        <button class="cam-grip" data-grip="1" aria-label="${tab ? "نزّل الإعدادات" : "طلّع الإعدادات"}"></button>
+        <div class="cam-tabs" role="tablist">${[["pic", "الصورة"], ["snd", "الصوت"], ["pc", "على البيسي"], ["net", "الاتصال"]].map(([k, t]) => `<button role="tab" data-tab="${k}" class="${tab === k ? "on" : ""}">${t}</button>`).join("")}</div>
+        ${tab ? `<div class="cam-pane">${paneHtml()}</div>` : ""}
+      </div>
     </div>`;
     const v = $("camPrev");
     if (v && stream) v.srcObject = stream;
+    applyDigitalZoom();
   }
-  const winOpts = () => ({ shape: P.shape, size: P.size, mirror: P.mirror && P.facing === "user", border: P.border, top: P.top, window: P.window });
+  // only the sheet's pane (sliders keep their grip while the rest stays)
+  function drawPane() {
+    const p = document.querySelector(".cam-pane");
+    if (p) p.innerHTML = paneHtml();
+    else draw();
+  }
+  const fxOpts = () => ({ ...P.fx, zoom: digital.z, zx: digital.x, zy: digital.y });
+  const winOpts = () => ({ shape: P.shape, size: P.size, mirror: P.mirror && P.facing === "user", border: P.border, top: P.top, window: P.window, fx: fxOpts() });
+  let optsTimer = null;
+  const sendOpts = () => {
+    if (!live) return;
+    clearTimeout(optsTimer);
+    optsTimer = setTimeout(() => void cmd("cam.opts", { opts: winOpts() }), 120);
+  };
   async function openCam() {
     const [w, h] = P.q === "1080" ? [1920, 1080] : [1280, 720];
     const next = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: P.facing, width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: P.fps } },
-      audio: P.mic ? { echoCancellation: true, noiseSuppression: true } : false,
+      video: { facingMode: P.facing, width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: P.fps }, resizeMode: "none" },
+      audio: P.mic ? { echoCancellation: true, noiseSuppression: P.noise, autoGainControl: true } : false,
     });
     const old = stream;
     stream = next;
-    zoom = null;
+    // a camera picture (a face, a room): sharpness over smoothness when the link has to choose
+    try {
+      vTrack().contentHint = P.fps === 60 ? "motion" : "detail";
+    } catch {}
+    hwZoom = null;
     torch = false;
+    focusLocked = false;
     // live: the new tracks take the old ones' place on the same link
     if (live) {
       await vSender?.replaceTrack(vTrack()).catch(() => {});
@@ -4970,24 +5094,58 @@ $("camOpen").addEventListener("click", () => {
     if (!vSender) return;
     const p = vSender.getParameters();
     if (!p.encodings?.length) p.encodings = [{}];
-    p.encodings[0].maxBitrate = P.q === "1080" ? (P.fps === 60 ? 8e6 : 6e6) : P.fps === 60 ? 4e6 : 3e6;
-    p.degradationPreference = "balanced";
+    // plenty of room for a sharp picture (the link slows it down by itself when the internet can't carry it); through
+    // NUKE's server: 720 and less, for the phone's data plan (and the server's monthly allowance)
+    const relay = stats?.kind === "relay";
+    const max = P.q === "1080" ? (P.fps === 60 ? 16e6 : 12e6) : P.fps === 60 ? 9e6 : 7e6;
+    p.encodings[0].maxBitrate = relay ? Math.min(max, 3e6) : max;
+    p.encodings[0].maxFramerate = relay ? Math.min(P.fps, 30) : P.fps;
+    p.encodings[0].scaleResolutionDownBy = relay && P.q === "1080" ? 1.5 : 1;
+    // a weak link drops pictures a second before it drops sharpness (a face stays sharp)
+    p.degradationPreference = P.fps === 60 && !relay ? "maintain-framerate" : "maintain-resolution";
     vSender.setParameters(p).catch(() => {});
+  }
+  async function pollStats() {
+    if (!live) return;
+    const r = await cmd("cam.stats");
+    if (r.ok && r.data) {
+      const kindChanged = r.data.kind !== stats?.kind;
+      stats = r.data;
+      if (kindChanged) {
+        bitrate();
+        draw();
+      } else if (tab === "net") drawPane();
+      else {
+        const k = document.querySelector(".cam-kind");
+        if (k && stats.kind) k.textContent = KIND_SAY[stats.kind];
+      }
+    }
   }
   async function goLive() {
     if (!stream || busy) return;
     busy = true;
+    want = true;
+    clearTimeout(backTimer);
     draw();
     try {
-      pc = new RTCPeerConnection({ iceServers: RTC_ICE });
-      vSender = pc.addTransceiver(vTrack(), { direction: "sendonly", streams: [stream] }).sender;
+      const ir = await cmd("cam.ice", {}, 8000);
+      if (ir.ok && ir.data) ice = ir.data;
+      pc = new RTCPeerConnection({ iceServers: [...RTC_ICE, ...(ice.ice || [])] });
+      const vt = pc.addTransceiver(vTrack(), { direction: "sendonly", streams: [stream] });
+      vSender = vt.sender;
+      // the phone's own video chip (H.264) first: a sharper picture for the same speed, and a cooler phone
+      try {
+        const cs = RTCRtpSender.getCapabilities?.("video")?.codecs ?? [];
+        const rank = (c) => (/h264/i.test(c.mimeType) ? (/42e01f|640c1f|4d001f/i.test(c.sdpFmtpLine || "") ? 0 : 1) : /vp9/i.test(c.mimeType) ? 2 : /vp8/i.test(c.mimeType) ? 3 : 4);
+        if (cs.length && vt.setCodecPreferences) vt.setCodecPreferences([...cs].sort((a, b) => rank(a) - rank(b)));
+      } catch {}
       // the sound's place is there from the start, so the microphone can be switched on later without a new link
       aSender = pc.addTransceiver(aTrack() ?? "audio", { direction: "sendonly", streams: [stream] }).sender;
+      const mine = pc;
       pc.onconnectionstatechange = () => {
-        if (pc && ["failed", "closed"].includes(pc.connectionState) && live) {
-          stopLive(false);
-          toast("انقطع البث. اضغط «ابدأ» مرة ثانية.", true);
-        }
+        if (pc !== mine) return;
+        if (mine.connectionState === "failed" || mine.connectionState === "closed") lostLink();
+        else if (mine.connectionState === "disconnected") setTimeout(() => pc === mine && mine.connectionState === "disconnected" && lostLink(), 4000);
       };
       await pc.setLocalDescription(await pc.createOffer());
       await new Promise((res) => {
@@ -5000,23 +5158,85 @@ $("camOpen").addEventListener("click", () => {
       await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
       link = r.data.link;
       live = true;
+      back = false;
+      backTry = 0;
       bitrate();
       try {
-        wakeCam = await navigator.wakeLock?.request("screen");
+        wakeCam ??= await navigator.wakeLock?.request("screen");
       } catch {}
       buzz([20, 40, 20]);
+      // the phone's own background picture goes again with every new link
+      try {
+        const bg = P.fx.img === "custom" && localStorage.getItem("nk-cam-bg");
+        if (bg) void cmd("cam.bg", { url: bg }, 20000);
+      } catch {}
+      clearInterval(statsTimer);
+      statsTimer = setInterval(pollStats, 3000);
+      setTimeout(pollStats, 1200);
+      void cmd("cam.state").then((s) => {
+        if (s.ok) {
+          view = s.data;
+          if (tab === "pc") drawPane();
+        }
+      });
     } catch (err) {
       try {
         pc?.close();
       } catch {}
       pc = null;
-      toast(err?.message === "REMOTE_NOT_ALLOWED" ? "حدّث NUKE GG بالبيسي عشان كاميرا البث تشتغل." : "ما قدرنا نوصل الكاميرا للبيسي. جرّب مرة ثانية.", true);
+      if (back) scheduleBack();
+      else {
+        want = false;
+        toast(err?.message === "REMOTE_NOT_ALLOWED" ? "حدّث NUKE GG بالبيسي عشان كاميرا البث تشتغل." : err?.message === "CAM_FULL" ? "فيه جوالين يبثون للبيسي الحين. وقّف واحد وجرّب." : "ما قدرنا نوصل الكاميرا للبيسي. جرّب مرة ثانية.", true);
+      }
     }
     busy = false;
     draw();
   }
-  function stopLive(tell = true) {
+  // «يرجع بروحه»: the link dropped (the internet, a locked phone): the PC's window waits, this page tries again
+  function lostLink() {
+    if (!want) return;
     live = false;
+    back = true;
+    clearInterval(statsTimer);
+    try {
+      pc?.close();
+    } catch {}
+    pc = null;
+    void cmd("cam.lost");
+    draw();
+    scheduleBack();
+  }
+  function scheduleBack() {
+    clearTimeout(backTimer);
+    if (!want) return;
+    const wait = [1, 2, 4, 8, 15][Math.min(backTry++, 4)] * 1000;
+    backTimer = setTimeout(async () => {
+      if (!want || document.hidden) return;
+      // the camera may have stopped while the page was away (an iPhone stops it): opened again first
+      if (!stream || vTrack()?.readyState !== "live") await openCam().catch(() => {});
+      if (want && !live && !busy) void goLive();
+    }, wait);
+  }
+  const onVisible = () => {
+    if (document.hidden || !want) return;
+    if (!live || vTrack()?.readyState !== "live") {
+      back = true;
+      backTry = 0;
+      scheduleBack();
+      draw();
+    }
+  };
+  document.addEventListener("visibilitychange", onVisible);
+  function stopLive(tell = true) {
+    want = false;
+    back = false;
+    live = false;
+    clearTimeout(backTimer);
+    clearInterval(statsTimer);
+    clearInterval(recTimer);
+    recSince = null;
+    stats = null;
     try {
       pc?.close();
     } catch {}
@@ -5027,20 +5247,124 @@ $("camOpen").addEventListener("click", () => {
     if (tell) void cmd("cam.stop");
     draw();
   }
+  // ---- two fingers: the camera's own zoom where it has one (Android), else the PC zooms in (an iPhone) ----
+  const digital = { z: 1, x: 0.5, y: 0.5 };
+  function applyDigitalZoom() {
+    const v = $("camPrev");
+    if (!v) return;
+    v.style.transformOrigin = `${digital.x * 100}% ${digital.y * 100}%`;
+    v.style.scale = digital.z > 1.01 ? String(digital.z) : "";
+  }
+  function showZoom(z) {
+    const el = $("camZoom");
+    if (!el) return;
+    el.textContent = `x${z.toFixed(1)}`;
+    el.classList.add("on");
+    clearTimeout(showZoom.t);
+    showZoom.t = setTimeout(() => el.classList.remove("on"), 900);
+  }
+  let pinch = null;
+  let tapAt = null;
+  let lastTap = 0;
+  const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  const onTouchStart = (e) => {
+    const st = e.target.closest?.("#camStage");
+    if (!st || e.target.closest(".cam-tools")) return;
+    if (e.touches.length === 2) {
+      const c = caps();
+      pinch = { d: dist(e.touches), hw: c.zoom ? (hwZoom ?? vTrack()?.getSettings().zoom ?? c.zoom.min) : null, z: digital.z };
+      tapAt = null;
+    } else if (e.touches.length === 1) tapAt = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
+  };
+  let pinchRaf = 0;
+  const onTouchMove = (e) => {
+    if (!pinch || e.touches.length !== 2) return;
+    e.preventDefault();
+    const k = dist(e.touches) / pinch.d;
+    cancelAnimationFrame(pinchRaf);
+    pinchRaf = requestAnimationFrame(() => {
+      const c = caps();
+      if (pinch?.hw != null && c.zoom) {
+        hwZoom = Math.max(c.zoom.min, Math.min(c.zoom.max, pinch.hw * k));
+        vTrack()?.applyConstraints({ advanced: [{ zoom: hwZoom }] }).catch(() => {});
+        showZoom(hwZoom / (c.zoom.min || 1));
+      } else if (pinch) {
+        digital.z = Math.max(1, Math.min(4, pinch.z * k));
+        applyDigitalZoom();
+        showZoom(digital.z);
+        sendOpts();
+      }
+    });
+  };
+  const onTouchEnd = (e) => {
+    if (pinch && e.touches.length < 2) {
+      pinch = null;
+      return;
+    }
+    if (!tapAt || e.changedTouches.length !== 1) return;
+    const t = e.changedTouches[0];
+    const moved = Math.hypot(t.clientX - tapAt.x, t.clientY - tapAt.y) > 12 || Date.now() - tapAt.t > 500;
+    tapAt = null;
+    if (moved || !e.target.closest?.("#camStage") || e.target.closest(".cam-tools")) return;
+    // a double tap: back to no zoom
+    if (Date.now() - lastTap < 300) {
+      digital.z = 1;
+      hwZoom = null;
+      const c = caps();
+      if (c.zoom) vTrack()?.applyConstraints({ advanced: [{ zoom: c.zoom.min }] }).catch(() => {});
+      applyDigitalZoom();
+      showZoom(1);
+      sendOpts();
+      lastTap = 0;
+      return;
+    }
+    lastTap = Date.now();
+    focusAt(t.clientX, t.clientY);
+  };
+  // ---- a tap: focus and light on that spot (where the phone's browser allows it) ----
+  function focusAt(cx, cy) {
+    const v = $("camPrev");
+    const st = $("camStage");
+    if (!v || !st) return;
+    const r = st.getBoundingClientRect();
+    const ring = $("camRing");
+    if (ring) {
+      ring.style.left = `${cx - r.left}px`;
+      ring.style.top = `${cy - r.top}px`;
+      ring.classList.remove("on");
+      void ring.offsetWidth;
+      ring.classList.add("on");
+    }
+    // the spot in the camera's own picture (the preview covers the box and may be mirrored)
+    const vw = v.videoWidth || r.width;
+    const vh = v.videoHeight || r.height;
+    const k = Math.max(r.width / vw, r.height / vh);
+    let x = (cx - r.left - (r.width - vw * k) / 2) / (vw * k);
+    const y = (cy - r.top - (r.height - vh * k) / 2) / (vh * k);
+    if (P.mirror && P.facing === "user") x = 1 - x;
+    const c = caps();
+    const set = { pointsOfInterest: [{ x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) }] };
+    if (c.focusMode?.includes("single-shot")) set.focusMode = "single-shot";
+    else if (c.focusMode?.includes("continuous")) set.focusMode = "continuous";
+    if (c.exposureMode?.includes("single-shot")) set.exposureMode = "single-shot";
+    vTrack()?.applyConstraints({ advanced: [set] }).catch(() => {});
+    // the digital zoom (an iPhone) follows the tap too
+    if (digital.z > 1.01) {
+      digital.x = Math.max(0, Math.min(1, x));
+      digital.y = Math.max(0, Math.min(1, y));
+      applyDigitalZoom();
+      sendOpts();
+    }
+  }
   async function tool(k) {
     const t = vTrack();
-    const caps = t?.getCapabilities?.() ?? {};
+    const c = caps();
     if (k === "flip") {
       P.facing = P.facing === "user" ? "environment" : "user";
       camSave(P);
       await refresh();
-      if (live) void cmd("cam.opts", { opts: winOpts() });
-    } else if ((k === "zin" || k === "zout") && caps.zoom) {
-      const cur = zoom ?? t.getSettings().zoom ?? caps.zoom.min;
-      const step = (caps.zoom.max - caps.zoom.min) / 10;
-      zoom = Math.max(caps.zoom.min, Math.min(caps.zoom.max, cur + (k === "zin" ? step : -step)));
-      t.applyConstraints({ advanced: [{ zoom }] }).catch(() => {});
-    } else if (k === "torch" && caps.torch) {
+      sendOpts();
+    } else if (k === "torch" && c.torch) {
       torch = !torch;
       t.applyConstraints({ advanced: [{ torch }] }).catch(() => {});
       draw();
@@ -5048,6 +5372,51 @@ $("camOpen").addEventListener("click", () => {
       P.mic = !P.mic;
       camSave(P);
       await refresh();
+    } else if (k === "rec") {
+      const r = await cmd("cam.rec", { on: !recSince });
+      if (!r.ok) return toast("ما قدرنا نسجّل. حدّث NUKE GG بالبيسي.", true);
+      clearInterval(recTimer);
+      if (r.data.rec) {
+        recSince = r.data.since || Date.now();
+        recTimer = setInterval(() => {
+          const el = document.querySelector(".cam-rec");
+          if (el) el.textContent = fmtT(Date.now() - recSince);
+        }, 1000);
+        toast("نسجّل الكام بالبيسي");
+      } else {
+        recSince = null;
+        toast("وقّفنا التسجيل: المقطع بالبيسي بمجلد الفيديو ← NUKE GG");
+      }
+      draw();
+    }
+  }
+  // the phone's own background picture: made small here (≤ 1280 wide) and sent once
+  async function sendBg(file) {
+    try {
+      const bmp = await createImageBitmap(file);
+      const k = Math.min(1, 1280 / bmp.width, 720 / bmp.height);
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(bmp.width * k);
+      cv.height = Math.round(bmp.height * k);
+      cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+      let q = 0.82;
+      let url = cv.toDataURL("image/jpeg", q);
+      while (url.length > 180e3 && q > 0.4) url = cv.toDataURL("image/jpeg", (q -= 0.12));
+      P.fx.bg = "img";
+      P.fx.img = "custom";
+      camSave(P);
+      try {
+        localStorage.setItem("nk-cam-bg", url);
+      } catch {}
+      if (live) {
+        const r = await cmd("cam.bg", { url }, 20000);
+        if (!r.ok) return toast("ما وصلت الصورة للبيسي.", true);
+      }
+      sendOpts();
+      drawPane();
+      toast("صارت صورتك ورا");
+    } catch {
+      toast("ما قدرنا نفتح الصورة.", true);
     }
   }
   openFun("كاميرا بثك", "");
@@ -5057,34 +5426,83 @@ $("camOpen").addEventListener("click", () => {
   void cmd("vcam.state").then((r) => {
     if (r.ok) {
       vc = r.data;
-      draw();
+      if (tab === "pc") drawPane();
     }
   });
-  // what the PC already knows (a link from an earlier time)
+  // the link is known before the camera starts (so it can be put in the streaming app first)
   void cmd("cam.link").then((r) => {
     if (r.ok && r.data?.url) {
       link = r.data.url;
-      draw();
+      if (tab === "pc") drawPane();
     }
   });
+  void cmd("cam.ice").then((r) => {
+    if (r.ok && r.data) ice = r.data;
+  });
+  const onInput = (e) => {
+    const s = e.target.closest?.("[data-sl]");
+    if (!s) return;
+    P.fx[s.dataset.sl] = Number(s.value);
+    camSave(P);
+    sendOpts();
+  };
+  const onChange = (e) => {
+    if (e.target.id === "camBgFile" && e.target.files?.[0]) void sendBg(e.target.files[0]);
+  };
   const onClick = async (e) => {
     const b = e.target.closest("button");
     if (!b || !$("funBody").contains(b)) return;
     buzz(6);
-    if (b.id === "camGo") return live ? stopLive() : goLive();
+    if (b.id === "camGo") return live || back ? stopLive() : goLive();
     if (b.dataset.tool) return tool(b.dataset.tool);
+    if (b.dataset.tab) {
+      tab = tab === b.dataset.tab ? null : b.dataset.tab;
+      if (tab === "net") void cmd("cam.usb").then((r) => r.ok && ((usb = r.data), tab === "net" && drawPane()));
+      if (tab === "pc") void cmd("cam.state").then((r) => r.ok && ((view = r.data), tab === "pc" && drawPane()));
+      return draw();
+    }
+    if (b.dataset.grip) {
+      tab = tab ? null : "pic";
+      return draw();
+    }
     if (b.dataset.copy) {
       const r = await cmd("cam.copy");
       return toast(r.ok ? "انسخ بالبيسي: الصقه ببرنامج البث (Ctrl+V)" : "ما قدرنا ننسخه.", !r.ok);
+    }
+    if (b.dataset.reset) {
+      Object.assign(P.fx, { b: 0, c: 0, w: 0, s: 0, auto: false });
+      camSave(P);
+      sendOpts();
+      return drawPane();
     }
     if (b.dataset.set) {
       const k = b.dataset.set;
       P[k] = k === "fps" ? Number(b.dataset.v) : b.dataset.v;
       camSave(P);
       if (k === "q" || k === "fps") await refresh();
-      else draw();
-      if (live) void cmd("cam.opts", { opts: winOpts() });
+      else drawPane();
+      sendOpts();
       return;
+    }
+    if (b.dataset.fx) {
+      P.fx[b.dataset.fx] = b.dataset.v;
+      camSave(P);
+      sendOpts();
+      return drawPane();
+    }
+    if (b.dataset.fxt) {
+      const k = b.dataset.fxt;
+      P.fx[k] = !P.fx[k];
+      camSave(P);
+      sendOpts();
+      return drawPane();
+    }
+    if (b.dataset.lock) {
+      const c = caps();
+      focusLocked = !focusLocked;
+      const mode = focusLocked ? (c.focusMode?.includes("manual") ? "manual" : "single-shot") : c.focusMode?.includes("continuous") ? "continuous" : null;
+      if (mode) vTrack()?.applyConstraints({ advanced: [{ focusMode: mode }] }).catch(() => {});
+      return drawPane();
     }
     if (b.dataset.vcsetup) {
       b.disabled = true;
@@ -5094,26 +5512,54 @@ $("camOpen").addEventListener("click", () => {
         vc = r.data;
         toast("صارت «NUKE GG» كاميرا بالبيسي");
       } else toast(r.error === "UAC_DECLINED" ? "ما انضغط «نعم» بالبيسي، فما تغيّر شي." : "ما قدرنا نفعّلها. جرّب من البيسي: «جوالك» ← «كاميرا نيوك».", true);
-      return draw();
+      return drawPane();
+    }
+    if (b.dataset.vcfrom) {
+      const r = await cmd("cam.vcamFrom");
+      if (r.ok) view = r.data;
+      return drawPane();
+    }
+    if (b.dataset.usbfix) {
+      b.disabled = true;
+      b.textContent = "اضغط «نعم» بالبيسي…";
+      const r = await cmd("cam.usbFix", {}, 180000);
+      if (r.ok) {
+        usb = r.data;
+        toast("نت البيسي رجع من الراوتر");
+      } else toast(r.error === "UAC_DECLINED" ? "ما انضغط «نعم» بالبيسي، فما تغيّر شي." : "ما قدرنا نغيّره.", true);
+      return drawPane();
     }
     if (b.dataset.tog === "vcam") {
       const r = await cmd("vcam.set", { on: !vc?.on });
       if (r.ok) vc = r.data;
-      return draw();
+      return drawPane();
     }
     if (b.dataset.tog) {
       const k = b.dataset.tog;
       P[k] = !P[k];
       camSave(P);
-      if (k === "mic") await refresh();
-      else draw();
-      if (live) void cmd("cam.opts", { opts: winOpts() });
+      if (k === "mic" || k === "noise") await refresh();
+      else if (k === "mirror") draw();
+      else drawPane();
+      sendOpts();
     }
   };
-  $("funBody").addEventListener("click", onClick);
+  const body = $("funBody");
+  body.addEventListener("click", onClick);
+  body.addEventListener("input", onInput);
+  body.addEventListener("change", onChange);
+  body.addEventListener("touchstart", onTouchStart, { passive: true });
+  body.addEventListener("touchmove", onTouchMove, { passive: false });
+  body.addEventListener("touchend", onTouchEnd);
   camCleanup = () => {
-    $("funBody").removeEventListener("click", onClick);
-    if (live) stopLive();
+    body.removeEventListener("click", onClick);
+    body.removeEventListener("input", onInput);
+    body.removeEventListener("change", onChange);
+    body.removeEventListener("touchstart", onTouchStart);
+    body.removeEventListener("touchmove", onTouchMove);
+    body.removeEventListener("touchend", onTouchEnd);
+    document.removeEventListener("visibilitychange", onVisible);
+    if (live || back) stopLive();
     stream?.getTracks().forEach((t) => t.stop());
     stream = null;
     camCleanup = null;
