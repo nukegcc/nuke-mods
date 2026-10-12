@@ -11,6 +11,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE Remote</title>
+<script src="rx-game.js" defer></script>
 <!-- opens fast: the library starts downloading at once, and the font never holds the first paint back
      (the phone's own font shows first; remote-sw.js keeps both on the phone for next time) -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -685,7 +686,96 @@
   /* the picked PC: its «الحين» readable on the red block */
   .pcrow.on em { color: #fff; }
   .pcrow em { font-size: var(--fs-hint); }
-</style>
+  /* ===== «تحدّي» and «أسبوعك» (owner's picks, 2026-10-12) ===== */
+  .setrow.col { flex-direction: column; align-items: stretch; gap: 8px; }
+  .setrow.col .seg { display: flex; gap: 6px; }
+  .setrow.col .seg button { flex: 1; min-height: 40px; white-space: nowrap; font-size: 13px; }
+  .funbest { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 12px; font-size: 13px; color: var(--dim); }
+  .funbest b { font-family: var(--f-num); font-size: 26px; color: #fff; direction: ltr; unicode-bidi: isolate; }
+  .funx { position: fixed; inset: 0; z-index: 62; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    background: radial-gradient(ellipse 85% 45% at 50% 0%, rgba(239,59,45,.16), transparent 70%), #0a0606; animation: fade .2s; }
+  .funhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .funhead b { flex: 1; font-size: 18px; font-weight: 900; }
+  .funbody { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; text-align: center; }
+  .funbody .dn, .wkx .dn { font-family: var(--f-num); font-weight: 700; direction: ltr; unicode-bidi: isolate; }
+  .rxres b.dn { display: block; font-size: 58px; line-height: 1.05; }
+  .rxres .rank { display: inline-block; margin-top: 6px; padding: 5px 14px; border-radius: 99px; background: #1e1718; font-size: 14px; font-weight: 700; color: var(--gold); }
+  .rxres .new { display: block; margin-top: 8px; font-size: 13px; font-weight: 700; color: #7cff5a; }
+  .rxres .sub { margin: 6px 0 0; font-size: 12.5px; color: var(--dim); }
+  .rxres .namebox { margin: 16px 0 8px; text-align: right; }
+  .rxres .namebox small { display: block; margin: 0 2px 6px; font-size: 12px; color: var(--dim); }
+  .rxres .linkrow { margin-top: 8px; }
+  /* «أسبوعك» as story slides */
+  .wks { position: relative; flex: 1; min-height: 380px; border-radius: 24px; overflow: hidden; cursor: pointer; background: #0e0909; box-shadow: inset 0 0 0 1.5px #241b1c; }
+  .wks .bars { position: absolute; inset: 12px 14px auto; display: flex; gap: 4px; z-index: 2; }
+  .wks .bars i { flex: 1; height: 3px; border-radius: 3px; background: rgba(255,255,255,.22); overflow: hidden; }
+  .wks .bars i b { display: block; height: 100%; width: 0; background: #fff; }
+  .wks .bars i.done b { width: 100%; }
+  .wks .bars i.cur b { animation: wkfill 5s linear forwards; }
+  @keyframes wkfill { to { width: 100%; } }
+  .wks .sl { position: absolute; inset: 0; padding: 54px 24px 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; animation: wkin .35s ease; }
+  @keyframes wkin { from { opacity: 0; transform: translateY(14px); } }
+  .wks .sl small { font-size: 15px; font-weight: 700; color: rgba(255,255,255,.85); }
+  .wks .sl .big { font-size: 76px; line-height: 1; }
+  .wks .sl .cover { width: 168px; height: 168px; border-radius: 26px; background: #241b1c center / cover no-repeat; box-shadow: 0 22px 44px -16px #000; display: grid; place-items: center; font-family: var(--f-num); font-weight: 700; font-size: 38px; }
+  .wks .sl .gname { font-size: 22px; font-weight: 900; }
+  .wks .sl .daybars { display: flex; gap: 6px; align-items: flex-end; height: 90px; margin-top: 10px; }
+  .wks .sl .daybars div { width: 30px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--dim); }
+  .wks .sl .daybars i { width: 100%; border-radius: 8px 8px 4px 4px; background: linear-gradient(#ffc93c, #ef3b2d); }
+  .wks .tap { position: absolute; bottom: 12px; inset-inline: 0; font-size: 11.5px; color: rgba(255,255,255,.5); }
+  /* «أسبوعك» as a level track */
+  .wkt { text-align: right; }
+  .wkt .lv { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px; }
+  .wkt .lv svg { width: 92px; height: 92px; }
+  .wkt .lv .lvval { transition: stroke-dashoffset 1.2s cubic-bezier(.3,1,.5,1); }
+  .wkt .lv b { font-size: 32px; }
+  .wkt .lv small { display: block; font-size: 12.5px; color: var(--dim); }
+  .wkt .day { display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 8px; border-radius: 16px; background: #171112; opacity: .45; transition: opacity .3s, box-shadow .3s; }
+  .wkt .day.on { opacity: 1; box-shadow: inset 0 0 0 1.5px rgba(255,201,60,.4); }
+  .wkt .day .d { width: 52px; font-size: 13px; font-weight: 700; }
+  .wkt .day .dtrack { flex: 1; height: 8px; border-radius: 99px; background: #241b1c; overflow: hidden; }
+  .wkt .day .dtrack i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, #4fc126, #a6ff5a); transition: width .6s; }
+  .wkt .day em { font-style: normal; font-size: 13px; min-width: 40px; text-align: left; }
+  .wkt .day .xp { font-size: 11.5px; color: #7cff5a; font-weight: 700; min-width: 58px; text-align: left; direction: ltr; }
+  .wkt .tops { display: grid; gap: 6px; margin-top: 12px; }
+  .wkt .tops div { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: #171112; font-size: 13.5px; font-weight: 700; }
+  .wkt .tops span.c { width: 34px; height: 34px; border-radius: 10px; flex: none; background: #241b1c center / cover no-repeat; }
+  .wkt .tops em { margin-inline-start: auto; font-style: normal; color: var(--dim); }
+  /* «تنتظرها»: the list, the search hits, the big countdown */
+  .soonh { margin: 14px 2px 8px; font-size: 13px; color: var(--dim); font-weight: 600; }
+  .soon-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .soon-open, .soon-hit { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 16px; background: #171112; box-shadow: inset 0 0 0 1.5px #241b1c; color: #fff; text-align: right; font: inherit; }
+  .soon-hit { width: 100%; margin-top: 8px; }
+  .soon-open .art, .soon-hit .art { width: 46px; height: 46px; border-radius: 12px; flex: none; background: center / cover no-repeat; display: grid; place-items: center; font-family: var(--f-num); font-weight: 700; font-size: 15px; }
+  .soon-open .t, .soon-hit .t { flex: 1; min-width: 0; }
+  .soon-open .t b, .soon-hit .t b { display: block; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+  .soon-open .t small, .soon-hit .t small { font-size: 12px; color: var(--dim); }
+  .soon-open .d { text-align: center; min-width: 58px; }
+  .soon-open .d b { display: block; font-size: 24px; line-height: 1.1; }
+  .soon-open .d small { font-size: 11px; color: var(--dim); }
+  .soon-open .d b.dn { font-family: var(--f-num); }
+  .soon-hit em { font-style: normal; font-size: 20px; font-weight: 700; color: var(--gold); width: 28px; text-align: center; }
+  .soon-x { width: 36px; height: 36px; flex: none; border: 0; border-radius: 12px; background: #1e1718; color: var(--dim); font-size: 18px; }
+  .soon-big { text-align: center; margin-bottom: auto; }
+  .soon-big .linkrow { justify-content: center; margin-top: 6px; }
+  .soon-hero { position: relative; height: 240px; margin: 0 0 12px; border-radius: 22px; overflow: hidden; box-shadow: inset 0 0 0 1.5px #241b1c; }
+  .soon-hero .bgp { position: absolute; inset: -24px; background: center / cover no-repeat; filter: blur(14px) saturate(1.2); opacity: .6; display: block; font-size: 0; }
+  .soon-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 25%, #0a0606); }
+  .soon-hero .t { position: absolute; z-index: 1; inset: auto 18px 12px; text-align: right; }
+  .soon-hero .t b { display: block; font-size: 22px; font-weight: 900; }
+  .soon-hero .t small { font-size: 13px; color: rgba(255,255,255,.8); }
+  #soonTiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 6px 0 12px; }
+  #soonTiles div { border-radius: 16px; padding: 14px 2px 10px; background: #171112; box-shadow: inset 0 0 0 1.5px #241b1c; }
+  #soonTiles b { display: block; font-family: var(--f-num); font-size: 34px; line-height: 1; direction: ltr; }
+  #soonTiles b.tick { animation: soontick .35s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes soontick { from { transform: translateY(-8px) scale(1.12); color: #ffc93c; } }
+  #soonTiles span { display: block; margin-top: 6px; font-size: 12px; color: var(--dim); }
+  #soonTiles .soon-out, #soonTiles .soon-tba { grid-column: 1 / -1; margin: 10px 0; }
+  .soon-out { font-size: 34px; font-weight: 900; color: var(--gold); text-shadow: 0 0 24px rgba(255,201,60,.5); }
+  .soon-tba { font-size: 14px; color: var(--dim); }
+  .soon-conf { position: fixed; inset: 0; z-index: 70; pointer-events: none; overflow: hidden; }
+  .soon-conf i { position: absolute; top: -12px; width: 10px; height: 10px; animation: soondrop 1.6s ease-in forwards; }
+  @keyframes soondrop { to { transform: translateY(110vh) rotate(540deg); } }</style>
 </head>
 <body>
 <div class="wrap">
@@ -744,7 +834,7 @@
     <!-- 🎮 games -->
     <div id="tab-games" class="tab on">
       <div class="tabhead"><img src="ban-games.jpg" alt="" /><div><b>ألعابي</b><small>ألعابك وصورها وتحميلاتها</small></div></div>
-      <div class="cats" role="tablist"><button role="tab" data-cat="mine" data-empty="ما لقينا ألعاب للحين.">ألعابك</button><button role="tab" data-cat="friends" data-empty="ثبّت مودات للعبة بالبيسي، وتقدر تسوي لها كود لربعك هنا.">ربعك</button><button role="tab" data-cat="shots" data-empty="ما لقينا صور من ألعابك. صوّر وأنت تلعب (F12 بستيم) وتطلع هنا.">صورك</button><button role="tab" data-cat="steam" data-empty="ما فيه تحميلات ستيم الحين.">التحميلات</button></div>
+      <div class="cats" role="tablist"><button role="tab" data-cat="mine" data-empty="ما لقينا ألعاب للحين.">ألعابك</button><button role="tab" data-cat="friends" data-empty="ثبّت مودات للعبة بالبيسي، وتقدر تسوي لها كود لربعك هنا.">ربعك</button><button role="tab" data-cat="fun" data-empty="">تحدّي</button><button role="tab" data-cat="soon" data-empty="">تنتظرها</button><button role="tab" data-cat="shots" data-empty="ما لقينا صور من ألعابك. صوّر وأنت تلعب (F12 بستيم) وتطلع هنا.">صورك</button><button role="tab" data-cat="steam" data-empty="ما فيه تحميلات ستيم الحين.">التحميلات</button></div>
       <p class="catempty hidden"></p>
       <div data-cat="mine" id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div><div id="nowLimit" class="limitline hidden"><span id="nowLimitText"></span><button id="nowSnooze">خلّني نص ساعة</button></div></div></div>
       <section data-cat="steam" id="steamBox" class="hidden">
@@ -754,6 +844,22 @@
       <section data-cat="mine" id="weekBox" class="hidden">
         <h2><span>أسبوعك</span></h2>
         <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض 🔥</span></div><div><b id="wLevel">—</b><span>مستواك 👑</span></div></div>
+        <button id="wkOpen" class="wide ghost" style="margin-top:10px">شوف أسبوعك</button>
+      </section>
+      <!-- «تحدّي»: the reaction challenge (owner's pick, 2026-10-12), its look chosen in الإعدادات -->
+      <section data-cat="fun" id="funBox">
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>تحدّى ربعك بردة الفعل</span></h2>
+        <p class="hint" style="margin:0 2px 12px">كم سرعتك؟ العب، وأرسل رقمك لربعك برابط. يلعبون نفس التحدّي من جوالهم بدون تطبيق، ويطلع مين فاز.</p>
+        <div class="funbest"><span>أحسن رقم لك</span><b id="rxBest" class="dn">—</b></div>
+        <button id="rxPlay" class="wide">العب</button>
+      </section>
+      <!-- «تنتظرها»: a countdown to a game you wait for (owner's pick, 2026-10-12: «عدّاد كبير»); dates from Wikidata -->
+      <section data-cat="soon" id="soonBox">
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></i>عدّ تنازلي للعبة</span></h2>
+        <input id="soonQ" class="search" dir="auto" autocomplete="off" placeholder="دوّر لعبة تنتظرها… مثلاً قراند 6" />
+        <div id="soonHits"></div>
+        <div id="soonList"></div>
+        <p id="soonEmpty" class="hint" style="margin:6px 2px 0">دوّر لعبة بالعربي أو الإنقليزي وضفها، ويطلع لك كم باقي لها بالثانية.</p>
       </section>
       <section data-cat="friends" id="frBox" class="hidden">
         <h2><span>العب مع ربعك</span></h2>
@@ -965,6 +1071,10 @@
         <div class="timerow"><input id="bedTime" class="tpick" type="time" value="00:00" dir="ltr" aria-label="وقت تسكير الألعاب" /><span id="bedNote" class="muted"></span></div>
         <button id="snoozeSet" class="wide ghost hidden">خلّني ألعب نص ساعة زيادة</button>
       </div></details>
+      <details class="grp" id="grpFun"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/></svg></i>شكل التحدّي وأسبوعك</summary><div class="in">
+        <div class="setrow col"><div><b>تحدّي ردة الفعل</b><small>الشكل اللي تلعبه، ونفسه يلعبه ربعك</small></div><div class="seg" id="segRx"><button type="button" data-v="circle">دائرة</button><button type="button" data-v="blocks">خمس بلوكات</button></div></div>
+        <div class="setrow col"><div><b>أسبوعك</b><small>كيف ينعرض لك ملخص أسبوعك</small></div><div class="seg" id="segWk"><button type="button" data-v="story">قصص</button><button type="button" data-v="track">مسار مستوى</button></div></div>
+      </div></details>
       <details class="grp" id="grpPcs"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></i>أجهزتك<small id="grpPcsN"></small></summary><div class="in">
         <p class="hint" style="margin-top:0">البيسيات المربوطة بجوالك. تبدّل بينها من اسم البيسي فوق، أو من هنا.</p>
         <button id="pcsOpen" class="wide ghost">أجهزتك</button>
@@ -986,6 +1096,11 @@
   <div class="sheethead"><button id="deckBack" class="back hidden" aria-label="رجوع">→</button><h3 id="deckTitle" style="flex:1">أزرارك</h3><button id="deckClose" class="x" aria-label="سكّر">×</button></div>
   <div id="deckBody" class="scroll"></div>
 </div></div>
+<!-- the challenge and «أسبوعك», full screen -->
+<div id="funx" class="funx hidden">
+  <div class="funhead"><b id="funTitle"></b><button id="funClose" class="x" aria-label="سكّر">×</button></div>
+  <div id="funBody" class="funbody"></div>
+</div>
 <div id="dash" class="dash hidden">
   <div class="dtop"><span id="dArt" class="dart off"></span><div class="t"><b id="dGame" dir="auto">البيسي</b><small id="dTime"></small></div><button id="dashClose" class="x" aria-label="سكّر">×</button></div>
   <div id="dXp" class="dxp hidden" title="الساعة اللي أنت فيها"><i></i></div>
@@ -4047,6 +4162,356 @@ for (const [id, key] of [["guardSw", "on"], ["guardLockSw", "lock"]])
     paintGuard(r.data);
     if (key === "on") toast(r.data.on ? "👀 البيسي تحت المراقبة. أول لمسة توصلك" : "وقّفنا المراقبة");
   });
+
+// ---- «تحدّي» and «أسبوعك» (owner's picks, 2026-10-12; the look of each chosen in الإعدادات) ----
+const FUN_KEY = "nk-fun";
+function funPrefs() {
+  try {
+    return { rx: "circle", wk: "story", ...JSON.parse(localStorage.getItem(FUN_KEY) || "{}") };
+  } catch {
+    return { rx: "circle", wk: "story" };
+  }
+}
+function setFun(k, v) {
+  const p = funPrefs();
+  p[k] = v;
+  try { localStorage.setItem(FUN_KEY, JSON.stringify(p)); } catch {}
+  paintFunPrefs();
+}
+const rxBestKey = (m) => `nk-rx-best-${m}`;
+function rxBest(m) {
+  try { return Number(localStorage.getItem(rxBestKey(m))) || null; } catch { return null; }
+}
+function paintFunPrefs() {
+  const p = funPrefs();
+  document.querySelectorAll("#segRx button").forEach((b) => b.classList.toggle("on", b.dataset.v === p.rx));
+  document.querySelectorAll("#segWk button").forEach((b) => b.classList.toggle("on", b.dataset.v === p.wk));
+  const b = rxBest(p.rx);
+  $("rxBest").textContent = b ? `${b} ms` : "—";
+}
+$("segRx").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { buzz(); setFun("rx", b.dataset.v); } });
+$("segWk").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { buzz(); setFun("wk", b.dataset.v); } });
+paintFunPrefs();
+
+let wkTimer = null;
+function openFun(title, html) {
+  $("funTitle").textContent = title;
+  $("funBody").innerHTML = html;
+  $("funx").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeFun() {
+  clearTimeout(wkTimer);
+  clearInterval(soonTimer);
+  $("funx").classList.add("hidden");
+  $("funBody").innerHTML = "";
+  document.body.style.overflow = "";
+}
+$("funClose").addEventListener("click", closeFun);
+
+function playRx() {
+  const mode = funPrefs().rx;
+  openFun(mode === "blocks" ? "خمس بلوكات" : "ردة فعلك", '<div id="rxBox"></div>');
+  if (!window.NKRx) return ($("funBody").innerHTML = '<p class="muted">ما قدرنا نحمّل اللعبة. تأكد من النت وجرّب مرة ثانية.</p>');
+  NKRx.play($("rxBox"), mode, (ms, fastest) => showRx(mode, ms, fastest));
+}
+function showRx(mode, ms, fastest) {
+  const old = rxBest(mode), isNew = !old || ms < old;
+  if (isNew) try { localStorage.setItem(rxBestKey(mode), String(ms)); } catch {}
+  paintFunPrefs();
+  let name = "";
+  try { name = localStorage.getItem("nk-fun-name") || ""; } catch {}
+  $("funBody").innerHTML = `<div class="rxres"><b class="dn">${ms} ms</b><span class="rank">${NKRx.rank(ms)}</span>` +
+    (isNew ? '<span class="new">رقمك الجديد 🏆</span>' : `<p class="sub">أحسن رقم لك <span class="dn">${old} ms</span></p>`) +
+    (fastest ? `<p class="sub">أسرع ضغطة <span class="dn">${fastest} ms</span></p>` : "") +
+    `<div class="namebox"><small>اسمك اللي يشوفه ربعك</small><input id="rxName" class="search" maxlength="20" dir="auto" placeholder="اكتب اسمك" value="${esc(name)}" /></div>` +
+    '<div class="linkrow"><button id="rxShare">تحدّى ربعك</button><button id="rxAgain" class="ghost">مرة ثانية</button></div></div>';
+  $("rxAgain").addEventListener("click", () => { buzz(); playRx(); });
+  $("rxShare").addEventListener("click", async () => {
+    buzz();
+    const n = $("rxName").value.trim().slice(0, 20);
+    try { localStorage.setItem("nk-fun-name", n); } catch {}
+    // the friend's page: the same game in any browser, no app (challenge.html next to this page)
+    const url = new URL("challenge.html", location.href);
+    url.search = "";
+    url.hash = new URLSearchParams({ m: mode, s: String(ms), n }).toString();
+    const text = `ردة فعلي ${ms} ms${mode === "blocks" ? " بالخمس بلوكات" : ""}، تقدر تغلبني؟`;
+    try {
+      if (navigator.share) await navigator.share({ text, url: url.href });
+      else { await navigator.clipboard.writeText(`${text} ${url.href}`); toast("نسخنا التحدّي، الصقه لربعك"); }
+    } catch {}
+  });
+}
+$("rxPlay").addEventListener("click", () => { buzz(); playRx(); });
+
+// «أسبوعك»: the PC's own play record (games.week)
+const AR_DAYS = ["أحد", "اثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"];
+const dayName = (k) => { const [y, m, d] = String(k).split("-").map(Number); return AR_DAYS[new Date(y, m - 1, d).getDay()]; };
+const wkHrs = (s) => { const h = s / 3600; return h >= 10 ? String(Math.round(h)) : h.toFixed(1).replace(/\.0$/, ""); };
+const initials = (n) => String(n).split(/\s+/).filter((w) => /^\p{L}/u.test(w)).map((w) => w[0]).join("").slice(0, 2).toUpperCase() || String(n).slice(0, 2).toUpperCase();
+async function openWeek() {
+  buzz();
+  openFun("أسبوعك", '<p class="muted">نجيب أسبوعك…</p>');
+  const r = await cmd("games.week");
+  if ($("funx").classList.contains("hidden")) return;
+  if (!r.ok || !r.data) return ($("funBody").innerHTML = '<p class="muted">ما قدرنا نجيب أسبوعك. لو NUKE GG بالبيسي قديم، حدّثه وجرّب مرة ثانية.</p>');
+  (funPrefs().wk === "track" ? weekTrack : weekStory)(r.data);
+}
+$("wkOpen").addEventListener("click", openWeek);
+
+function weekStory(w) {
+  const best = [...w.days].sort((a, b) => b.seconds - a.seconds)[0];
+  const max = Math.max(1, ...w.days.map((d) => d.seconds));
+  const t1 = w.top[0];
+  const change = w.change == null ? "" : w.change >= 0 ? `أكثر من الأسبوع اللي قبل بـ <span class="dn">${w.change}%</span>` : `أقل من الأسبوع اللي قبل بـ <span class="dn">${-w.change}%</span>`;
+  const slides = [
+    () => w.total > 0
+      ? `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(239,59,45,.35),transparent 70%)"><small>أسبوعك بالألعاب</small><span class="big dn">${wkHrs(w.total)}</span><small>ساعة لعب</small><small style="color:#7cff5a">${change}</small></div>`
+      : '<div class="sl"><small>هالأسبوع</small><span class="big">😴</span><small>ما لعبت ولا ساعة… الأسبوع الجاي؟</small></div>',
+    () => t1
+      ? `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,138,31,.3),transparent 70%)"><small>لعبتك الأولى</small><span class="cover" style="${t1.image ? `background-image:url('${esc(t1.image)}')` : ""}">${t1.image ? "" : esc(initials(t1.name))}</span><span class="gname" dir="auto">${esc(t1.name)}</span><small><span class="dn">${wkHrs(t1.seconds)}</span> ساعة</small></div>`
+      : null,
+    () => `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,201,60,.25),transparent 70%)"><small>لعبت ورا بعض</small><span class="big dn">${w.streak}</span><small>${w.streak === 1 ? "يوم" : "أيام"} 🔥</small>` +
+      (best?.seconds ? `<small>أكثر يوم: ${dayName(best.day)} <span class="dn">${wkHrs(best.seconds)}</span> ساعة</small>` : "") +
+      `<div class="daybars">${w.days.map((d) => `<div><i style="height:${Math.max(3, Math.round((d.seconds / max) * 70))}px;opacity:${d.seconds ? 1 : 0.25}"></i>${dayName(d.day).slice(0, 2)}</div>`).join("")}</div></div>`,
+    () => `<div class="sl"><small>جاهز تشاركها؟</small><b style="font-size:20px">صورة فيها أسبوعك كامل</b><div class="linkrow" style="margin-top:12px;width:100%"><button id="wkShare">شاركها</button><button id="wkAgain" class="ghost">من البداية</button></div></div>`,
+  ].filter((s) => s() != null);
+  let i = 0;
+  const draw = () => {
+    clearTimeout(wkTimer);
+    $("funBody").innerHTML = `<div class="wks"><div class="bars">${slides.map((_, k) => `<i class="${k < i ? "done" : k === i ? "cur" : ""}"><b></b></i>`).join("")}</div>${slides[i]()}${i < slides.length - 1 ? '<div class="tap">اضغط للي بعدها</div>' : ""}</div>`;
+    if (i < slides.length - 1) wkTimer = setTimeout(() => { i++; draw(); }, 5000);
+    $("wkShare")?.addEventListener("click", (e) => { e.stopPropagation(); shareWeek(w); });
+    $("wkAgain")?.addEventListener("click", (e) => { e.stopPropagation(); i = 0; draw(); });
+    $("funBody").querySelector(".wks").addEventListener("click", () => { if (i < slides.length - 1) { i++; draw(); } });
+  };
+  draw();
+}
+
+function weekTrack(w) {
+  const R = 38, C = 2 * Math.PI * R, max = Math.max(1, ...w.days.map((d) => d.seconds));
+  const xp = Math.round(w.total / 60);
+  $("funBody").innerHTML = `<div class="wkt"><div class="lv"><svg viewBox="0 0 92 92"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#241b1c" stroke-width="8"/><circle class="lvval" cx="46" cy="46" r="${R}" fill="none" stroke="#7cff5a" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" transform="rotate(-90 46 46)"/></svg><div><small>المستوى <span class="dn">${w.level}</span></small><b class="dn">${xp} XP</b><small>هالأسبوع · كل دقيقة لعب نقطة</small></div></div>` +
+    w.days.map((d) => `<div class="day"><span class="d">${dayName(d.day)}</span><span class="dtrack"><i data-w="${Math.round((d.seconds / max) * 100)}"></i></span><em class="dn">${wkHrs(d.seconds)}h</em><span class="xp">+${Math.round(d.seconds / 60)} XP</span></div>`).join("") +
+    (w.top.length ? `<div class="tops">${w.top.map((t) => `<div><span class="c" style="${t.image ? `background-image:url('${esc(t.image)}')` : ""}"></span><span dir="auto">${esc(t.name)}</span><em class="dn">${wkHrs(t.seconds)}h</em></div>`).join("")}</div>` : "") +
+    '<div class="linkrow" style="margin-top:14px"><button id="wkShare">شاركها</button><button id="wkAgain" class="ghost">عيدها</button></div></div>';
+  const play = () => {
+    const rows = $("funBody").querySelectorAll(".day"), ring = $("funBody").querySelector(".lvval");
+    ring.style.strokeDashoffset = C;
+    rows.forEach((r) => { r.classList.remove("on"); r.querySelector(".dtrack i").style.width = "0"; });
+    rows.forEach((r, k) => { wkTimer = setTimeout(() => { r.classList.add("on"); const i = r.querySelector(".dtrack i"); i.style.width = `${i.dataset.w}%`; buzz(6); }, 300 + k * 320); });
+    setTimeout(() => { ring.style.strokeDashoffset = (C * (1 - Math.max(0.03, w.levelProgress ?? 0))).toFixed(1); }, 300 + 7 * 320);
+  };
+  play();
+  $("wkAgain").addEventListener("click", play);
+  $("wkShare").addEventListener("click", () => shareWeek(w));
+}
+
+// the share picture: drawn here (no game pictures: other sites' pictures can't be drawn into it)
+async function shareWeek(w) {
+  buzz();
+  const c = document.createElement("canvas");
+  c.width = 1080; c.height = 1350;
+  const g = c.getContext("2d");
+  const grad = g.createRadialGradient(540, 200, 50, 540, 300, 900);
+  grad.addColorStop(0, "#5a1610"); grad.addColorStop(1, "#0b0707");
+  g.fillStyle = grad; g.fillRect(0, 0, 1080, 1350);
+  g.direction = "rtl"; g.textAlign = "center"; g.fillStyle = "#fff";
+  try { await document.fonts.ready; } catch {}
+  g.font = "700 46px 'Noto Kufi Arabic', sans-serif"; g.fillText("أسبوعي بالألعاب", 540, 150);
+  g.font = "700 230px Rajdhani, sans-serif"; g.fillText(wkHrs(w.total), 540, 400);
+  g.font = "700 46px 'Noto Kufi Arabic', sans-serif"; g.fillStyle = "rgba(255,255,255,.75)"; g.fillText("ساعة لعب", 540, 470);
+  const max = Math.max(1, ...w.days.map((d) => d.seconds));
+  w.days.forEach((d, k) => {
+    const x = 1080 - 150 - k * 130, h = Math.max(8, (d.seconds / max) * 220);
+    const bg = g.createLinearGradient(0, 760 - h, 0, 760);
+    bg.addColorStop(0, "#ffc93c"); bg.addColorStop(1, "#ef3b2d");
+    g.fillStyle = d.seconds ? bg : "#2a2223";
+    g.beginPath(); g.roundRect?.(x - 40, 760 - h, 80, h, 16); g.fill();
+    g.fillStyle = "rgba(255,255,255,.6)"; g.font = "600 30px 'Noto Kufi Arabic', sans-serif"; g.fillText(dayName(d.day).slice(0, 2), x, 810);
+  });
+  g.textAlign = "right";
+  w.top.forEach((t, k) => {
+    const y = 930 + k * 110;
+    g.fillStyle = "#171112"; g.beginPath(); g.roundRect?.(90, y - 70, 900, 90, 24); g.fill();
+    g.fillStyle = "#fff"; g.font = "700 40px 'Noto Kufi Arabic', sans-serif"; g.fillText(t.name.slice(0, 26), 950, y - 10);
+    g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.7)"; g.font = "700 42px Rajdhani, sans-serif"; g.fillText(`${wkHrs(t.seconds)}h`, 130, y - 10); g.textAlign = "right";
+  });
+  g.textAlign = "center"; g.fillStyle = "#ffc93c"; g.font = "700 34px 'Noto Kufi Arabic', sans-serif";
+  g.fillText(`${w.streak} ${w.streak === 1 ? "يوم" : "أيام"} ورا بعض 🔥 · NUKE GG`, 540, 1290);
+  c.toBlob(async (blob) => {
+    if (!blob) return toast("ما قدرنا نسوي الصورة", true);
+    const file = new File([blob], "my-week.png", { type: "image/png" });
+    try {
+      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text: "أسبوعي بالألعاب" });
+      else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "my-week.png"; a.click(); }
+    } catch {}
+  }, "image/png");
+}
+
+// ---- «تنتظرها»: a countdown to a game you wait for (owner's pick, 2026-10-12: «عدّاد كبير») ----
+// Release dates from Wikidata (public, no key): the game's first publication date (P577) that isn't deprecated. Search in English
+// or Arabic; gamers' nicknames (قراند، كود، ويتشر…) become the English name, and "6" also tries "VI". The list is kept on the phone
+// and sent to the PC, which tells the phones the day before and on the day.
+const SOON_KEY = "nk-soon";
+const SOON_ALIAS = [
+  [/قراند|غراند|جي ?تي ?اي/, "Grand Theft Auto"], [/كول ?اوف|كود/, "Call of Duty"], [/ببجي/, "PUBG"], [/ماين ?كرافت|ماين/, "Minecraft"],
+  [/ويتشر|الويتشر/, "The Witcher"], [/ريد ?ديد/, "Red Dead Redemption"], [/فيفا|اف ?سي/, "EA Sports FC"], [/فورت ?نايت/, "Fortnite"],
+  [/ريزدنت|رزدنت|ريزيدنت/, "Resident Evil"], [/اساسن|أساسن|اساسنز/, "Assassin's Creed"], [/سبايدر ?مان/, "Spider-Man"],
+  [/قود ?اوف ?وور|غود ?اوف ?وار|جود ?اوف ?وار/, "God of War"], [/الدن ?رينق|إلدن/, "Elden Ring"], [/هالو/, "Halo"], [/باتل ?فيلد/, "Battlefield"],
+  [/فاينل ?فانتسي|فاينال ?فانتسي/, "Final Fantasy"], [/تيكن/, "Tekken"], [/مورتال/, "Mortal Kombat"], [/اوفر ?واتش/, "Overwatch"],
+  [/سايبر ?بنك|سايبر/, "Cyberpunk"], [/هولو ?نايت/, "Hollow Knight"], [/ستار ?فيلد/, "Starfield"], [/فول ?اوت/, "Fallout"],
+  [/سكايرم|الدر ?سكرولز/, "The Elder Scrolls"], [/ميتل ?قير|ميتال ?جير/, "Metal Gear"], [/بيرسونا/, "Persona"], [/ولفرين/, "Wolverine"],
+  [/بلاك ?ميث/, "Black Myth"], [/هوقورتس|هوغوورتس/, "Hogwarts"], [/فورزا/, "Forza"], [/قران ?توريزمو|جران ?توريزمو/, "Gran Turismo"],
+];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const MONTHS_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+let soonTimer = null, soonSeq = 0;
+function soonSaved() { try { return JSON.parse(localStorage.getItem(SOON_KEY) || "[]"); } catch { return []; } }
+function soonSave(list) {
+  try { localStorage.setItem(SOON_KEY, JSON.stringify(list)); } catch {}
+  // the PC keeps the ones with an exact day for its alerts (an older PC doesn't know the command: the countdown still works)
+  cmd("upcoming.set", { list: list.filter((g) => g.prec >= 11).map((g) => ({ id: g.id, name: g.name, date: g.date })) }).then((r) => (soonSynced = r.ok));
+}
+let soonSynced = null;
+function soonQueries(q) {
+  let en = q.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  for (const [re, name] of SOON_ALIAS) if (re.test(en)) en = en.replace(re, ` ${name} `);
+  en = en.replace(/[؀-ۿ]+/g, " ").replace(/\s+/g, " ").trim();
+  const out = [];
+  if (en) {
+    out.push(["en", en]);
+    const m = en.match(/^(.*\D)\s*(\d{1,2})$/);
+    if (m && ROMAN[+m[2]]) out.push(["en", `${m[1].trim()} ${ROMAN[+m[2]]}`]);
+  }
+  if (/[؀-ۿ]/.test(q)) out.push(["ar", q.trim()]);
+  return out;
+}
+const wd = (params) => fetch(`https://www.wikidata.org/w/api.php?format=json&origin=*&${new URLSearchParams(params)}`, { signal: AbortSignal.timeout(9000) }).then((r) => r.json());
+function soonDate(claims) {
+  const all = (claims?.P577 ?? []).filter((c) => c.rank !== "deprecated" && c.mainsnak?.datavalue?.value?.time);
+  const pref = all.filter((c) => c.rank === "preferred");
+  const pick = (pref.length ? pref : all).map((c) => c.mainsnak.datavalue.value).sort((a, b) => (a.time < b.time ? -1 : 1))[0];
+  if (!pick) return null;
+  const [y, m, d] = pick.time.replace(/^\+/, "").slice(0, 10).split("-").map(Number);
+  return { date: `${y}-${String(m || 1).padStart(2, "0")}-${String(d || 1).padStart(2, "0")}`, prec: pick.precision };
+}
+async function soonSearch(q) {
+  const ids = [];
+  for (const [lang, s] of soonQueries(q)) {
+    const r = await wd({ action: "wbsearchentities", type: "item", limit: "8", language: lang, uselang: lang, search: s }).catch(() => null);
+    for (const x of r?.search ?? []) if (!ids.includes(x.id)) ids.push(x.id);
+  }
+  if (!ids.length) return [];
+  const r = await wd({ action: "wbgetentities", ids: ids.slice(0, 20).join("|"), props: "labels|claims", languages: "en|ar" }).catch(() => null);
+  const out = [];
+  for (const id of ids) {
+    const e = r?.entities?.[id];
+    // video games only (instance of: video game)
+    if (!e || !(e.claims?.P31 ?? []).some((c) => c.mainsnak?.datavalue?.value?.id === "Q7889")) continue;
+    const d = soonDate(e.claims);
+    const img = e.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+    out.push({ id, name: e.labels?.en?.value || e.labels?.ar?.value || id, date: d?.date ?? null, prec: d?.prec ?? 0, img: img ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(img)}?width=480` : null });
+  }
+  return out.slice(0, 6);
+}
+function soonWhen(g) {
+  if (!g.date) return "ما انعلن موعدها";
+  const [y, m, d] = g.date.split("-").map(Number);
+  const past = new Date(y, m - 1, d) <= new Date();
+  const txt = g.prec >= 11 ? `${d} ${MONTHS_AR[m - 1]} ${y}` : g.prec === 10 ? `${MONTHS_AR[m - 1]} ${y}` : String(y);
+  return past ? `نزلت ${txt}` : txt;
+}
+function soonLeft(g) {
+  if (!g.date) return null;
+  const [y, m, d] = g.date.split("-").map(Number);
+  const ms = new Date(y, m - 1, d) - Date.now();
+  return { ms, d: Math.floor(Math.max(0, ms) / 864e5), h: Math.floor(Math.max(0, ms) / 36e5) % 24, mi: Math.floor(Math.max(0, ms) / 6e4) % 60, s: Math.floor(Math.max(0, ms) / 1e3) % 60 };
+}
+const soonArt = (g, cls) => `<span class="${cls}" style="${g.img ? `background-image:url('${esc(g.img)}')` : "background-image:linear-gradient(135deg,#ef3b2d,#ff8a1f 55%,#ffc93c)"}">${g.img ? "" : esc(initials(g.name))}</span>`;
+function paintSoon() {
+  const list = soonSaved();
+  $("soonEmpty").classList.toggle("hidden", list.length > 0);
+  $("soonList").innerHTML = list.length ? '<h3 class="soonh">تنتظرها</h3>' + list.map((g) => {
+    const l = soonLeft(g);
+    const days = !l ? '<b>قريب</b><small>ما انعلن</small>' : l.ms <= 0 ? '<b>نزلت</b><small>🎆</small>' : `<b class="dn">${l.d}</b><small>${g.prec >= 11 ? "يوم" : "يوم تقريباً"}</small>`;
+    return `<div class="soon-row"><button type="button" class="soon-open" data-id="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><span class="d">${days}</span></button><button type="button" class="soon-x" data-del="${esc(g.id)}" aria-label="شيلها">×</button></div>`;
+  }).join("") : "";
+}
+let soonQT = null;
+$("soonQ").addEventListener("input", () => {
+  clearTimeout(soonQT);
+  const q = $("soonQ").value.trim();
+  if (q.length < 2) return ($("soonHits").innerHTML = "");
+  soonQT = setTimeout(async () => {
+    const my = ++soonSeq;
+    $("soonHits").innerHTML = '<p class="muted">ندوّر…</p>';
+    const hits = await soonSearch(q).catch(() => []);
+    if (my !== soonSeq) return;
+    const have = new Set(soonSaved().map((g) => g.id));
+    $("soonHits").innerHTML = hits.length
+      ? hits.map((g) => `<button type="button" class="soon-hit" data-add="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><em>${have.has(g.id) ? "✓" : "+"}</em></button>`).join("")
+      : '<p class="muted">ما لقينا لعبة بهالاسم. جرّب اسمها بالإنقليزي.</p>';
+    $("soonHits").__hits = hits;
+  }, 450);
+});
+$("soonHits").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-add]");
+  if (!b) return;
+  buzz();
+  const g = ($("soonHits").__hits ?? []).find((x) => x.id === b.dataset.add);
+  if (!g) return;
+  const list = soonSaved().filter((x) => x.id !== g.id);
+  list.push(g);
+  list.sort((a, b2) => (a.date ?? "9999") < (b2.date ?? "9999") ? -1 : 1);
+  soonSave(list);
+  $("soonQ").value = ""; $("soonHits").innerHTML = "";
+  paintSoon();
+  openSoon(g.id);
+});
+$("soonList").addEventListener("click", (e) => {
+  const del = e.target.closest("[data-del]");
+  if (del) { buzz(); soonSave(soonSaved().filter((g) => g.id !== del.dataset.del)); return paintSoon(); }
+  const o = e.target.closest("[data-id]");
+  if (o) { buzz(); openSoon(o.dataset.id); }
+});
+function soonConfetti() {
+  const box = document.createElement("div");
+  box.className = "soon-conf";
+  const cols = ["#ef3b2d", "#ff8a1f", "#ffc93c", "#5fd35f", "#fff"];
+  for (let i = 0; i < 46; i++) { const p = document.createElement("i"); p.style.left = `${Math.random() * 100}vw`; p.style.background = cols[i % 5]; p.style.animationDelay = `${Math.random() * 0.5}s`; box.appendChild(p); }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 2600);
+}
+function openSoon(id) {
+  const g = soonSaved().find((x) => x.id === id);
+  if (!g) return;
+  openFun("عدّ تنازلي", `<div class="soon-big"><div class="soon-hero">${soonArt(g, "bgp")}<div class="t"><b dir="auto">${esc(g.name)}</b><small>${g.date ? (soonLeft(g).ms > 0 ? "تنزل " : "") + esc(soonWhen(g)) : "ما انعلن موعدها للحين"}</small></div></div><div id="soonTiles"></div><p class="hint" id="soonNote"></p><div class="linkrow"><button id="soonDel" class="ghost">شيلها من قائمتك</button></div></div>`);
+  let last = {}, cheered = false;
+  const tick = () => {
+    const l = soonLeft(g), box = $("soonTiles");
+    if (!box) return clearInterval(soonTimer);
+    if (!l) return (box.innerHTML = '<p class="soon-tba">أول ما ينعلن موعدها يبدأ العدّ</p>');
+    if (l.ms <= 0) {
+      box.innerHTML = '<p class="soon-out">نزلت! 🎆</p>';
+      if (!cheered) { cheered = true; soonConfetti(); buzz([30, 60, 30]); }
+      return clearInterval(soonTimer);
+    }
+    if (!box.firstChild || box.querySelector(".soon-out, .soon-tba")) box.innerHTML = ["d", "h", "mi", "s"].map((k, i) => `<div><b class="dn" data-k="${k}"></b><span>${["يوم", "ساعة", "دقيقة", "ثانية"][i]}</span></div>`).join("");
+    for (const k of ["d", "h", "mi", "s"]) {
+      const v = k === "d" ? String(l.d) : String(l[k]).padStart(2, "0"), x = box.querySelector(`[data-k="${k}"]`);
+      if (last[k] !== v) { x.textContent = v; x.classList.remove("tick"); void x.offsetWidth; x.classList.add("tick"); last[k] = v; }
+    }
+  };
+  clearInterval(soonTimer);
+  tick();
+  soonTimer = setInterval(tick, 1000);
+  $("soonNote").textContent = g.prec >= 11
+    ? soonSynced === false ? "حدّث NUKE GG بالبيسي عشان يوصلك تنبيه قبلها بيوم ويوم تنزل." : "يوصلك تنبيه قبلها بيوم، ويوم تنزل."
+    : g.date ? "يومها بالضبط ما انعلن، فالعدّ تقريبي." : "";
+  $("soonDel").addEventListener("click", () => { buzz(); soonSave(soonSaved().filter((x) => x.id !== g.id)); paintSoon(); closeFun(); });
+}
+paintSoon();
 
 // ---- 🎮 the gaming dashboard: soft rings (owner's pick, 2026-10-12: "بسيط ومو مربعي", «حلقات ناعمة») ----
 // Six rings that turn green → gold → red, a short line under each; a tap shows that ring's details; one running hot glows.
