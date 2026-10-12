@@ -588,7 +588,13 @@
   nav button.on { color: #fff; }
   nav button.on svg { color: var(--red); transform: translateY(-2px) scale(1.06); filter: drop-shadow(0 0 7px rgba(239,59,45,.65)); }
   nav button.on::after { opacity: 1; }
-  nav button:active { transform: scale(.9); }  /* a settings group's mark: its icon inside a small block, like the desktop's headings */
+  nav button:active { transform: scale(.9); }  /* a card's title with its icon in a small block (the settings groups' mark) */
+  section h2 .hm { display: inline-flex; align-items: center; gap: 8px; }
+  section h2 .hm i, .dashbtn i.hmi { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; image-rendering: pixelated; flex: none;
+    background: var(--tex-dark) 0 0 / 12px 12px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(255 255 255 / .15); color: var(--gold); font-style: normal; }
+  section h2 .hm i svg { width: 15px; height: 15px; }
+  .dashbtn i.hmi { width: 40px; height: 40px; border-radius: 11px; }
+  .dashbtn i.hmi svg { width: 22px; height: 22px; }  /* a settings group's mark: its icon inside a small block, like the desktop's headings */
   details.grp > summary i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; image-rendering: pixelated;
     background: var(--tex-dark) 0 0 / 12px 12px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(255 255 255 / .15); color: var(--gold); }
   details.grp > summary i svg { width: 17px; height: 17px; }
@@ -694,7 +700,7 @@
   <div id="pcSheet" class="sheet hidden"><div class="in">
     <h3>أجهزتك</h3>
     <div id="pcList"></div>
-    <button id="pcAdd" class="wide" style="margin-top:6px">+ أضف بيسي</button>
+    <button id="pcAdd" class="wide ghost" style="margin-top:6px">+ أضف بيسي</button>
     <p class="hint">صوّر الـ QR من البيسي الثاني (الإعدادات ← التطبيق ← «جوالك»)، وتتنقّل بينهم من هنا.</p>
   </div></div>
   <div id="scan" class="scan hidden">
@@ -849,13 +855,9 @@
         </div>
         <p id="screenHint" class="hint">«طفّ الشاشة» تطفيها والبيسي شغّال، وأي حركة للماوس ترجّعها.</p>
       </section>
-      <section data-cat="power" id="guardBox" class="hidden">
-        <div class="setrow"><div><b>👀 راقب البيسي</b><small>شغّله وأنت طالع: أول ما أحد يلمس الماوس أو الكيبورد يوصلك تنبيه.</small></div><button id="guardSw" class="sw" aria-label="راقب البيسي"></button></div>
-        <div class="setrow"><div><b>إذا أحد لمسه، قفّله على طول</b><small>الشاشة تنقفل بنفس اللحظة.</small></div><button id="guardLockSw" class="sw" aria-label="قفّله إذا أحد لمسه"></button></div>
-        <p id="guardHint" class="hint hidden" style="margin-top:4px">عشان يوصلك التنبيه، فعّل التنبيهات من «الإعدادات».</p>
-      </section>
       <section data-cat="sound" id="btBox" class="hidden">
-        <div class="setrow" style="padding:4px"><div><b>البلوتوث</b><small>للسماعة أو اليد اللاسلكية</small></div><button id="btSw" class="sw" aria-label="البلوتوث"></button></div>
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></svg></i>البلوتوث</span></h2>
+        <div class="setrow" style="padding:4px"><div><b>شغّل البلوتوث</b><small>للسماعة أو اليد اللاسلكية</small></div><button id="btSw" class="sw" aria-label="البلوتوث"></button></div>
       </section>
       <section data-cat="apps">
         <h2><span>الأغاني والفيديو</span></h2>
@@ -880,6 +882,12 @@
         <div class="linkrow"><button id="offGo">طفّه بهالوقت</button><button id="timerCancel" class="ghost">ألغِ المؤقت</button></div>
         <p class="hint">تنام والبيسي يطفي لحاله بالوقت اللي اخترته. تقدر تلغيه متى ما تبي.</p>
       </section>
+      <section data-cat="power" id="guardBox" class="hidden">
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></i>راقب البيسي</span></h2>
+        <div class="setrow"><div><b>شغّل المراقبة</b><small>شغّله وأنت طالع: أول ما أحد يلمس الماوس أو الكيبورد يوصلك تنبيه.</small></div><button id="guardSw" class="sw" aria-label="راقب البيسي"></button></div>
+        <div class="setrow"><div><b>إذا أحد لمسه، قفّله على طول</b><small>الشاشة تنقفل بنفس اللحظة.</small></div><button id="guardLockSw" class="sw" aria-label="قفّله إذا أحد لمسه"></button></div>
+        <p id="guardHint" class="hint hidden" style="margin-top:4px">عشان يوصلك التنبيه، فعّل التنبيهات من «الإعدادات».</p>
+      </section>
     </div>
 
     <!-- 📊 the PC's state -->
@@ -887,7 +895,7 @@
       <div class="tabhead"><img src="ban-stat.jpg" alt="" /><div><b>الحالة</b><small>كل شي عن جهازك</small></div></div>
       <div class="cats" role="tablist"><button role="tab" data-cat="now" data-empty="">الحين</button><button role="tab" data-cat="net" data-empty="">النت</button><button role="tab" data-cat="device" data-empty="">الجهاز</button></div>
       <p class="catempty hidden"></p>
-      <button data-cat="now" id="dashOpen" class="dashbtn"><i>🎮</i><span><b>لوحة اللعب</b><small>حط جوالك جنبك وأنت تلعب، ويعرض حرارة الكرت والمعالج والرام والبنق مباشرة.</small></span></button>
+      <button data-cat="now" id="dashOpen" class="dashbtn"><i class="hmi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg></i><span><b>لوحة اللعب</b><small>حط جوالك جنبك وأنت تلعب، ويعرض حرارة الكرت والمعالج والرام والبنق مباشرة.</small></span></button>
       <section data-cat="now">
         <h2><span>حالة البيسي</span><span id="upt"></span></h2>
         <div class="stats" id="stats"><p class="muted">نقرا حالة البيسي…</p></div>
@@ -3326,6 +3334,7 @@ function closeFiles() {
 }
 async function loadFiles() {
   $("filesTitle").textContent = fPath.length ? fPath[fPath.length - 1] : ROOT_NAME[fRoot];
+  $("filesCrumbs").classList.toggle("hidden", !fPath.length);
   $("filesCrumbs").innerHTML = [ROOT_NAME[fRoot], ...fPath].map((p, i, a) => (i === a.length - 1 ? `<b dir="auto">${esc(p)}</b>` : `<span dir="auto">${esc(p)}</span>`)).join(" ‹ ");
   $("filesList").innerHTML = '<p class="muted">نجيب الملفات…</p>';
   const r = await cmd("files.list", { root: fRoot, path: fPath.join("/") });
