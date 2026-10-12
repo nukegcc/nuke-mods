@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin />
 <style>
   :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --text:#fff; --dim:rgba(255,255,255,.55); --red:#ef3b2d; --gold:#ffc93c; --green:#34d399; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -422,17 +422,179 @@
   .dtop b { display: block; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dtop small { color: var(--green); font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
   .dgrid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-content: center; }
-  .gauge { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 10px 8px 12px; text-align: center; }
-  .gauge svg { width: 100%; max-width: 150px; height: auto; display: block; margin: 0 auto; }
-  .gauge .v { position: absolute; inset-inline: 0; top: 44%; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; direction: ltr; }
-  .gauge span { display: block; font-size: 12.5px; color: var(--dim); font-weight: 700; margin-top: -6px; }
-  .gauge circle.val { transition: stroke-dashoffset .6s ease, stroke .4s; }
-  @media (orientation: landscape) { .dgrid { grid-template-columns: repeat(3, 1fr); } .gauge svg { max-width: 120px; } .gauge .v { font-size: 22px; } }
+  /* soft rings (owner's pick, 2026-10-12): round, simple, green → gold → red, a short line under each, a tap shows the details */
+  .gauge { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; padding: 12px 8px 12px; border: 0; border-radius: 24px; background: #171112; box-shadow: inset 0 0 0 1.5px #241b1c; color: #fff; text-align: center; transition: transform .15s, box-shadow .3s; }
+  .gauge:active { transform: scale(.96); }
+  .gauge svg { width: 100%; max-width: 116px; height: auto; display: block; }
+  .gauge circle { fill: none; stroke-width: 9; stroke-linecap: round; }
+  .gauge circle.trk { stroke: #241b1c; }
+  .gauge circle.val { stroke: #3a2f30; transition: stroke-dashoffset .7s cubic-bezier(.3,1,.5,1), stroke .4s; }
+  .gauge .rw { position: relative; display: block; width: 100%; max-width: 116px; }
+  .gauge .v { position: absolute; inset-inline: 0; top: 50%; translate: 0 -55%; font-family: var(--f-num, "Rajdhani"), sans-serif; font-size: 28px; font-weight: 700; direction: ltr; line-height: 1; }
+  .gauge .v small { font-size: 14px; margin-inline-start: 1px; color: rgba(255,255,255,.7); }
+  .gauge .lb { margin-top: -6px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85); }
+  .gauge .sub { min-height: 18px; font-size: 11.5px; line-height: 1.5; color: var(--dim); padding: 0 4px; }
+  .gauge .dn { font-family: var(--f-num, "Rajdhani"), sans-serif; font-weight: 700; color: #fff; direction: ltr; unicode-bidi: isolate; }
+  .gauge.open { box-shadow: inset 0 0 0 1.5px rgba(255,201,60,.55); }
+  .gauge.hot { box-shadow: inset 0 0 0 1.5px #ff8a1f, 0 0 24px -8px #ff8a1f; }
+  .dart { width: 46px; height: 46px; border-radius: 50%; flex: none; display: grid; place-items: center; font-family: var(--f-num, "Rajdhani"), sans-serif; font-weight: 700; font-size: 16px; background: radial-gradient(circle at 35% 30%, #ff7a5c, #b5121b) center / cover no-repeat; box-shadow: 0 6px 18px -6px rgba(239,59,45,.8); }
+  .dart.off { background: #241b1c; box-shadow: none; }
+  .dtop small { color: var(--dim); font-weight: 600; }
+  .dtop small .dn { color: var(--green); font-family: var(--f-num, "Rajdhani"), sans-serif; font-size: 14px; direction: ltr; unicode-bidi: isolate; }
+  .dxp { height: 6px; border-radius: 99px; background: #241b1c; overflow: hidden; margin: -2px 0 14px; }
+  .dxp i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #4fc126, #a6ff5a); transition: width .6s; }
+  @media (orientation: landscape) { .dgrid { grid-template-columns: repeat(3, 1fr); } .gauge svg { max-width: 96px; } .gauge .v { font-size: 22px; } }
   .dashbtn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border-radius: 20px; margin-bottom: 12px; background: linear-gradient(120deg, rgba(168,85,247,.22), rgba(239,59,45,.14)); border: 1px solid rgba(168,85,247,.45); text-align: start; }
   .dashbtn i { font-style: normal; font-size: 28px; }
   .dashbtn b { display: block; font-size: 15px; }
   .dashbtn small { color: var(--dim); font-size: 12px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+  /* ===== the desktop's look (owner, 2026-10-12: "تطبيق الهاتف ابيه يكون مشابه للتصميم ومتناسق مع تطبيق الدسكتوب"): the same
+     font, the NUKE blocks (red / dark stone plates with a raised edge that sink when pressed), grass switches, stone chips,
+     deep stone text boxes, lava progress, the advancement-style notice, cards with one thin warm line. The textures are the
+     desktop's own (scripts/remote-page.mjs fills them in from src/styles/index.css). ===== */
+  :root { --tex-red: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3C/svg%3E"); --tex-dark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3C/svg%3E"); --tex-lava: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3C/svg%3E"); --tex-grass: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%233fae3f%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2345b545%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%236fe06f%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%237ae87a%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%234cbf4c%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%2358cc58%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%235fd35f%22%2F%3E%3C%2Fsvg%3E"); --warm: #2e2324; --f-num: "Rajdhani", "Noto Kufi Arabic", sans-serif; }
+  html, body { font-family: "Noto Kufi Arabic", system-ui, sans-serif; }
+  /* cards: soft corners, one thin warm line, no shadow; a box inside a card has no line */
+  section, details.grp, .tabhead, .catempty, .now { border: 0; border-radius: 18px; box-shadow: inset 0 0 0 1.5px var(--warm); }
+  .catempty { box-shadow: inset 0 0 0 1.5px var(--warm); border-style: none; }
+  .tabhead { box-shadow: none; }
+  .g, .stat, .week div, .speed div, .clip, .errres, .stp, .sd, .shot .pic { border: 0; border-radius: 12px; }
+  .g { box-shadow: inset 0 0 0 1.5px var(--warm); }
+  /* numbers in the desktop's number font */
+  .vol b, .speed b, .gauge .v, .week b, .stat b, .tpick, .banner small, .sd small { font-family: var(--f-num); font-weight: 700; letter-spacing: .3px; }
+  .vol b { font-size: 30px; } .speed b { font-size: 28px; } .stat b { font-size: 20px; } .week b { font-size: 22px; }
+
+  /* the block buttons: a black outline, a textured plate with a raised edge, sinking when pressed */
+  .wide, .linkrow button, .frow .save, .now button, .banner button, .g button, .pr button, .tr button, .mic, .clip a, .x, .back, header .refresh {
+    position: relative; isolation: isolate; border: 0 !important; border-radius: 14px !important; background: #000 !important; box-shadow: none !important;
+    text-shadow: 2px 2px 0 rgb(0 0 0 / .55); color: #fff; transition: translate .08s;
+  }
+  :is(.wide, .linkrow button, .frow .save, .now button, .banner button, .g button, .pr button, .tr button, .mic, .clip a, .x, .back, header .refresh)::before {
+    content: ""; position: absolute; inset: 2px; z-index: -1; border-radius: 12px; image-rendering: pixelated;
+    background: var(--tex-dark) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(120 100 101 / .55), inset -3px -3px 0 #0d0909;
+  }
+  /* the red ones: what you press to do the thing */
+  :is(.wide:not(.ghost), .linkrow button:not(.ghost), .frow .save, .now button, .g button:active)::before {
+    background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(255 138 124 / .6), inset -3px -3px 0 #6e1010;
+  }
+  .banner button { color: #2a1a00; text-shadow: none; }
+  .banner button::before { background: var(--tex-lava) 0 0 / 15px 15px; box-shadow: inset 0 3px 0 rgb(255 255 255 / .35), inset 0 -3px 0 #7a2800; }
+  :is(.wide, .linkrow button, .frow .save, .now button, .banner button, .g button, .pr button, .tr button, .mic, .clip a, .x, .back, header .refresh):active { translate: 0 3px; transform: none; }
+  :is(.wide, .linkrow button, .frow .save, .now button, .g button, .pr button, .tr button, .mic, .clip a, .x, .back, header .refresh):active::before { box-shadow: inset 3px 3px 0 #0d0909, inset -3px -3px 0 rgb(120 100 101 / .4); }
+  :is(.wide:not(.ghost), .linkrow button:not(.ghost), .frow .save, .now button):active::before { box-shadow: inset 3px 3px 0 #6e1010, inset -3px -3px 0 rgb(255 138 124 / .45); }
+  .wide.ghost { color: rgba(255,255,255,.8); }
+  .tr button { color: var(--gold); } .pr button { color: #ffb4ad; }
+  .mic { color: var(--green); } .mic.off { color: #ffb4ad; }
+  /* a card's own button in the games grid: calm stone, red while pressed (the desktop's calm card buttons) */
+  .g button { margin: auto 0 0; color: rgba(255,255,255,.88); }
+  .g button:active::before { box-shadow: inset 3px 3px 0 #6e1010, inset -3px -3px 0 rgb(255 138 124 / .45); }
+  /* the dark tiles you press (lock, sleep, a program, a mode…): dark stone plates */
+  .b, .app, .mode, .out, .pcrow, .scene, .dashbtn {
+    position: relative; isolation: isolate; border: 0 !important; border-radius: 14px; background: #000 !important;
+  }
+  :is(.b, .app, .mode, .out, .pcrow, .scene, .dashbtn)::before {
+    content: ""; position: absolute; inset: 2px; z-index: -1; border-radius: 12px; image-rendering: pixelated;
+    background: linear-gradient(rgb(23 18 19 / .55), rgb(23 18 19 / .55)), var(--tex-dark) 0 0 / 24px 24px;
+    box-shadow: inset 2px 2px 0 rgb(120 100 101 / .35), inset -2px -2px 0 #0d0909;
+  }
+  :is(.b, .app, .mode, .out, .pcrow, .scene, .dashbtn):active { transform: none; translate: 0 2px; }
+  :is(.b, .app, .mode, .out, .pcrow, .scene, .dashbtn):active::before { box-shadow: inset 2px 2px 0 #0d0909, inset -2px -2px 0 rgb(120 100 101 / .3); }
+  /* a picked tile / device / screen mode: a soft red block (the desktop's picked tab) */
+  :is(.out.on, .mode.on, .pcrow.on)::before { background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 2px 2px 0 rgb(255 138 124 / .5), inset -2px -2px 0 #6e1010; }
+  :is(.out.on, .mode.on) svg, .out.on em { color: #fff; }
+  .scene.ran::before { box-shadow: inset 0 0 0 2px var(--green); }
+  .scene.add { background: transparent !important; border: 1.5px dashed rgba(255,255,255,.2) !important; padding: 10px 14px; }
+  .scene.add::before { content: none; }
+  .app.open { box-shadow: 0 0 0 1.5px rgba(52,211,153,.6); }
+  .app.open.bg { box-shadow: none; }
+
+  /* chips and the category row: soft stone pills, the picked one red */
+  .chip, .cats button, .seg button, .emojis button, .star {
+    position: relative; isolation: isolate; border: 0 !important; background: #000 !important; color: rgba(255,255,255,.8);
+  }
+  :is(.chip, .cats button, .seg button, .emojis button)::before {
+    content: ""; position: absolute; inset: 1.5px; z-index: -1; border-radius: inherit; image-rendering: pixelated;
+    background: linear-gradient(rgb(255 255 255 / .04), rgb(255 255 255 / .04)), var(--tex-dark) 0 0 / 16px 16px;
+    box-shadow: inset 0 2px 0 rgb(255 255 255 / .12);
+  }
+  .chip, .cats button { border-radius: 12px; } .seg button { border-radius: 9px; }
+  :is(.chip.on, .cats button.on, .seg button.on, .emojis button.on) { color: #fff; text-shadow: 2px 2px 0 rgb(0 0 0 / .5); }
+  :is(.chip.on, .cats button.on, .seg button.on, .emojis button.on)::before { background: var(--tex-red) 0 0 / 16px 16px; box-shadow: inset 0 2px 0 rgb(255 138 124 / .55), inset 0 -2px 0 #6e1010; }
+  .chip.gold { color: var(--gold); }
+  .chip.gold::before { box-shadow: inset 0 0 0 1.5px rgba(255,201,60,.45), inset 0 2px 0 rgb(255 255 255 / .12); }
+  .cats button.on { animation: pop .3s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes pop { 40% { transform: scale(1.08); } }
+  .star { background: transparent !important; }
+
+  /* switches: a stone track that turns to grass from the middle, a round stone knob */
+  .sw { background: linear-gradient(rgb(255 255 255 / .05), rgb(255 255 255 / .05)), var(--tex-dark) 0 0 / 16px 16px; image-rendering: pixelated;
+    box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(0 0 0 / .4), 0 0 0 1px rgb(255 255 255 / .14); }
+  .sw.on { background: linear-gradient(rgb(255 255 255 / .05), rgb(255 255 255 / .05)), var(--tex-dark) 0 0 / 16px 16px; }
+  .sw::before { content: ""; position: absolute; inset: 0; border-radius: inherit; image-rendering: pixelated; background: var(--tex-grass) 0 0 / 12px 12px;
+    box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(255 255 255 / .25); clip-path: circle(0% at 50% 50%); transition: clip-path .4s cubic-bezier(.2,.8,.2,1); }
+  .sw.on::before { clip-path: circle(75% at 50% 50%); }
+  .sw::after { z-index: 1; background: linear-gradient(rgb(255 255 255 / .22), rgb(255 255 255 / .22)), var(--tex-dark) 0 0 / 12px 12px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(220 200 201 / .7); }
+
+  /* text boxes: a deep stone well, a gold line while typing */
+  .search, .tpick { border: 0 !important; border-radius: 14px; image-rendering: pixelated;
+    background: linear-gradient(rgb(14 10 10 / .62), rgb(14 10 10 / .5)), var(--tex-dark) 0 0 / 24px 24px !important;
+    box-shadow: inset 0 0 0 1.5px #000, inset 0 7px 10px -3px rgb(0 0 0 / .9), inset 0 -2px 0 rgb(255 255 255 / .05), 0 1px 0 rgb(255 255 255 / .07); }
+  .search:focus, .tpick:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--gold), inset 0 7px 10px -3px rgb(0 0 0 / .9), 0 1px 0 rgb(255 255 255 / .07), 0 0 18px -8px #ff8a1f; }
+
+  /* progress: blocks filling with lava */
+  .bar { height: 10px; border-radius: 0; background: repeating-linear-gradient(90deg, #2a2223 0 12px, transparent 12px 15px); }
+  .bar > div { border-radius: 0; image-rendering: pixelated; background: var(--tex-lava) 0 0 / 15px 15px;
+    -webkit-mask: repeating-linear-gradient(90deg, #000 0 12px, transparent 12px 15px); mask: repeating-linear-gradient(90deg, #000 0 12px, transparent 12px 15px); }
+  .bar.low > div { background: var(--tex-red) 0 0 / 15px 15px; }
+  .sd.paused .bar > div, .sd.queued .bar > div { background: var(--tex-dark) 0 0 / 15px 15px; }
+
+  /* an empty box reads right to left (its hint is Arabic), and its words look carved into the stone (owner, 2026-10-12: "المفروض
+     rtl… الخط محفور أو متناسق مع المربع"): dark letters, a black edge on top, a faint light edge under them */
+  .search:placeholder-shown { direction: rtl; text-align: right; }
+  .search::placeholder { color: #6e6061; opacity: 1; font-weight: 700; text-shadow: 0 -1px 0 #000, 0 1px 0 rgb(255 255 255 / .1); }
+  .search, .tpick { color: #e9dfdf; font-weight: 600; text-shadow: 0 -1px 0 #000, 0 1px 0 rgb(255 255 255 / .06); }
+  .search:focus::placeholder { color: #57494a; }  /* the slide-to-shut-down: a stone track, the knob a red block */
+  .slide { border: 0; border-radius: 16px; image-rendering: pixelated; background: linear-gradient(rgb(14 10 10 / .5), rgb(14 10 10 / .5)), var(--tex-dark) 0 0 / 24px 24px;
+    box-shadow: inset 0 0 0 1.5px #000, inset 0 6px 10px -4px rgb(0 0 0 / .9); }
+  .slide .knob { image-rendering: pixelated; background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(255 138 124 / .6), inset -3px -3px 0 #6e1010, 0 0 0 2px #000; border-radius: 12px; }
+  .slide.restart .knob { background: var(--tex-dark) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(120 100 101 / .55), inset -3px -3px 0 #0d0909, 0 0 0 2px #000; }
+
+  /* the notice: the game's advancement look */
+  .toast { border: 0; border-radius: 14px; background: #201819; text-shadow: 2px 2px 0 #000;
+    box-shadow: inset 0 0 0 2px #0e0a0a, inset 0 0 0 3.5px #4a3b3c, 0 18px 44px -12px rgb(0 0 0 / .7); transform: translateX(30px); }
+  .toast.show { transform: none; }
+  .toast.bad { color: #ff8a7a; box-shadow: inset 0 0 0 2px #0e0a0a, inset 0 0 0 3.5px #6e2a24, 0 18px 44px -12px rgb(0 0 0 / .7); }
+  .banner { border: 0; border-radius: 14px; box-shadow: inset 0 0 0 1.5px rgba(255,201,60,.45); }
+
+  /* each tab's banner: the desktop's section art, the name over its dark side */
+  .tabhead img { object-position: left center; }
+  .tabhead::after { background: linear-gradient(to left, rgba(20,12,12,.9) 0%, rgba(20,12,12,.5) 45%, transparent 70%); }
+  .tabhead b { font-weight: 900; font-size: 25px; }
+  /* the tab bar: the desktop's section pictures, the picked one lifted with a gold-red frame */
+  nav { border-top: 0; box-shadow: 0 -1.5px 0 var(--warm); }
+  nav button.on img { box-shadow: 0 6px 16px -6px rgba(255,138,31,.8), 0 0 0 2px rgba(255,201,60,.6); }
+  /* the tab bar (owner's pick, 2026-10-12: «أيقونات خط نظيفة» + "حلوة بس حسّنها أكثر"): clean line icons with no boxes; the open
+     tab's icon turns red with a soft red glow behind it, and one lava bar on the bar's top edge slides to it */
+  nav .in { position: relative; }
+  nav .ind { position: absolute; top: -8px; left: 0; width: 32px; height: 4px; border-radius: 0 0 4px 4px; image-rendering: pixelated;
+    background: var(--tex-lava) 0 0 / 8px 8px; box-shadow: 0 0 12px rgba(255,138,31,.75); opacity: 0; }
+  nav .ind.ready { opacity: 1; transition: transform .38s cubic-bezier(.3,1.3,.5,1), opacity .2s; }
+  nav button { position: relative; isolation: isolate; gap: 4px; padding: 7px 0 4px; color: rgba(255,255,255,.48); font-weight: 700; transition: color .2s, transform .12s; }
+  nav button svg { width: 25px; height: 25px; transition: transform .28s cubic-bezier(.3,1.4,.5,1), color .2s, filter .2s; }
+  nav button::after { content: ""; position: absolute; z-index: -1; top: 0; left: 50%; width: 54px; height: 38px; translate: -50% 0; border-radius: 14px;
+    background: radial-gradient(closest-side, rgba(239,59,45,.32), transparent); opacity: 0; transition: opacity .25s; }
+  nav button.on { color: #fff; }
+  nav button.on svg { color: var(--red); transform: translateY(-2px) scale(1.06); filter: drop-shadow(0 0 7px rgba(239,59,45,.65)); }
+  nav button.on::after { opacity: 1; }
+  nav button:active { transform: scale(.9); }  /* a settings group's mark: its icon inside a small block, like the desktop's headings */
+  details.grp > summary i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; image-rendering: pixelated;
+    background: var(--tex-dark) 0 0 / 12px 12px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(255 255 255 / .15); color: var(--gold); }
+  details.grp > summary i svg { width: 17px; height: 17px; }
+  /* the waiting spinner: a lava ring */
+  .spin { border-color: rgba(255,255,255,.12); border-top-color: #ff8a1f; }
+  @media (prefers-reduced-motion: reduce) { .sw::before, .cats button.on { transition: none; animation: none; } }
 </style>
 </head>
 <body>
@@ -688,14 +850,14 @@
         <button id="pushBtn" class="wide">فعّل التنبيهات</button>
         <p id="pushHint" class="hint">يوصلك على جوالك: انثبّت المود، اللعبة خلصت تنزيل، تحديث للعبة عندك، لعبة صارت مجانية، نزل سعر لعبة، وتنبيهات البيسي اللي تختارها تحت.</p>
       </section>
-      <details class="grp" id="grpGames"><summary><i>🎮</i>تنبيهات الألعاب<small></small></summary><div class="in">
+      <details class="grp" id="grpGames"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg></i>تنبيهات الألعاب<small></small></summary><div class="in">
         <div id="gameAlerts" class="hidden">
           <div class="setrow"><div><b>تحديث للعبة عندك</b><small>أول ما تنزل ملاحظات تحديث لعبة على البيسي.</small></div><button id="upSw" class="sw" aria-label="تحديث للعبة عندك"></button></div>
           <div class="setrow"><div><b>لعبة مجانية جديدة</b><small>أي لعبة تصير مجانية بـ Epic أو Steam أو غيرها.</small></div><button id="freeSw" class="sw" aria-label="لعبة مجانية جديدة"></button></div>
           <div class="setrow"><div><b>نزل سعر لعبة تتابعها</b><small id="priceHint">تختار الألعاب من «الألعاب ← أرخص سعر» بالبيسي.</small></div><button id="priceSw" class="sw" aria-label="نزل سعر لعبة تتابعها"></button></div>
         </div>
       </div></details>
-      <details class="grp" id="grpPc"><summary><i>💻</i>تنبيهات البيسي<small></small></summary><div class="in">
+      <details class="grp" id="grpPc"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></i>تنبيهات البيسي<small></small></summary><div class="in">
         <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
         <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت NVIDIA).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
         <div id="heatChips" class="chips" style="margin:0 4px 6px"><button class="chip" data-heat="80">80°</button><button class="chip" data-heat="85">85°</button><button class="chip" data-heat="90">90°</button></div>
@@ -704,19 +866,19 @@
         <div class="setrow"><div><b>الويندوز يبي إعادة تشغيل</b><small>بعد تحديثاته، عشان تعيد التشغيل لما تخلص لعب.</small></div><button id="restartSw" class="sw" aria-label="الويندوز يبي إعادة تشغيل"></button></div>
         <div id="battRow" class="setrow hidden"><div><b>البطارية ضعفت</b><small>إذا وصلت 15% واللابتوب مو على الشاحن.</small></div><button id="battSw" class="sw" aria-label="البطارية ضعفت"></button></div>
       </div></details>
-      <details class="grp hidden" id="limitBox"><summary><i>⏰</i>وقت اللعب<small></small></summary><div class="in">
+      <details class="grp hidden" id="limitBox"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/></svg></i>وقت اللعب<small></small></summary><div class="in">
         <div class="setrow top"><div><b>نبّهني إذا طوّلت باللعب</b><small>تنبيه على البيسي وجوالك، وبعدها كل ساعة.</small></div></div>
         <div class="chips pad"><button class="chip" data-remind="0">لا</button><button class="chip" data-remind="60">ساعة</button><button class="chip" data-remind="120">ساعتين</button><button class="chip" data-remind="180">3 ساعات</button></div>
         <div class="setrow"><div><b>سكّر الألعاب الساعة</b><small>اختار الوقت اللي تبيه. قبله بـ10 دقايق وبدقيقة يجيك تنبيه عشان تحفظ لعبتك.</small></div><button id="bedSw" class="sw" aria-label="سكّر الألعاب بوقت"></button></div>
         <div class="timerow"><input id="bedTime" class="tpick" type="time" value="00:00" dir="ltr" aria-label="وقت تسكير الألعاب" /><span id="bedNote" class="muted"></span></div>
         <button id="snoozeSet" class="wide ghost hidden">خلّني ألعب نص ساعة زيادة</button>
       </div></details>
-      <details class="grp" id="grpPcs"><summary><i>🖥️</i>أجهزتك<small id="grpPcsN"></small></summary><div class="in">
+      <details class="grp" id="grpPcs"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></i>أجهزتك<small id="grpPcsN"></small></summary><div class="in">
         <p class="hint" style="margin-top:0">البيسيات المربوطة بجوالك. تبدّل بينها من اسم البيسي فوق، أو من هنا.</p>
         <button id="pcsOpen" class="wide ghost">أجهزتك</button>
         <button id="byeBtn" class="wide ghost" style="margin-top:8px">افصل الجوال عن هالبيسي</button>
       </div></details>
-      <details class="grp" id="homeHint"><summary><i>📱</i>حطها على الشاشة الرئيسية</summary><div class="in">
+      <details class="grp" id="homeHint"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></i>حطها على الشاشة الرئيسية</summary><div class="in">
         <p class="hint" style="margin-top:0">تنفتح مثل تطبيق كامل بدون شريط المتصفح. بالآيفون: زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية». بالأندرويد: القائمة ⋮ ← «إضافة إلى الشاشة الرئيسية».</p>
       </div></details>
     </div>
@@ -733,14 +895,15 @@
   <div id="deckBody" class="scroll"></div>
 </div></div>
 <div id="dash" class="dash hidden">
-  <div class="dtop"><div class="t"><b id="dGame" dir="auto">البيسي</b><small id="dTime"></small></div><button id="dashClose" class="x" aria-label="سكّر">×</button></div>
+  <div class="dtop"><span id="dArt" class="dart off"></span><div class="t"><b id="dGame" dir="auto">البيسي</b><small id="dTime"></small></div><button id="dashClose" class="x" aria-label="سكّر">×</button></div>
+  <div id="dXp" class="dxp hidden" title="الساعة اللي أنت فيها"><i></i></div>
   <div id="dGrid" class="dgrid"></div>
 </div>
-<nav id="nav" class="hidden"><div class="in">
-  <button data-tab="games" class="on"><img src="tab-games.jpg" alt="" />ألعابي</button>
-  <button data-tab="pc"><img src="tab-pc.jpg" alt="" />البيسي</button>
-  <button data-tab="stat"><img src="tab-stat.jpg" alt="" />الحالة</button>
-  <button data-tab="set"><img src="tab-set.jpg" alt="" />الإعدادات</button>
+<nav id="nav" class="hidden"><div class="in"><i class="ind" aria-hidden="true"></i>
+  <button data-tab="games" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg>ألعابي</button>
+  <button data-tab="pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>البيسي</button>
+  <button data-tab="stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/></svg>الحالة</button>
+  <button data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.6a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.6a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>الإعدادات</button>
 </div></nav>
 <div id="toast" class="toast"></div>
 
@@ -3792,47 +3955,83 @@ for (const [id, key] of [["guardSw", "on"], ["guardLockSw", "lock"]])
     if (key === "on") toast(r.data.on ? "👀 البيسي تحت المراقبة. أول لمسة توصلك" : "وقّفنا المراقبة");
   });
 
-// ---- 🎮 the gaming dashboard ----
+// ---- 🎮 the gaming dashboard: soft rings (owner's pick, 2026-10-12: "بسيط ومو مربعي", «حلقات ناعمة») ----
+// Six rings that turn green → gold → red, a short line under each; a tap shows that ring's details; one running hot glows.
 const GAUGES = [
-  ["cpu", "المعالج", "%", 100],
-  ["gpu", "كرت الشاشة", "%", 100],
-  ["temp", "حرارة الكرت", "°", 100],
-  ["ram", "الرام", "%", 100],
-  ["ping", "البنق", "ms", 200],
-  ["down", "التنزيل · ميجابت", "Mb", 500],
+  // [id, label, unit, max, warn, hot]
+  ["gpu", "كرت الشاشة", "%", 100, 90, 101],
+  ["temp", "حرارة الكرت", "°", 100, 80, 86],
+  ["cpu", "المعالج", "%", 100, 70, 90],
+  ["ram", "الرام", "%", 100, 85, 92],
+  ["ping", "البنق", "ms", 150, 60, 100],
+  ["down", "النت", "Mb", 100, 1e9, 1e9],
 ];
-let dashTimer = null, wake = null;
+let dashTimer = null, wake = null, dashOpenRing = null, dashHeavy = null, dashHeavyAt = 0;
+const dashPings = [];
+const RING_R = 38, RING_C = 2 * Math.PI * RING_R, RING_ARC = RING_C * 0.75;
+const dnum = (x) => `<span class="dn">${x}</span>`;
+const dgb = (bytes) => (bytes / 1073741824).toFixed(1);
 function gaugeSvg(id) {
-  // a 240° ring: the grey track and the coloured value on top
-  const r = 44, c = 2 * Math.PI * r, arc = c * (240 / 360);
-  return `<svg viewBox="0 0 110 100"><circle cx="55" cy="55" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${arc} ${c}" transform="rotate(150 55 55)"/><circle id="g-${id}" class="val" cx="55" cy="55" r="${r}" fill="none" stroke="#34d399" stroke-width="10" stroke-linecap="round" stroke-dasharray="${arc} ${c}" stroke-dashoffset="${arc}" transform="rotate(150 55 55)" data-arc="${arc}"/></svg>`;
+  // a 270° ring with round ends: the dark track and the coloured value on top
+  return `<svg viewBox="0 0 92 92"><g transform="rotate(135 46 46)"><circle class="trk" cx="46" cy="46" r="${RING_R}" stroke-dasharray="${RING_ARC} ${RING_C}"/><circle id="g-${id}" class="val" cx="46" cy="46" r="${RING_R}" stroke-dasharray="${RING_ARC} ${RING_C}" stroke-dashoffset="${RING_ARC}"/></g></svg>`;
 }
 function paintDashFrame() {
-  $("dGrid").innerHTML = GAUGES.map(([id, label]) => `<div class="gauge">${gaugeSvg(id)}<div class="v" id="gv-${id}">—</div><span>${label}</span></div>`).join("");
+  $("dGrid").innerHTML = GAUGES.map(([id, label]) => `<button type="button" class="gauge" data-g="${id}"><span class="rw">${gaugeSvg(id)}<span class="v" id="gv-${id}">—</span></span><span class="lb">${label}</span><span class="sub" id="gs-${id}"></span></button>`).join("");
 }
-function setGauge(id, value, max, unit, warnAt, hotAt) {
+function setGauge(id, value, sub, more) {
   const el = $(`g-${id}`);
   if (!el) return;
-  const arc = Number(el.dataset.arc);
+  const [, , unit, max, warnAt, hotAt] = GAUGES.find((x) => x[0] === id);
   const v = value == null ? null : Number(value);
-  el.style.strokeDashoffset = v == null ? arc : arc * (1 - Math.max(0, Math.min(1, v / max)));
-  el.style.stroke = v == null ? "#34d399" : v >= hotAt ? "#ef3b2d" : v >= warnAt ? "#ffc93c" : "#34d399";
-  $(`gv-${id}`).textContent = v == null ? "—" : `${Math.round(v)}${unit === "%" || unit === "°" ? unit : ""}`;
+  const c = v == null ? "#3a2f30" : v >= hotAt ? "#ff5a1f" : v >= warnAt ? "#ffc93c" : "#5fd35f";
+  el.style.strokeDashoffset = v == null ? RING_ARC : RING_ARC * (1 - Math.max(0.02, Math.min(1, v / max)));
+  el.style.stroke = c;
+  el.closest(".gauge").classList.toggle("hot", v != null && v >= hotAt);
+  $(`gv-${id}`).innerHTML = v == null ? "—" : `${id === "down" ? v.toFixed(1) : Math.round(v)}<small>${unit}</small>`;
+  $(`gs-${id}`).innerHTML = (dashOpenRing === id ? more : sub) || "";
 }
 async function dashTick() {
   const r = await cmd("pc.status");
   if (!r.ok || !r.data) return;
-  const s = r.data;
-  setGauge("cpu", s.cpu, 100, "%", 70, 90);
-  setGauge("gpu", s.gpu?.use, 100, "%", 80, 95);
-  setGauge("temp", s.gpu?.temp, 100, "°", 75, 85);
-  setGauge("ram", s.ram ? (100 * s.ram.used) / s.ram.total : null, 100, "%", 80, 92);
-  setGauge("ping", s.net?.ping, 200, "ms", 60, 120);
-  setGauge("down", s.net?.down != null ? (s.net.down * 8) / 1e6 : null, 500, "Mb", 9999, 9999);
+  const s = r.data, g2 = s.gpuMore ?? {};
+  // the program eating the processor: asked every 10 s (it looks at every program twice)
+  if (Date.now() - dashHeavyAt > 10e3) {
+    dashHeavyAt = Date.now();
+    cmd("pc.heavy").then((h) => { if (h.ok && Array.isArray(h.data)) dashHeavy = [...h.data].sort((a, b) => b.cpu - a.cpu)[0] ?? null; });
+  }
+  if (s.net?.ping != null) { dashPings.push(s.net.ping); if (dashPings.length > 12) dashPings.shift(); }
+  const spread = dashPings.length > 3 ? Math.max(...dashPings) - Math.min(...dashPings) : 0;
+  const steady = spread < 15 ? "ثابت" : "يتذبذب";
+  const top = dashHeavy ? `<bdi>${esc(dashHeavy.name)}</bdi> ${dnum(Math.round(dashHeavy.cpu) + "%")}` : "";
+  const ramPct = s.ram ? (100 * s.ram.used) / s.ram.total : null;
+  const down = s.net?.down != null ? (s.net.down * 8) / 1e6 : null, up = s.net?.up != null ? (s.net.up * 8) / 1e6 : null;
+  setGauge("gpu", s.gpu?.use, g2.memUsed != null ? dnum(`${(g2.memUsed / 1024).toFixed(1)}/${(g2.memTotal / 1024).toFixed(0)}GB`) : "",
+    [g2.clock != null && `السرعة ${dnum(g2.clock + " MHz")}`, g2.power != null && `الكهربا ${dnum(Math.round(g2.power) + " W")}`].filter(Boolean).join(" · "));
+  setGauge("temp", s.gpu?.temp, g2.fan != null ? `المروحة ${dnum(g2.fan + "%")}` : "", s.gpu?.temp == null ? "" : s.gpu.temp < 80 ? "بارد وتمام" : s.gpu.temp < 86 ? "دافي، عادي وقت اللعب" : "حار، شيّك على التهوية");
+  setGauge("cpu", s.cpu, top, top ? `ياكله أكثر شي: ${top}` : "");
+  setGauge("ram", ramPct, s.ram ? dnum(`${dgb(s.ram.used)}/${Math.round(s.ram.total / 1073741824)}GB`) : "", s.ram ? `فاضي ${dnum(dgb(s.ram.total - s.ram.used) + " GB")}` : "");
+  setGauge("ping", s.net?.ping, s.net?.ping != null ? steady : "", "يقيس للنت نفسه، مو لسيرفر اللعبة");
+  setGauge("down", down, up != null ? `↑ ${dnum(up.toFixed(1))}` : "", down != null ? `نازل ${dnum(down.toFixed(1) + " Mb/s")} · طالع ${dnum((up ?? 0).toFixed(1) + " Mb/s")}` : "");
   const g = games.find((x) => x.key === runningKey);
   $("dGame").textContent = g ? g.name : "ما فيه لعبة شغّالة";
-  $("dTime").textContent = g && runningSince ? `شغّالة من ${span(Math.max(60, (Date.now() - runningSince) / 1000))}` : "";
+  const secs = g && runningSince ? Math.max(0, (Date.now() - runningSince) / 1000) : 0;
+  $("dTime").innerHTML = g && runningSince ? `تلعب من ${dnum(span(Math.max(60, secs)))}` : "أول ما تشغّل لعبة يبدأ العدّ";
+  const art = $("dArt");
+  art.classList.toggle("off", !g);
+  art.style.backgroundImage = g?.image ? `url("${g.image}")` : "";
+  art.textContent = g && !g.image ? g.name.slice(0, 2).toUpperCase() : "";
+  // a thin green bar fills through the hour you're in
+  $("dXp").classList.toggle("hidden", !g);
+  $("dXp").firstElementChild.style.width = `${((secs % 3600) / 36).toFixed(1)}%`;
 }
+$("dGrid").addEventListener("click", (e) => {
+  const b = e.target.closest(".gauge");
+  if (!b) return;
+  buzz();
+  dashOpenRing = dashOpenRing === b.dataset.g ? null : b.dataset.g;
+  document.querySelectorAll("#dGrid .gauge").forEach((x) => x.classList.toggle("open", x.dataset.g === dashOpenRing));
+  dashTick();
+});
 $("dashOpen").addEventListener("click", async () => {
   buzz();
   paintDashFrame();
@@ -3893,6 +4092,23 @@ if (q.get("tab") && saved()) {
   history.replaceState(null, "", location.pathname);
 }
 navigator.serviceWorker?.addEventListener("message", (e) => goTab(e.data?.tab));
+</script>
+<script>
+// the tab bar's lava bar follows the open tab (whatever opens it: a tap, a notification, a link)
+(() => {
+  const inner = document.querySelector("nav .in"), ind = inner?.querySelector(".ind");
+  if (!ind) return;
+  const place = () => {
+    const on = inner.querySelector("button.on");
+    if (!on || !inner.offsetWidth) return;
+    const a = on.getBoundingClientRect(), b = inner.getBoundingClientRect();
+    ind.style.transform = "translateX(" + Math.round(a.left - b.left + a.width / 2 - ind.offsetWidth / 2) + "px)";
+    if (!ind.classList.contains("ready")) requestAnimationFrame(() => ind.classList.add("ready"));
+  };
+  new MutationObserver(place).observe(document.getElementById("nav"), { attributes: true, subtree: true, attributeFilter: ["class"] });
+  addEventListener("resize", place);
+  place();
+})();
 </script>
 </body>
 </html>
