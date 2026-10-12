@@ -787,6 +787,54 @@
   .cats button:active::before { box-shadow: inset 0 2px 0 rgb(0 0 0 / .45), inset 0 -1px 0 rgb(255 255 255 / .06); }
   .cats button.on::before { box-shadow: inset 0 2px 0 rgb(255 138 124 / .55), inset 0 -2px 0 #6e1010; }
   .cats button.on svg { filter: drop-shadow(1px 1px 0 rgb(0 0 0 / .45)); }
+  /* «وأنا جاي»: one big lava button, the steps ticking under it */
+  .come-sum { margin: -2px 2px 12px; }
+  .come-go { width: 100%; height: 74px; border: 0; border-radius: 18px; font-size: 21px; font-weight: 900; color: #2a1200; cursor: pointer;
+    background: var(--tex-lava) 0 0 / 16px 16px; image-rendering: pixelated; text-shadow: 1px 1px 0 rgb(255 255 255 / .35);
+    box-shadow: inset 0 0 0 1.5px #000, inset 0 3px 0 rgb(255 240 180 / .6), inset 0 -3px 0 #8a3a00, 0 10px 30px -10px rgb(255 138 31 / .7); transition: transform .1s, filter .2s; }
+  .come-go:active { transform: translateY(2px); }
+  .come-go:disabled { filter: grayscale(.6) brightness(.7); }
+  .come-steps { margin-top: 12px; display: grid; gap: 7px; }
+  .cst { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 13px; background: #171112; box-shadow: inset 0 0 0 1.5px #241b1c; font-size: var(--fs-body); text-align: right; transition: opacity .3s; }
+  .cst.wait { opacity: .45; }
+  .cst > i { width: 24px; height: 24px; flex: none; border-radius: 8px; display: grid; place-items: center; background: #241b1c; font-style: normal; font-size: 12px; font-weight: 900; }
+  .cst.ok > i { background: #1f6b2a; color: #bfffc8; }
+  .cst.fail > i { background: #6b1a14; color: #ffc0b8; }
+  .cst.run > i { background: #6b3a10; color: var(--gold); }
+  .cst.run > i::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: cstspin .8s linear infinite; }
+  @keyframes cstspin { to { transform: rotate(360deg); } }
+  .cst .tx { flex: 1; min-width: 0; }
+  .cst .tx b { display: block; font-weight: 700; }
+  .cst .tx small { display: block; color: var(--dim); font-size: 12px; margin-top: 2px; }
+  .cst .bar2 { height: 5px; border-radius: 99px; background: #2a2021; overflow: hidden; margin-top: 6px; }
+  .cst .bar2 i { display: block; height: 100%; background: var(--tex-lava) 0 0 / 8px 8px; transition: width .4s; }
+  .come-ready { margin: 12px 0 0; text-align: center; font-weight: 900; font-size: 16px; color: #7cff5a; }
+  .come-ready.bad { color: var(--gold); }
+  .comeset { margin-bottom: auto; text-align: right; display: grid; gap: 14px; }
+  .comeset h3 { margin: 0 2px -6px; font-size: 13px; color: var(--dim); font-weight: 700; }
+  .comeset .opts { display: flex; flex-wrap: wrap; gap: 7px; }
+  .comeset .opts .chip { min-height: 38px; padding: 0 12px; font-size: 13px; }
+  .comeset .opts .chip.x::after { content: " ✕"; color: var(--dim); }
+  .comeset .wide { width: 100%; }
+  /* «كاميرا بثك»: the live preview, its tools, the settings under it */
+  .camv { margin-bottom: auto; text-align: right; display: grid; gap: 12px; }
+  .cam-prev { position: relative; aspect-ratio: 3 / 4; max-height: 52vh; width: 100%; border-radius: 20px; overflow: hidden; background: #000; box-shadow: inset 0 0 0 1.5px #241b1c; }
+  .cam-prev.wide169 { aspect-ratio: 16 / 9; }
+  .cam-prev video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cam-prev.mirror video { transform: scaleX(-1); }
+  .cam-live { position: absolute; top: 10px; right: 10px; padding: 5px 11px; border-radius: 99px; background: #ef3b2d; font-size: 12px; font-weight: 800; display: flex; gap: 6px; align-items: center; }
+  .cam-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: camblink 1s infinite; }
+  @keyframes camblink { 50% { opacity: .2; } }
+  .cam-tools { position: absolute; inset: auto 10px 10px; display: flex; justify-content: center; gap: 8px; }
+  .cam-tools button { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: rgb(0 0 0 / .5); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .16); }
+  .cam-tools button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .cam-tools svg { width: 20px; height: 20px; }
+  .cam-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; color: var(--dim); font-size: 13px; text-align: center; }
+  .camv h3 { margin: 4px 2px -4px; font-size: 13px; color: var(--dim); font-weight: 700; }
+  .camv .opts { display: flex; flex-wrap: wrap; gap: 7px; }
+  .camv .opts .chip { min-height: 38px; padding: 0 13px; font-size: 13px; }
+  .cam-link { border-radius: 14px; padding: 12px; background: #120d0d; box-shadow: inset 0 0 0 1.5px #000, inset 0 0 0 2.5px rgb(255 201 60 / .35); display: grid; gap: 8px; }
+  .cam-link code { direction: ltr; text-align: left; font-family: var(--f-num); font-size: 13px; color: var(--gold); word-break: break-all; }
   .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
   @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }</style>
 </head>
@@ -896,6 +944,19 @@
       <div class="tabhead"><img src="ban-pc.jpg" alt="" /><div><b>البيسي</b><small>تحكم فيه من مكانك</small></div></div>
       <div class="cats" role="tablist"><button role="tab" data-cat="quick" data-empty="">سريع</button><button role="tab" data-cat="send" data-empty="">أرسل</button><button role="tab" data-cat="apps" data-empty="">البرامج</button><button role="tab" data-cat="sound" data-empty="">الصوت والشاشة</button><button role="tab" data-cat="power" data-empty="">التشغيل</button></div>
       <p class="catempty hidden"></p>
+      <section data-cat="quick" id="comeBox">
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></i>وأنا جاي</span><button id="comeEdit" class="more">الخطوات</button></h2>
+        <p id="comeSum" class="hint come-sum"></p>
+        <button id="comeGo" class="come-go">أنا جاي</button>
+        <div id="comeSteps" class="come-steps hidden"></div>
+        <p id="comeReady" class="come-ready hidden"></p>
+        <div id="comeStopRow" class="linkrow hidden"><button id="comeStop" class="ghost">وقّف</button></div>
+      </section>
+      <section data-cat="quick" id="camBox">
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3v10l-5-3"/><rect x="3" y="6" width="12" height="12" rx="2.5"/></svg></i>كاميرا بثك</span></h2>
+        <p class="hint">جوالك يصير كاميرا لبثك: تطلع بنافذة على البيسي، ورابط تحطه ببرنامج البث.</p>
+        <div class="linkrow"><button id="camOpen">شغّل الكاميرا</button></div>
+      </section>
       <section data-cat="quick" id="errBox">
         <div class="errcall">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
@@ -1972,7 +2033,7 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
 );
 function refresh() {
   if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam(), loadFriends()]);
-  if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadGuard()]);
+  if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard()]);
   if (tab === "stat") return Promise.all([loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
   return Promise.resolve();
@@ -4260,6 +4321,9 @@ function openFun(title, html) {
 function closeFun() {
   clearTimeout(wkTimer);
   clearInterval(soonTimer);
+  if (comeClick) $("funBody").removeEventListener("click", comeClick);
+  comeClick = null;
+  camCleanup?.();
   $("funx").classList.add("hidden");
   $("funBody").innerHTML = "";
   document.body.style.overflow = "";
@@ -4609,6 +4673,452 @@ function openSoon(id) {
   $("soonDel").addEventListener("click", () => { buzz(); soonSave(soonSaved().filter((x) => x.id !== g.id)); paintSoon(); closeFun(); });
 }
 paintSoon();
+
+// ---- 🏠 «وأنا جاي» (owner's pick, 2026-10-12: one big button, the steps ticking live) ----
+// The settings and the run live on the PC (coming.*); while a run goes the page asks how far it got every second.
+let comeCfg = null;
+let comeRun = null;
+let comeTimer = null;
+let comeOld = false; // an older NUKE GG on the PC
+let comeClick = null; // the settings view's click handler (one at a time, also when it was closed with ✕)
+function comeSummary(c) {
+  const p = [];
+  if (c.steam) p.push("يفتح ستيم ويحدّث ألعابك");
+  if (c.close.length) p.push(c.close.length === 1 ? `يسكّر ${c.close[0].name}` : `يسكّر ${c.close.length} برامج`);
+  if (c.out) p.push(`الصوت على ${devName(c.out.name).main}`);
+  if (c.game) p.push(c.launch ? `يفتح ${c.game.name}` : `يشيّك بلوك ${c.game.name}`);
+  return p.length ? p.join(" · ") : "ما اخترت خطوات. اضغط «الخطوات» وحدّدها.";
+}
+function paintComing() {
+  const go = $("comeGo");
+  if (comeOld) {
+    $("comeSum").textContent = "حدّث NUKE GG بالبيسي عشان «وأنا جاي» يشتغل.";
+    go.disabled = true;
+    return;
+  }
+  if (!comeCfg) return;
+  $("comeSum").textContent = comeSummary(comeCfg);
+  const r = comeRun;
+  const live = r && !r.done;
+  // a finished run stays on the card for 15 minutes
+  const show = r && (live || Date.now() - r.at < 15 * 60e3);
+  go.disabled = Boolean(live);
+  go.textContent = live ? "نجهّز البيسي…" : "أنا جاي";
+  $("comeStopRow").classList.toggle("hidden", !live);
+  $("comeSteps").classList.toggle("hidden", !show);
+  if (show)
+    $("comeSteps").innerHTML = r.steps
+      .map((s) => `<div class="cst ${s.state}"><i>${s.state === "ok" ? "✓" : s.state === "fail" ? "!" : ""}</i><span class="tx"><b dir="auto">${esc(s.label)}</b>${s.note ? `<small dir="auto">${esc(s.note)}</small>` : ""}${s.state === "run" && s.pct != null ? `<span class="bar2"><i style="width:${Math.max(3, Math.min(100, s.pct))}%"></i></span>` : ""}</span></div>`)
+      .join("");
+  const rd = $("comeReady");
+  rd.classList.toggle("hidden", !(show && r.done && !r.stopped));
+  if (show && r.done && !r.stopped) {
+    rd.textContent = r.ok ? "✓ البيسي جاهز، تعال العب" : "البيسي جاهز، بس فيه خطوة ما ضبطت";
+    rd.classList.toggle("bad", !r.ok);
+  }
+}
+async function loadComing() {
+  const r = await cmd("coming.get");
+  if (!r.ok) {
+    comeOld = r.error === "REMOTE_NOT_ALLOWED";
+    return paintComing();
+  }
+  comeOld = false;
+  comeCfg = r.data.cfg;
+  comeRun = r.data.run;
+  paintComing();
+  if (comeRun && !comeRun.done) pollComing();
+}
+function pollComing() {
+  clearInterval(comeTimer);
+  comeTimer = setInterval(async () => {
+    if (document.hidden) return;
+    const r = await cmd("coming.state");
+    if (!r.ok) return;
+    const was = comeRun;
+    comeRun = r.data;
+    paintComing();
+    if (!comeRun || comeRun.done) {
+      clearInterval(comeTimer);
+      if (was && !was.done && comeRun && !comeRun.stopped) buzz([30, 60, 30]);
+    }
+  }, 1000);
+}
+$("comeGo").addEventListener("click", async () => {
+  if (!comeCfg) return;
+  buzz(20);
+  $("comeGo").disabled = true;
+  const r = await cmd("coming.start");
+  if (!r.ok) {
+    $("comeGo").disabled = false;
+    return toast(ERR[r.error] ?? "ما قدرنا نبدأ. جرّب مرة ثانية.", true);
+  }
+  comeRun = r.data;
+  paintComing();
+  pollComing();
+});
+$("comeStop").addEventListener("click", async () => {
+  buzz();
+  const r = await cmd("coming.stop");
+  if (r.ok) {
+    comeRun = r.data;
+    paintComing();
+  }
+});
+// the steps' settings in a full-screen view: Steam, the programs to close, the sound device, the game, the push
+$("comeEdit").addEventListener("click", () => {
+  if (!comeCfg || comeOld) return;
+  buzz();
+  const c = JSON.parse(JSON.stringify(comeCfg));
+  let progs = null;
+  let outs = null;
+  let games = null;
+  const sw = (id, on, title, sub) => `<div class="setrow"><div><b>${title}</b><small>${sub}</small></div><button class="sw${on ? " on" : ""}" data-sw="${id}" aria-label="${title}"></button></div>`;
+  const draw = () => {
+    const closeChips = c.close.map((p, i) => `<button class="chip x" data-unclose="${i}" dir="auto">${esc(p.name)}</button>`).join("");
+    const addChips = progs ? progs.filter((p) => !c.close.some((x) => x.image === p.image)).map((p, i) => `<button class="chip" data-addclose="${i}" dir="auto">${esc(p.name)}</button>`).join("") || '<p class="muted">ما فيه برامج ثانية شغّالة الحين.</p>' : "";
+    const outChips = outs ? [`<button class="chip${c.out ? "" : " on"}" data-out="">لا تغيّر</button>`, ...outs.map((o, i) => `<button class="chip${c.out?.id === o.id ? " on" : ""}" data-out="${i}" dir="auto">${esc(devName(o.name).main)}</button>`)].join("") : '<p class="muted">نجيب أجهزة الصوت…</p>';
+    const gameChips = games ? [`<button class="chip${c.game ? "" : " on"}" data-game="">بدون</button>`, ...games.map((g, i) => `<button class="chip${c.game?.key === g.key ? " on" : ""}" data-game="${i}" dir="auto">${esc(g.name)}</button>`)].join("") : '<p class="muted">نجيب ألعابك…</p>';
+    $("funBody").innerHTML = `<div class="comeset">
+      ${sw("steam", c.steam, "افتح ستيم وحدّث ألعابي", "ننتظر لين يخلص التحديث، بعدها نكمّل الخطوات.")}
+      <h3>سكّر هالبرامج</h3>
+      <div class="opts">${closeChips || '<p class="muted">ولا برنامج.</p>'}</div>
+      ${progs ? `<div class="opts">${addChips}</div>` : '<button class="wide ghost" data-loadprogs="1">ضيف من البرامج الشغّالة الحين</button>'}
+      <h3>الصوت يطلع من</h3>
+      <div class="opts">${outChips}</div>
+      <h3>لعبتك</h3>
+      <div class="opts">${gameChips}</div>
+      ${c.game ? sw("launch", c.launch, `افتح ${esc(c.game.name)} لما يجهز`, "بآخر خطوة، والبيسي يكون جاهز.") : ""}
+      ${sw("notify", c.notify, "نبّهني لما يجهز", "يوصلك تنبيه على جوالك.")}
+      <button class="wide" data-savecome="1">احفظ</button>
+    </div>`;
+  };
+  openFun("وأنا جاي: الخطوات", "");
+  draw();
+  const body = $("funBody");
+  const onClick = async (e) => {
+    const t = e.target.closest("button");
+    if (!t || !body.contains(t)) return;
+    buzz(6);
+    if (t.dataset.sw) {
+      c[t.dataset.sw] = !c[t.dataset.sw];
+      return draw();
+    }
+    if (t.dataset.unclose != null) {
+      c.close.splice(Number(t.dataset.unclose), 1);
+      return draw();
+    }
+    if (t.dataset.addclose != null) {
+      const p = progs.filter((x) => !c.close.some((y) => y.image === x.image))[Number(t.dataset.addclose)];
+      if (p && c.close.length < 12) c.close.push(p);
+      return draw();
+    }
+    if (t.dataset.loadprogs) {
+      t.disabled = true;
+      const r = await cmd("coming.progs");
+      progs = r.ok ? r.data : [];
+      return draw();
+    }
+    if (t.dataset.out != null) {
+      const o = outs?.[Number(t.dataset.out)];
+      c.out = t.dataset.out === "" || !o ? null : { id: o.id, name: devName(o.name).main };
+      return draw();
+    }
+    if (t.dataset.game != null) {
+      const g = games?.[Number(t.dataset.game)];
+      const had = Boolean(c.game);
+      c.game = t.dataset.game === "" || !g ? null : { key: g.key, name: g.name };
+      if (c.game && !had) c.launch = true; // a newly picked game opens when ready unless switched off
+      return draw();
+    }
+    if (t.dataset.savecome) {
+      t.disabled = true;
+      const r = await cmd("coming.set", { cfg: c });
+      if (!r.ok) {
+        t.disabled = false;
+        return toast("ما انحفظت. جرّب مرة ثانية.", true);
+      }
+      comeCfg = r.data.cfg;
+      paintComing();
+      body.removeEventListener("click", onClick);
+      comeClick = null;
+      closeFun();
+      toast("انحفظت الخطوات");
+    }
+  };
+  if (comeClick) body.removeEventListener("click", comeClick);
+  comeClick = onClick;
+  body.addEventListener("click", onClick);
+  void cmd("audio.list").then((r) => {
+    outs = r.ok ? r.data?.list ?? [] : [];
+    if ($("funBody").querySelector(".comeset")) draw();
+  });
+  void cmd("games.list").then((r) => {
+    games = r.ok ? (r.data?.games ?? []).filter((g) => !g.installing) : [];
+    if ($("funBody").querySelector(".comeset")) draw();
+  });
+});
+
+// ---- 📷 «كاميرا بثك» (owner's pick, 2026-10-12: «الاثنين مع إعدادات» — a window on the PC and a link for the streaming app) ----
+// The preview starts when the view opens; «ابدأ» sends it over WebRTC to the PC (offer / answer in one sealed message each,
+// ICE gathered first). Changing the camera, the quality or the microphone while live swaps the track (no new link);
+// the window's look goes to the PC as it changes. The settings stay on this phone (nk-cam).
+const CAM_KEY = "nk-cam";
+const CAM_DEF = { q: "1080", fps: 30, facing: "user", mirror: true, mic: false, window: true, shape: "circle", size: "m", border: true, top: false };
+const camPrefs = () => {
+  try {
+    return { ...CAM_DEF, ...JSON.parse(localStorage.getItem(CAM_KEY) || "{}") };
+  } catch {
+    return { ...CAM_DEF };
+  }
+};
+const camSave = (p) => {
+  try {
+    localStorage.setItem(CAM_KEY, JSON.stringify(p));
+  } catch {}
+};
+let camCleanup = null; // set while the camera view is open
+const CAM_I = {
+  flip: '<path d="M3 7h13l-3-3M21 17H8l3 3"/>',
+  zin: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M11 8v6M8 11h6"/>',
+  zout: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/>',
+  torch: '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
+  mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/>',
+};
+const camIc = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${CAM_I[k]}</svg>`;
+$("camOpen").addEventListener("click", () => {
+  buzz();
+  const P = camPrefs();
+  let stream = null; // the camera (and mic) on this phone
+  let pc = null; // the link to the PC while live
+  let vSender = null;
+  let aSender = null;
+  let live = false;
+  let busy = false;
+  let zoom = null;
+  let torch = false;
+  let wakeCam = null;
+  let link = null;
+  let vc = null; // «كاميرا نيوك» on the PC: { built, installed, on, win11 }
+  const vTrack = () => stream?.getVideoTracks()[0] ?? null;
+  const aTrack = () => stream?.getAudioTracks()[0] ?? null;
+  const chips = (key, list) => `<div class="opts">${list.map(([v, t]) => `<button class="chip${String(P[key]) === String(v) ? " on" : ""}" data-set="${key}" data-v="${v}">${t}</button>`).join("")}</div>`;
+  const sw = (key, title, sub) => `<div class="setrow"><div><b>${title}</b><small>${sub}</small></div><button class="sw${(key === "vcam" ? vc?.on : P[key]) ? " on" : ""}" data-tog="${key}" aria-label="${title}"></button></div>`;
+  function draw() {
+    const caps = vTrack()?.getCapabilities?.() ?? {};
+    $("funBody").innerHTML = `<div class="camv">
+      <div class="cam-prev${P.mirror && P.facing === "user" ? " mirror" : ""}">
+        <video id="camPrev" autoplay playsinline muted></video>
+        ${stream ? "" : '<div class="cam-msg" id="camMsg">نفتح الكاميرا…</div>'}
+        ${live ? '<span class="cam-live">على البيسي</span>' : ""}
+        <div class="cam-tools">
+          <button data-tool="flip" aria-label="بدّل الكاميرا">${camIc("flip")}</button>
+          ${caps.zoom ? `<button data-tool="zout" aria-label="بعّد">${camIc("zout")}</button><button data-tool="zin" aria-label="قرّب">${camIc("zin")}</button>` : ""}
+          ${caps.torch ? `<button data-tool="torch" class="${torch ? "on" : ""}" aria-label="الفلاش">${camIc("torch")}</button>` : ""}
+          <button data-tool="mic" class="${P.mic ? "on" : ""}" aria-label="صوت الجوال">${camIc("mic")}</button>
+        </div>
+      </div>
+      <button class="wide${live ? " ghost" : ""}" id="camGo"${busy ? " disabled" : ""}>${busy ? "نوصّل…" : live ? "وقّف البث" : "ابدأ البث للبيسي"}</button>
+      <p class="hint" id="camNote">${live ? "لو طلعت من الصفحة أو قفلت الجوال، الكاميرا توقف. خلّه مفتوح." : "الأسرع لما الجوال والبيسي على نفس الواي فاي."}</p>
+      ${link ? `<div class="cam-link"><b>رابط برنامج البث</b><code dir="ltr">${esc(link)}</code><small class="hint" style="margin:0">ببرنامج البث: ضيف «مصدر متصفح» والصق الرابط. يجيب الصورة وصوت الجوال.</small><button class="wide ghost" data-copy="1">انسخه بالبيسي</button></div>` : ""}
+      ${vc?.built ? (vc.installed
+        ? sw("vcam", "كاميرا نيوك", "جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG»: اخترها بأي موقع أو برنامج (أوم تي في، ديسكورد، زوم…).")
+        : `<div class="cam-link"><b>كاميرا نيوك</b><small class="hint" style="margin:0">خلّ جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG» تختارها بأي موقع أو برنامج. بالبيسي يطلع «نعم» من الويندوز مرة وحدة، لازم أحد يضغطها.</small><button class="wide" data-vcsetup="1">فعّلها</button></div>`) : ""}
+      <h3>الجودة</h3>${chips("q", [["720", "720"], ["1080", "1080"]])}
+      <h3>السرعة</h3>${chips("fps", [[30, "30 بالثانية"], [60, "60 بالثانية"]])}
+      ${sw("mirror", "مرآة", "مثل ما تشوف نفسك بالمراية (للكاميرا الأمامية).")}
+      ${sw("mic", "صوت الجوال", "مايك الجوال يوصل مع الرابط لبرنامج البث.")}
+      ${sw("window", "نافذة على البيسي", "وجهك يطلع بنافذة صغيرة، برنامج البث يلقطها مثل أي نافذة.")}
+      <h3>شكل النافذة</h3>${chips("shape", [["circle", "دائرة"], ["round", "مدوّرة"], ["square", "مربعة"]])}
+      <h3>حجم النافذة</h3>${chips("size", [["s", "صغيرة"], ["m", "وسط"], ["l", "كبيرة"]])}
+      ${sw("border", "إطار أحمر", "خط نيوك الأحمر حول النافذة.")}
+      ${sw("top", "فوق كل شي", "النافذة تبقى فوق اللعبة والبرامج.")}
+    </div>`;
+    const v = $("camPrev");
+    if (v && stream) v.srcObject = stream;
+  }
+  const winOpts = () => ({ shape: P.shape, size: P.size, mirror: P.mirror && P.facing === "user", border: P.border, top: P.top, window: P.window });
+  async function openCam() {
+    const [w, h] = P.q === "1080" ? [1920, 1080] : [1280, 720];
+    const next = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: P.facing, width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: P.fps } },
+      audio: P.mic ? { echoCancellation: true, noiseSuppression: true } : false,
+    });
+    const old = stream;
+    stream = next;
+    zoom = null;
+    torch = false;
+    // live: the new tracks take the old ones' place on the same link
+    if (live) {
+      await vSender?.replaceTrack(vTrack()).catch(() => {});
+      await aSender?.replaceTrack(aTrack()).catch(() => {});
+      bitrate();
+    }
+    old?.getTracks().forEach((t) => t.stop());
+  }
+  async function refresh() {
+    try {
+      await openCam();
+      draw();
+    } catch (err) {
+      draw();
+      const m = $("camMsg");
+      if (m) m.textContent = err?.name === "NotAllowedError" ? "اسمح للصفحة تستخدم الكاميرا من إعدادات المتصفح، وجرّب مرة ثانية." : "ما قدرنا نفتح الكاميرا.";
+    }
+  }
+  function bitrate() {
+    if (!vSender) return;
+    const p = vSender.getParameters();
+    if (!p.encodings?.length) p.encodings = [{}];
+    p.encodings[0].maxBitrate = P.q === "1080" ? (P.fps === 60 ? 8e6 : 6e6) : P.fps === 60 ? 4e6 : 3e6;
+    p.degradationPreference = "balanced";
+    vSender.setParameters(p).catch(() => {});
+  }
+  async function goLive() {
+    if (!stream || busy) return;
+    busy = true;
+    draw();
+    try {
+      pc = new RTCPeerConnection({ iceServers: RTC_ICE });
+      vSender = pc.addTransceiver(vTrack(), { direction: "sendonly", streams: [stream] }).sender;
+      // the sound's place is there from the start, so the microphone can be switched on later without a new link
+      aSender = pc.addTransceiver(aTrack() ?? "audio", { direction: "sendonly", streams: [stream] }).sender;
+      pc.onconnectionstatechange = () => {
+        if (pc && ["failed", "closed"].includes(pc.connectionState) && live) {
+          stopLive(false);
+          toast("انقطع البث. اضغط «ابدأ» مرة ثانية.", true);
+        }
+      };
+      await pc.setLocalDescription(await pc.createOffer());
+      await new Promise((res) => {
+        if (pc.iceGatheringState === "complete") return res();
+        const t = setTimeout(res, 3000);
+        pc.addEventListener("icegatheringstatechange", () => pc.iceGatheringState === "complete" && (clearTimeout(t), res()));
+      });
+      const r = await cmd("cam.start", { sdp: pc.localDescription.sdp, opts: winOpts() }, 25000);
+      if (!r.ok) throw new Error(r.error || "fail");
+      await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
+      link = r.data.link;
+      live = true;
+      bitrate();
+      try {
+        wakeCam = await navigator.wakeLock?.request("screen");
+      } catch {}
+      buzz([20, 40, 20]);
+    } catch (err) {
+      try {
+        pc?.close();
+      } catch {}
+      pc = null;
+      toast(err?.message === "REMOTE_NOT_ALLOWED" ? "حدّث NUKE GG بالبيسي عشان كاميرا البث تشتغل." : "ما قدرنا نوصل الكاميرا للبيسي. جرّب مرة ثانية.", true);
+    }
+    busy = false;
+    draw();
+  }
+  function stopLive(tell = true) {
+    live = false;
+    try {
+      pc?.close();
+    } catch {}
+    pc = null;
+    vSender = aSender = null;
+    wakeCam?.release?.().catch(() => {});
+    wakeCam = null;
+    if (tell) void cmd("cam.stop");
+    draw();
+  }
+  async function tool(k) {
+    const t = vTrack();
+    const caps = t?.getCapabilities?.() ?? {};
+    if (k === "flip") {
+      P.facing = P.facing === "user" ? "environment" : "user";
+      camSave(P);
+      await refresh();
+      if (live) void cmd("cam.opts", { opts: winOpts() });
+    } else if ((k === "zin" || k === "zout") && caps.zoom) {
+      const cur = zoom ?? t.getSettings().zoom ?? caps.zoom.min;
+      const step = (caps.zoom.max - caps.zoom.min) / 10;
+      zoom = Math.max(caps.zoom.min, Math.min(caps.zoom.max, cur + (k === "zin" ? step : -step)));
+      t.applyConstraints({ advanced: [{ zoom }] }).catch(() => {});
+    } else if (k === "torch" && caps.torch) {
+      torch = !torch;
+      t.applyConstraints({ advanced: [{ torch }] }).catch(() => {});
+      draw();
+    } else if (k === "mic") {
+      P.mic = !P.mic;
+      camSave(P);
+      await refresh();
+    }
+  }
+  openFun("كاميرا بثك", "");
+  draw();
+  void refresh();
+  // «كاميرا نيوك»: set up on the PC or not
+  void cmd("vcam.state").then((r) => {
+    if (r.ok) {
+      vc = r.data;
+      draw();
+    }
+  });
+  // what the PC already knows (a link from an earlier time)
+  void cmd("cam.link").then((r) => {
+    if (r.ok && r.data?.url) {
+      link = r.data.url;
+      draw();
+    }
+  });
+  const onClick = async (e) => {
+    const b = e.target.closest("button");
+    if (!b || !$("funBody").contains(b)) return;
+    buzz(6);
+    if (b.id === "camGo") return live ? stopLive() : goLive();
+    if (b.dataset.tool) return tool(b.dataset.tool);
+    if (b.dataset.copy) {
+      const r = await cmd("cam.copy");
+      return toast(r.ok ? "انسخ بالبيسي: الصقه ببرنامج البث (Ctrl+V)" : "ما قدرنا ننسخه.", !r.ok);
+    }
+    if (b.dataset.set) {
+      const k = b.dataset.set;
+      P[k] = k === "fps" ? Number(b.dataset.v) : b.dataset.v;
+      camSave(P);
+      if (k === "q" || k === "fps") await refresh();
+      else draw();
+      if (live) void cmd("cam.opts", { opts: winOpts() });
+      return;
+    }
+    if (b.dataset.vcsetup) {
+      b.disabled = true;
+      b.textContent = "اضغط «نعم» بالبيسي…";
+      const r = await cmd("vcam.setup", {}, 180000);
+      if (r.ok) {
+        vc = r.data;
+        toast("صارت «NUKE GG» كاميرا بالبيسي");
+      } else toast(r.error === "UAC_DECLINED" ? "ما انضغط «نعم» بالبيسي، فما تغيّر شي." : "ما قدرنا نفعّلها. جرّب من البيسي: «جوالك» ← «كاميرا نيوك».", true);
+      return draw();
+    }
+    if (b.dataset.tog === "vcam") {
+      const r = await cmd("vcam.set", { on: !vc?.on });
+      if (r.ok) vc = r.data;
+      return draw();
+    }
+    if (b.dataset.tog) {
+      const k = b.dataset.tog;
+      P[k] = !P[k];
+      camSave(P);
+      if (k === "mic") await refresh();
+      else draw();
+      if (live) void cmd("cam.opts", { opts: winOpts() });
+    }
+  };
+  $("funBody").addEventListener("click", onClick);
+  camCleanup = () => {
+    $("funBody").removeEventListener("click", onClick);
+    if (live) stopLive();
+    stream?.getTracks().forEach((t) => t.stop());
+    stream = null;
+    camCleanup = null;
+  };
+});
 
 // ---- 🎮 the gaming dashboard: soft rings (owner's pick, 2026-10-12: "بسيط ومو مربعي", «حلقات ناعمة») ----
 // Six rings that turn green → gold → red, a short line under each; a tap shows that ring's details; one running hot glows.
