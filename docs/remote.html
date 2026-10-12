@@ -761,6 +761,7 @@
   .soon-hero { position: relative; height: 240px; margin: 0 0 12px; border-radius: 22px; overflow: hidden; box-shadow: inset 0 0 0 1.5px #241b1c; }
   .soon-hero .bgp { position: absolute; inset: -24px; background: center / cover no-repeat; filter: blur(14px) saturate(1.2); opacity: .6; display: block; font-size: 0; }
   .soon-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 25%, #0a0606); }
+  .soon-hero .poster { position: absolute; z-index: 1; top: 16px; left: 16px; max-width: 46%; max-height: 132px; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.55); }
   .soon-hero .t { position: absolute; z-index: 1; inset: auto 18px 12px; text-align: right; }
   .soon-hero .t b { display: block; font-size: 22px; font-weight: 900; }
   .soon-hero .t small { font-size: 13px; color: rgba(255,255,255,.8); }
@@ -4403,17 +4404,56 @@ async function soonSearch(q) {
     for (const x of r?.search ?? []) if (!ids.includes(x.id)) ids.push(x.id);
   }
   if (!ids.length) return [];
-  const r = await wd({ action: "wbgetentities", ids: ids.slice(0, 20).join("|"), props: "labels|claims", languages: "en|ar" }).catch(() => null);
-  const out = [];
+  const r = await wd({ action: "wbgetentities", ids: ids.slice(0, 20).join("|"), props: "labels|claims|sitelinks", sitefilter: "enwiki|arwiki", languages: "en|ar" }).catch(() => null);
+  const games = [];
   for (const id of ids) {
     const e = r?.entities?.[id];
     // video games only (instance of: video game)
-    if (!e || !(e.claims?.P31 ?? []).some((c) => c.mainsnak?.datavalue?.value?.id === "Q7889")) continue;
-    const d = soonDate(e.claims);
-    const img = e.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
-    out.push({ id, name: e.labels?.en?.value || e.labels?.ar?.value || id, date: d?.date ?? null, prec: d?.prec ?? 0, img: img ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(img)}?width=480` : null });
+    if (e && (e.claims?.P31 ?? []).some((c) => c.mainsnak?.datavalue?.value?.id === "Q7889")) games.push([id, e]);
   }
-  return out.slice(0, 6);
+  const pics = await soonPictures(games.slice(0, 6));
+  return games.slice(0, 6).map(([id, e]) => {
+    const d = soonDate(e.claims);
+    return { id, name: e.labels?.en?.value || e.labels?.ar?.value || id, date: d?.date ?? null, prec: d?.prec ?? 0, img: pics[id] ?? null };
+  });
+}
+// a game's picture: its Steam page's banner (Wikidata's Steam id), else Wikidata's own picture, else the cover on its
+// Wikipedia article (English, then Arabic) — wikidata often has no picture for a game not out yet (GTA VI)
+async function soonPictures(games) {
+  const pics = {}, ask = { en: {}, ar: {} };
+  for (const [id, e] of games) {
+    const steam = e.claims?.P1733?.[0]?.mainsnak?.datavalue?.value;
+    const p18 = e.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+    if (/^\d+$/.test(String(steam ?? ""))) pics[id] = `https://cdn.cloudflare.steamstatic.com/steam/apps/${steam}/header.jpg`;
+    else if (p18) pics[id] = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(p18)}?width=480`;
+    else if (e.sitelinks?.enwiki?.title) ask.en[e.sitelinks.enwiki.title] = id;
+    else if (e.sitelinks?.arwiki?.title) ask.ar[e.sitelinks.arwiki.title] = id;
+  }
+  for (const lang of ["en", "ar"]) {
+    const titles = Object.keys(ask[lang]);
+    if (!titles.length) continue;
+    const p = new URLSearchParams({ action: "query", format: "json", origin: "*", prop: "pageimages", piprop: "thumbnail", pithumbsize: "480", pilicense: "any", titles: titles.join("|") });
+    const r = await fetch(`https://${lang}.wikipedia.org/w/api.php?${p}`, { signal: AbortSignal.timeout(9000) }).then((x) => x.json()).catch(() => null);
+    const norm = Object.fromEntries((r?.query?.normalized ?? []).map((n) => [n.to, n.from]));
+    for (const pg of Object.values(r?.query?.pages ?? {})) {
+      const id = ask[lang][pg.title] ?? ask[lang][norm[pg.title]];
+      if (id && pg.thumbnail?.source) pics[id] = pg.thumbnail.source.replace(/\?.*$/, "");
+    }
+  }
+  return pics;
+}
+// games added before pictures were looked for this way: fill theirs once a visit
+let soonFilled = false;
+async function soonFill() {
+  if (soonFilled) return;
+  soonFilled = true;
+  const need = soonSaved().filter((g) => !g.img).map((g) => g.id);
+  if (!need.length) return;
+  const r = await wd({ action: "wbgetentities", ids: need.slice(0, 30).join("|"), props: "claims|sitelinks", sitefilter: "enwiki|arwiki" }).catch(() => null);
+  const pics = await soonPictures(need.map((id) => [id, r?.entities?.[id]]).filter(([, e]) => e));
+  if (!Object.keys(pics).length) return;
+  soonSave(soonSaved().map((g) => (pics[g.id] && !g.img ? { ...g, img: pics[g.id] } : g)));
+  paintSoon();
 }
 function soonWhen(g) {
   if (!g.date) return "ما انعلن موعدها";
@@ -4437,6 +4477,7 @@ function paintSoon() {
     const days = !l ? '<b>قريب</b><small>ما انعلن</small>' : l.ms <= 0 ? '<b>نزلت</b><small>🎆</small>' : `<b class="dn">${l.d}</b><small>${g.prec >= 11 ? "يوم" : "يوم تقريباً"}</small>`;
     return `<div class="soon-row"><button type="button" class="soon-open" data-id="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><span class="d">${days}</span></button><button type="button" class="soon-x" data-del="${esc(g.id)}" aria-label="شيلها">×</button></div>`;
   }).join("") : "";
+  if (list.some((g) => !g.img)) soonFill();
 }
 let soonQT = null;
 $("soonQ").addEventListener("input", () => {
@@ -4486,7 +4527,7 @@ function soonConfetti() {
 function openSoon(id) {
   const g = soonSaved().find((x) => x.id === id);
   if (!g) return;
-  openFun("عدّ تنازلي", `<div class="soon-big"><div class="soon-hero">${soonArt(g, "bgp")}<div class="t"><b dir="auto">${esc(g.name)}</b><small>${g.date ? (soonLeft(g).ms > 0 ? "تنزل " : "") + esc(soonWhen(g)) : "ما انعلن موعدها للحين"}</small></div></div><div id="soonTiles"></div><p class="hint" id="soonNote"></p><div class="linkrow"><button id="soonDel" class="ghost">شيلها من قائمتك</button></div></div>`);
+  openFun("عدّ تنازلي", `<div class="soon-big"><div class="soon-hero">${soonArt(g, "bgp")}${g.img ? `<img class="poster" src="${esc(g.img)}" alt="">` : ""}<div class="t"><b dir="auto">${esc(g.name)}</b><small>${g.date ? (soonLeft(g).ms > 0 ? "تنزل " : "") + esc(soonWhen(g)) : "ما انعلن موعدها للحين"}</small></div></div><div id="soonTiles"></div><p class="hint" id="soonNote"></p><div class="linkrow"><button id="soonDel" class="ghost">شيلها من قائمتك</button></div></div>`);
   let last = {}, cheered = false;
   const tick = () => {
     const l = soonLeft(g), box = $("soonTiles");
