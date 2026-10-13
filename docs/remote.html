@@ -5082,6 +5082,27 @@ const CAM_I = {
 const camIc = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${CAM_I[k]}</svg>`;
 const KIND_SAY = { usb: "⚡ بالكيبل", lan: "⚡ على نفس الواي فاي", net: "مباشر عن طريق النت", relay: "عن طريق سيرفر نيوك" };
 const KIND_SHORT = { usb: "⚡ بالكيبل", lan: "⚡ نفس الواي فاي", net: "عن طريق النت", relay: "سيرفر نيوك" };
+// The way the picture travels, from the link's chosen pair. "lan" (the same Wi-Fi) is told by the addresses, not only by
+// the candidate's type: the PC hides its home address behind a ".local" name, and a phone that can't look that name up
+// reaches the PC as "prflx" with its home address — that used to read as "over the internet",
+// so the picture never stepped up from 720p30 to the player's 1080 / 60 at home.
+const CAM_PRIVATE = /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|127\.)/;
+const CAM_TETHER = /^192\.168\.42\.|^172\.20\.10\.|^192\.168\.137\./;
+const camV6 = (ip) => {
+  const p = String(ip).toLowerCase().split("::")[0].split(":");
+  return p.length >= 4 ? p.slice(0, 4).join(":") : null;
+};
+function camWay(lc, rc) {
+  if (!rc) return null;
+  if (lc?.candidateType === "relay" || rc.candidateType === "relay") return "relay";
+  const ip = String(rc.address || rc.ip || "");
+  const mine = String(lc?.address || lc?.ip || "");
+  if (!/^(host|prflx)$/.test(rc.candidateType || "") || !/^(host|prflx)$/.test(lc?.candidateType || "host")) return "net";
+  if (CAM_TETHER.test(ip) || CAM_TETHER.test(mine)) return "usb";
+  if (!ip || /\.local$/i.test(ip) || CAM_PRIVATE.test(ip) || /^(f[cd]|fe[89ab])/i.test(ip)) return "lan";
+  if (ip.includes(":") && camV6(ip) && camV6(ip) === camV6(mine)) return "lan";
+  return "net";
+}
 // the phone's lenses by the names its browser gives them (an iPhone names them; Android often says only front / back)
 function lensOf(label, i) {
   const l = String(label || "").toLowerCase();
@@ -5124,6 +5145,7 @@ $("camOpen").addEventListener("click", () => {
   let hwZoom = null; // the camera's own zoom (Android)
   let lenses = []; // [{ id, name, facing }] — only what this phone really lists
   let level = "base"; // "base" = 720p30 ~2.5 Mbit; "high" = the player's pick, once the link proved itself nearby
+  let camGives = null; // the player asked for 60 and the camera gives less at that size: { q, fps } it really gives
   let good = 0;
   let poor = 0;
   let highBlockedUntil = 0;
@@ -5333,7 +5355,9 @@ $("camOpen").addEventListener("click", () => {
       const q = (v) => `<button class="chip${P.q === v ? " on" : ""}" data-set="q" data-v="${v}"><bdi class="num">${v}</bdi></button>`;
       const f = (v) => `<button class="chip${P.fps === v ? " on" : ""}" data-set="fps" data-v="${v}"><bdi class="num">${v}</bdi> بالثانية</button>`;
       const tuned = P.fx.b || P.fx.c || P.fx.w || P.fx.s || P.fx.auto;
+      const n60 = sixtyNote();
       return `${ls}<h3>الجودة</h3><div class="opts">${q("720")}${q("1080")}<i class="sep"></i>${f(30)}${f(60)}</div>
+        ${n60 ? `<div class="cam-line"><span>${n60}</span></div>` : ""}
         <h3>الخلفية</h3>${chips("bg", [["none", "بدون"], ["blur", "طمس"], ["img", "صورة"]], true)}
         ${P.fx.bg === "img" ? `<div class="cam-bgs">${[["lava", "حمم نيوك"], ["room", "غرفة"], ["night", "ليل"]].map(([v, t]) => `<button class="cam-bgt bg-${v}${P.fx.img === v ? " on" : ""}" data-fx="img" data-v="${v}"><span>${t}</span></button>`).join("")}<label class="cam-bgt bg-custom${P.fx.img === "custom" ? " on" : ""}"><input type="file" accept="image/*" id="camBgFile" hidden><span>من جوالك</span></label></div>` : ""}
         ${sw("follow", "يلحق وجهك", "", P.fx.follow, "fxt")}
@@ -5369,7 +5393,9 @@ $("camOpen").addEventListener("click", () => {
       const nums = [stats?.kbps ? `<bdi class="num">${(stats.kbps / 1000).toFixed(1)}</bdi> ميقا` : "", stats?.h ? `<bdi class="num">${Math.min(stats.w || stats.h, stats.h)}p${stats.fps ? ` ${stats.fps}` : ""}</bdi>` : ""].filter(Boolean).join(" · ");
       const now = live && kind ? `<div class="cam-net"><b>${KIND_SAY[kind] ?? "متصل"}</b>${nums ? `<span>${nums}</span>` : ""}</div>` : `<div class="cam-net off"><b>${back ? "نرجّعه…" : live ? "نقيس الاتصال…" : "ابدأ البث وتشوف الاتصال هنا"}</b></div>`;
       const fix = usb?.takesInternet && !usb.alone ? `<div class="cam-link warn"><b>البيسي ياخذ النت من جوالك</b><button class="wide" data-usbfix="1">خلّ نت البيسي من الراوتر</button></div>` : "";
+      const n60 = sixtyNote();
       return `${now}
+        ${n60 ? `<div class="cam-line"><span>${n60}</span></div>` : ""}
         ${sw("lite", "وضع خفيف", "يبرّد الجوال ويوفّر البطارية", P.lite)}
         <div class="cam-line"><span>سيرفر نيوك</span><em class="${ice.ready ? "ok" : ""}">${ice.ready ? "جاهز" : "مو مفعّل"}</em></div>
         ${fix}
@@ -5434,20 +5460,58 @@ $("camOpen").addEventListener("click", () => {
       next = await navigator.mediaDevices.getUserMedia({ video });
     }
     const vt = next.getVideoTracks()[0];
-    // a camera picture (a face, a room): sharpness over smoothness when the link has to choose
-    try {
-      vt.contentHint = P.fps === 60 && level === "high" ? "motion" : "detail";
-    } catch {}
     const mic = old?.getAudioTracks()[0] ?? null;
     stream = new MediaStream([vt, ...(mic ? [mic] : [])]);
     hwZoom = null;
     torch = false;
     focusLocked = false;
+    hint();
+    if (level === "high") await checkSixty();
     if (live) {
       await vSender?.replaceTrack(vt).catch(() => {});
       encode();
     }
     if (!lenses.length) await listLenses();
+  }
+  // 60 asked: smoothness first (the encoder keeps the 60 and gives up a little sharpness when it must); else a camera
+  // picture (a face, a room) keeps its sharpness and gives up a few pictures
+  const sixty = () => level === "high" && near() && target().fps === 60;
+  function hint() {
+    try {
+      const vt = vTrack();
+      if (vt) vt.contentHint = sixty() ? "motion" : "detail";
+    } catch {}
+  }
+  // The camera's real speed after asking for 60 (getSettings says what it runs at — Safari often only 30 at 1080 on
+  // the front camera): 1080 at 30 → try 720 at 60 (60 is what the player picked it for); still 30 → keep the player's
+  // size at 30 and say so, never a silent 30.
+  async function checkSixty() {
+    camGives = null;
+    const t = target();
+    if (t.fps !== 60) return;
+    const fr = () => Number(vTrack()?.getSettings?.().frameRate) || 0;
+    if (!fr() || fr() >= 45) return;
+    if (t.q === "1080") {
+      try {
+        await constrain({ width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 60 }, resizeMode: "none" });
+      } catch {}
+      if (fr() >= 45) return void (camGives = { q: "720", fps: 60 });
+      try {
+        await constrain({ width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 }, resizeMode: "none" });
+      } catch {}
+    }
+    camGives = { q: t.q, fps: Math.round(fr()) || 30 };
+  }
+  // the line that says why it isn't 60 when 60 was picked (shown in «الاتصال» and under «الجودة»)
+  function sixtyNote() {
+    if (P.fps !== 60) return "";
+    if (camGives?.fps === 60) return `جوالك يعطي <bdi class="num">60</bdi> على <bdi class="num">720</bdi> بس`;
+    if (camGives) return `جوالك يعطي <bdi class="num">${camGives.fps}</bdi> بهالجودة`;
+    if (!live) return "";
+    if (!near()) return kindNow() ? `الـ<bdi class="num">60</bdi> على نفس الواي فاي أو بالكيبل بس` : "";
+    if (level !== "high") return `نرفعها لـ<bdi class="num">60</bdi> بعد ثواني`;
+    if (stats?.fps && stats.fps < 45 && performance.now() - liveAt > 12000) return `الاتصال ما يلحق الـ<bdi class="num">60</bdi> الحين`;
+    return "";
   }
   // the microphone on / off alone (the camera keeps going: no black moment)
   async function setMic() {
@@ -5488,25 +5552,38 @@ $("camOpen").addEventListener("click", () => {
     if (!p.encodings?.length) p.encodings = [{}];
     const t = target();
     const high = level === "high" && near();
-    const max = high ? (t.q === "1080" ? (t.fps === 60 ? 16e6 : 12e6) : t.fps === 60 ? 8e6 : 6e6) : 2.5e6;
+    const q = camGives?.fps === 60 ? camGives.q : t.q;
+    const max = high ? (q === "1080" ? (t.fps === 60 ? 16e6 : 12e6) : t.fps === 60 ? 8e6 : 6e6) : 2.5e6;
     p.encodings[0].maxBitrate = max;
     p.encodings[0].maxFramerate = high ? t.fps : 30;
     // a camera that still gives 1080 (or only can): sent as 720 until the link is near
     const s = vTrack()?.getSettings?.() ?? {};
     const short = Math.min(s.width || 0, s.height || 0);
     p.encodings[0].scaleResolutionDownBy = !high && short > 720 ? short / 720 : 1;
-    p.degradationPreference = "balanced";
-    vSender.setParameters(p).catch(() => {});
+    // 60 picked and nearby: keep the 60 (a busy moment costs a little sharpness, never pictures); else balanced
+    p.degradationPreference = sixty() ? "maintain-framerate" : "balanced";
+    hint();
+    // a browser that refuses one field refuses all of them: once more without the preference (the speed and the 60 matter)
+    const s0 = vSender;
+    s0.setParameters(p).catch(() => {
+      const q2 = s0.getParameters();
+      if (!q2.encodings?.length) return;
+      Object.assign(q2.encodings[0], { maxBitrate: p.encodings[0].maxBitrate, maxFramerate: p.encodings[0].maxFramerate, scaleResolutionDownBy: p.encodings[0].scaleResolutionDownBy });
+      return s0.setParameters(q2).catch(() => {});
+    });
   }
   // up to the player's pick / back to 720: the same camera, asked for another size (no new camera, no new link)
   async function setLevel(l) {
     if (level === l) return;
     level = l;
+    camGives = null;
     const [w, h] = sizeOf(target().q);
     try {
       await constrain({ width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: target().fps }, resizeMode: "none" });
     } catch {}
+    if (l === "high") await checkSixty();
     encode();
+    if (tab) drawPane();
   }
   // every 3 s while live: how the picture leaves this phone (no question to the PC for it), the PC's view of the camera
   // (a setting changed there, a recording), and the step up / down
@@ -5526,8 +5603,7 @@ $("camOpen").addEventListener("click", () => {
       if (!pair) st.forEach((r) => r.type === "candidate-pair" && r.nominated && r.state === "succeeded" && (pair = r));
       const lc = pair && by.get(pair.localCandidateId);
       const rc = pair && by.get(pair.remoteCandidateId);
-      const ip = String(rc?.address || rc?.ip || "");
-      const kind = !rc ? null : lc?.candidateType === "relay" || rc.candidateType === "relay" ? "relay" : rc.candidateType === "host" ? (/^192\.168\.42\.|^172\.20\.10\.|^192\.168\.137\./.test(ip) ? "usb" : "lan") : "net";
+      const kind = camWay(lc, rc);
       const now = { t: performance.now(), b: o?.bytesSent ?? 0, f: o?.framesSent ?? 0 };
       const kbps = lastOut && now.t > lastOut.t ? Math.round(((now.b - lastOut.b) * 8) / (now.t - lastOut.t)) : 0;
       const fps = lastOut && now.t > lastOut.t ? Math.round(((now.f - lastOut.f) * 1000) / (now.t - lastOut.t)) : 0;
@@ -5541,7 +5617,7 @@ $("camOpen").addEventListener("click", () => {
           if (++good >= 2) void setLevel("high");
         } else if (level === "high") {
           const t = target();
-          if (o?.qualityLimitationReason === "bandwidth" && fps < t.fps * 0.6) {
+          if (o?.qualityLimitationReason === "bandwidth" && fps < (camGives?.fps ?? t.fps) * 0.6) {
             if (++poor >= 2) {
               poor = 0;
               good = 0;
@@ -5648,6 +5724,7 @@ $("camOpen").addEventListener("click", () => {
     clearTimeout(backTimer);
     level = "base";
     good = poor = 0;
+    camGives = null;
     lastOut = null;
     pcKind = null;
     // back to 720p30 for the start (the step up comes once the link proved itself) — only when the camera is above it:
