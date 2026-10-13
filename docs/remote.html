@@ -941,7 +941,8 @@
     .cam-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .cam-pane { max-height: calc(100dvh - 240px); }
     .funx.camx.clean .camv2 { grid-template-columns: minmax(0, 1fr); }
-  }  .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
+  }  .scrpair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
   @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }</style>
 </head>
 <body>
@@ -1132,7 +1133,8 @@
       <section data-cat="sound" id="screenBox" class="hidden">
         <h2><span>الشاشة</span></h2>
         <div id="brightBox" class="vol bright hidden"><span class="sun">☀️</span><input id="brightRange" type="range" min="0" max="100" step="1" value="0" aria-label="سطوع الشاشة" /><b id="brightNum">—</b></div>
-        <button id="scrOff" class="wide ghost" style="color:#fff">طفّ الشاشة والبيسي شغّال</button>
+        <div class="scrpair"><button id="scrWake" class="wide">شغّل الشاشة</button><button id="scrOff" class="wide ghost" style="color:#fff">طفّها</button></div>
+        <div class="setrow" style="padding:4px 2px"><div><b>خلّ الشاشة صاحية</b><small>ما تطفي بروحها لين تطفّي هذا</small></div><button id="awakeSw" class="sw" aria-label="خلّ الشاشة صاحية"></button></div>
         <div id="modes" class="modes">
           <button class="mode" data-mode="pc"><svg viewBox="0 0 52 26" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="22" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M9 22h8"/><rect x="28" y="3" width="22" height="15" rx="2.5" stroke-dasharray="3 3" opacity=".45"/><path d="M35 22h8" opacity=".45"/></svg>شاشة البيسي بس</button>
           <button class="mode" data-mode="tv"><svg viewBox="0 0 52 26" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="22" height="15" rx="2.5" stroke-dasharray="3 3" opacity=".45"/><path d="M9 22h8" opacity=".45"/><rect x="28" y="3" width="22" height="15" rx="2.5" fill="currentColor" fill-opacity=".28"/><path d="M35 22h8"/></svg>الثانية / التلفزيون بس</button>
@@ -3592,7 +3594,11 @@ function paintScreen(s) {
   screenNow = s;
   $("screenBox").classList.remove("hidden");
   document.querySelectorAll("#modes [data-mode]").forEach((b) => b.classList.toggle("on", b.dataset.mode === s.mode));
-  $("screenHint").textContent = s.screens > 1 ? "«طفّ الشاشة» تطفيها والبيسي شغّال، وأي حركة للماوس ترجّعها." : "«طفّ الشاشة» تطفيها والبيسي شغّال. أوضاع الشاشتين تشتغل لما توصّل شاشة ثانية أو تلفزيون.";
+  $("screenHint").textContent = s.screens > 1 ? "«طفّها» والبيسي يبقى شغّال." : "أوضاع الشاشتين تشتغل لما توصّل شاشة ثانية أو تلفزيون.";
+  // an older PC has neither: the buttons hide instead of failing
+  $("scrWake").classList.toggle("hidden", !("awake" in s));
+  $("awakeSw").closest(".setrow").classList.toggle("hidden", !("awake" in s));
+  $("awakeSw").classList.toggle("on", Boolean(s.awake));
   $("brightBox").classList.toggle("hidden", !s.bright);
   if (s.bright && !brightDrag) {
     $("brightRange").value = s.bright.level;
@@ -3604,6 +3610,27 @@ async function loadScreen() {
   const r = await cmd("screen.get");
   if (r.ok) paintScreen(r.data);
 }
+// the PC's screens on again (they turn off after a while; owner, 2026-10-13), and «خلّ الشاشة صاحية»
+$("scrWake").addEventListener("click", async () => {
+  buzz();
+  const done = working($("scrWake"), "نشغّلها…");
+  const r = await cmd("screen.wake");
+  done();
+  r.ok ? toast("شغّلنا الشاشة") : fail(r);
+});
+$("awakeSw").addEventListener("click", async () => {
+  buzz();
+  const sw = $("awakeSw");
+  const on = !sw.classList.contains("on");
+  sw.classList.toggle("on", on);
+  const r = await cmd("screen.awake", { on });
+  if (!r.ok) {
+    sw.classList.toggle("on", !on);
+    return fail(r);
+  }
+  sw.classList.toggle("on", Boolean(r.data?.awake));
+  toast(r.data?.awake ? "الشاشة بتبقى صاحية لين تطفّي هذا" : "الشاشة ترجع تطفي بوقتها");
+});
 $("scrOff").addEventListener("click", async () => {
   buzz();
   const done = working($("scrOff"), "نطفيها…");
