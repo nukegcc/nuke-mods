@@ -79,12 +79,16 @@
   .banner.stale { opacity: .7; }
   .hint { font-size: 12.5px; color: var(--dim); line-height: 1.7; margin: 10px 4px 0; }
   .muted { color: var(--dim); font-size: 13px; padding: 6px 4px; }
-  .toast { position: fixed; inset-inline: 16px; bottom: calc(86px + env(safe-area-inset-bottom)); max-width: 460px; margin: 0 auto; background: #241b1c; border: 1px solid var(--line); border-radius: 16px; padding: 13px 16px; font-size: 14px; font-weight: 600; text-align: center; opacity: 0; transform: translateY(12px); transition: .25s; pointer-events: none; z-index: 30; }
+  .toast { position: fixed; inset-inline: 16px; bottom: calc(86px + env(safe-area-inset-bottom) + var(--iosgap, 0px)); max-width: 460px; margin: 0 auto; background: #241b1c; border: 1px solid var(--line); border-radius: 16px; padding: 13px 16px; font-size: 14px; font-weight: 600; text-align: center; opacity: 0; transform: translateY(12px); transition: .25s; pointer-events: none; z-index: 30; }
   .toast.show { opacity: 1; transform: none; }
   .toast.bad { color: #ffb4ad; border-color: rgba(239,59,45,.4); }
   .hidden { display: none !important; }
   /* tabs */
-  nav { position: fixed; inset-inline: 0; bottom: 0; z-index: 20; display: flex; justify-content: center; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: rgba(14,10,10,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
+  /* an iPhone opened from the home screen sometimes starts with the screen counted short by the status bar's height
+     (the bottom bar then floats with an empty strip under it): the page is made that much taller, and if it still
+     happens the script below pulls everything anchored to the bottom down by the missing part (--iosgap) */
+  html.iosgap { min-height: calc(100% + env(safe-area-inset-top)); }
+  nav { position: fixed; inset-inline: 0; bottom: var(--iosgap, 0px); z-index: 20; display: flex; justify-content: center; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: rgba(14,10,10,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
   nav .in { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; max-width: 480px; }
   nav button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border-radius: 14px; background: transparent; color: var(--dim); font-size: 11.5px; font-weight: 700; }
   nav button svg { width: 23px; height: 23px; }
@@ -165,7 +169,7 @@
   header .refresh.busy svg { animation: s .8s linear infinite; }
   header .refresh.busy { pointer-events: none; opacity: .85; }
   header h1 .chev { display: inline-block; font-size: 13px; color: var(--dim); margin-inline-start: 6px; vertical-align: 2px; }
-  .sheet { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; animation: fade .15s; }
+  .sheet { position: fixed; inset: 0 0 var(--iosgap, 0px); z-index: 40; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; animation: fade .15s; }
   .sheet .in { width: 100%; max-width: 480px; background: var(--card); border: 1px solid var(--line); border-bottom: 0; border-radius: 26px 26px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
   .sheet h3 { margin: 0 4px 12px; font-size: 15px; }
   .pcrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; border-radius: 16px; background: var(--card2); border: 1px solid var(--line); margin-bottom: 8px; font-weight: 700; font-size: 14px; text-align: start; }
@@ -417,7 +421,7 @@
   .talk p { margin: 0; font-size: 13.5px; font-weight: 700; color: var(--dim); font-variant-numeric: tabular-nums; text-align: center; }
   .talk p.on { color: #ff8a80; }
   /* the gaming dashboard: the phone beside the keyboard */
-  .dash { position: fixed; inset: 0; z-index: 60; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(239,59,45,.18), transparent 70%), #0a0606; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); animation: fade .2s; }
+  .dash { position: fixed; inset: 0 0 var(--iosgap, 0px); z-index: 60; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(239,59,45,.18), transparent 70%), #0a0606; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); animation: fade .2s; }
   .dtop { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
   .dtop .t { flex: 1; min-width: 0; }
   .dtop b { display: block; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -692,7 +696,7 @@
   .setrow.col .seg button { flex: 1; min-height: 40px; white-space: nowrap; font-size: 13px; }
   .funbest { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 12px; font-size: 13px; color: var(--dim); }
   .funbest b { font-family: var(--f-num); font-size: 26px; color: #fff; direction: ltr; unicode-bidi: isolate; }
-  .funx { position: fixed; inset: 0; z-index: 62; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  .funx { position: fixed; inset: 0 0 var(--iosgap, 0px); z-index: 62; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
     background: radial-gradient(ellipse 85% 45% at 50% 0%, rgba(239,59,45,.16), transparent 70%), #0a0606; animation: fade .2s; }
   .funhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
   .funhead b { flex: 1; font-size: 18px; font-weight: 900; }
@@ -823,11 +827,16 @@
   .funx.camx .funhead { margin-bottom: 10px; min-height: 44px; }
   .funx.camx .funhead b { min-width: 0; }
   .funx.camx .funbody { justify-content: flex-start; overflow: hidden; text-align: right; }
-  .cam-stat { flex-shrink: 0; max-width: 46vw; padding: 6px 11px; border-radius: 99px; background: #241b1c; color: var(--dim); font-size: 12.5px; font-weight: 800; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-  .cam-stat.on { color: #fff; }
-  .cam-stat.on::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ef3b2d; box-shadow: 0 0 6px #ef3b2d; flex-shrink: 0; }
-  .cam-stat.back { color: var(--gold); }
-  .cam-stat[hidden] { display: none; }
+  /* the title row holds three things only: the title, this pill, ✕. Its state is a data attribute — never a class: the page's
+     own «back» class (a 38px stone button) once turned the pill into a tile with the words spilling out over ✕ */
+  .funx.camx .funhead { gap: 10px; }
+  .funx.camx #funTitle { white-space: nowrap; overflow: hidden; }
+  .cam-stat { flex: 0 1 auto; min-width: 0; max-width: 58%; height: 30px; padding: 0 12px; border-radius: 99px; background: #241b1c; color: var(--dim); font-size: 12.5px; font-weight: 800; line-height: 30px; white-space: nowrap; overflow: hidden; display: flex; align-items: center; gap: 6px; }
+  .cam-stat[data-s="on"] { color: #fff; }
+  .cam-stat[data-s="on"]::before, .cam-stat[data-s="slow"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ef3b2d; box-shadow: 0 0 6px #ef3b2d; flex-shrink: 0; }
+  .cam-stat[data-s="slow"] { color: var(--gold); }
+  .cam-stat[data-s="slow"]::before { background: var(--gold); box-shadow: none; animation: camblink 1s infinite; }
+  .cam-stat[hidden] { display: flex; visibility: hidden; }
   .camv2 { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
   .cam-prev { position: relative; flex: 1; min-height: 0; width: 100%; border-radius: 20px; overflow: hidden; background: #000; box-shadow: inset 0 0 0 1.5px #241b1c; touch-action: none; contain: strict; }
   .cam-prev video { width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0; }
@@ -837,7 +846,9 @@
   .cam-rec::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ef3b2d; animation: camblink 1s infinite; }
   .cam-rec[hidden] { display: none; }
   @keyframes camblink { 50% { opacity: .2; } }
-  .cam-tools { position: absolute; z-index: 2; top: 50%; left: 10px; transform: translateY(-50%); display: grid; gap: 8px; }
+  /* the tools: one column, a second one beside it when the picture is short (a phone on its side) — never cut off */
+  .cam-tools { position: absolute; z-index: 2; top: 10px; bottom: 10px; left: 10px; display: grid; gap: 8px; grid-template-rows: repeat(auto-fit, 44px); grid-auto-flow: column; align-content: center; pointer-events: none; }
+  .cam-tools > * { pointer-events: auto; }
   .cam-tools button { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: #0e0a0ab3; box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .14); }
   .cam-tools button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   .cam-tools button.rec { color: #ef3b2d; }
@@ -894,7 +905,43 @@
   .cam-net b { font-size: 16px; }
   .cam-net span { color: var(--dim); font-size: 13px; }
   .cam-steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-size: 13px; color: var(--mut, #ffffffcc); line-height: 1.6; }
-  .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
+  /* short panes (owner, 2026-10-13: "كلام كثير… أبيه مختصر"): one line per thing, the rest folded behind one row that opens */
+  .cam-pane .setrow { padding: 6px 2px; min-height: 44px; }
+  .cam-pane .setrow small { margin-top: 1px; }
+  .cam-net { display: flex; align-items: center; gap: 10px; }
+  .cam-net b { flex: 1; min-width: 0; font-size: 15px; }
+  .cam-net span { flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--dim); white-space: nowrap; }
+  .cam-net.off b { color: var(--dim); font-size: 13.5px; font-weight: 700; }
+  .cam-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 0 2px; font-size: 14px; font-weight: 700; }
+  .cam-line em { font-style: normal; font-size: 12.5px; font-weight: 800; color: var(--dim); white-space: nowrap; }
+  .cam-line em.ok { color: #7cff5a; }
+  .cam-line .chip { min-height: 38px; padding: 0 14px; font-size: 13px; }
+  .cam-pane .opts .sep { width: 10px; }
+  .cam-pane .num { font-family: var(--f-num); font-weight: 700; }
+  .funx.camx { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  details.cam-more { border-radius: 14px; background: #120d0d; box-shadow: inset 0 0 0 1.5px #2e2324; }
+  details.cam-more > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px; font-size: 14px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  details.cam-more > summary::-webkit-details-marker { display: none; }
+  details.cam-more > summary small { margin-inline-start: auto; color: var(--dim); font-size: 12px; font-weight: 600; }
+  details.cam-more > summary::after { content: ""; flex-shrink: 0; width: 7px; height: 7px; border-right: 2px solid var(--dim); border-bottom: 2px solid var(--dim); transform: rotate(45deg); margin-top: -4px; }
+  details.cam-more[open] > summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  details.cam-more > .in { padding: 0 12px 12px; display: grid; gap: 10px; }
+  .cam-how { display: grid; gap: 3px; font-size: 13px; line-height: 1.65; }
+  .cam-how b { font-size: 13.5px; }
+  .cam-how span { color: rgb(255 255 255 / .78); }
+  .cam-how small { color: var(--dim); font-size: 12px; }
+  /* a phone on its side (a tripod, a 16:9 picture): the picture takes the height, the tabs and the button sit beside it */
+  @media (orientation: landscape) and (max-height: 540px) {
+    .funx.camx { padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+    .funx.camx .funhead { margin-bottom: 6px; min-height: 40px; }
+    .camv2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 34%); grid-template-rows: minmax(0, 1fr) auto; gap: 8px 10px; }
+    .camv2 .cam-prev { grid-column: 1; grid-row: 1 / 3; }
+    .camv2 .cam-dock { grid-column: 2; grid-row: 1; align-self: end; }
+    .camv2 #camGo { grid-column: 2; grid-row: 2; }
+    .cam-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cam-pane { max-height: calc(100dvh - 240px); }
+    .funx.camx.clean .camv2 { grid-template-columns: minmax(0, 1fr); }
+  }  .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
   @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }</style>
 </head>
 <body>
@@ -1350,6 +1397,25 @@ function ago(t) {
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 const iosSafari = isIos && !standalone;
+// the home-screen iPhone's short screen (see the CSS above): measured at start and whenever the screen changes;
+// it heals by itself once iOS gets the size right (then the gap is 0 again)
+if (isIos && standalone) {
+  const fixGap = () => {
+    const tall = innerWidth < innerHeight ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+    const gap = tall - innerHeight;
+    // only the status bar's height (about 20–60): anything else is the keyboard or a real change
+    const on = gap > 12 && gap < 80;
+    document.documentElement.style.setProperty("--iosgap", on ? `-${gap}px` : "0px");
+    document.documentElement.classList.toggle("iosgap", on);
+  };
+  fixGap();
+  addEventListener("resize", fixGap);
+  addEventListener("orientationchange", () => setTimeout(fixGap, 300));
+  addEventListener("pageshow", fixGap);
+  visualViewport?.addEventListener("resize", fixGap);
+  setTimeout(fixGap, 500);
+  setTimeout(fixGap, 1500);
+}
 // remote-sw.js keeps the page and its library on the phone (it opens fast) and shows the notifications
 navigator.serviceWorker?.register("remote-sw.js").catch(() => {});
 
@@ -1787,6 +1853,35 @@ const connected = () => Date.now() - lastPong < 150e3 || Date.now() < graceUntil
 // opens, every message goes over it (no relay message, files up to 4 GB, much faster on the same Wi-Fi). The offer /
 // answer / ICE go sealed over the relay; what goes on the channel is sealed too. No direct link → the relay, as before.
 const RTC_ICE = [{ urls: ["stun:stun.cloudflare.com:3478", "stun:stun.l.google.com:19302"] }];
+// The ways to reach this phone, gathered "enough": every kind its servers can give (the outside address from STUN, a
+// relayed one from TURN) arrived and nothing new came for 300 ms — or 3 s at most. Waiting for the browser's own
+// "complete" cost the full 3 s on every start and every return (QA, 2026-10-13: all were in after ~150 ms, "complete"
+// never came — a network that never answers, IPv6 or a VPN).
+function iceEnough(pc, servers, max = 3000) {
+  const has = (re) => servers.some((s) => [].concat(s.urls ?? []).some((u) => re.test(String(u))));
+  const want = { srflx: has(/^stuns?:/i), relay: has(/^turns?:/i) };
+  return new Promise((res) => {
+    const got = {};
+    let quiet = null;
+    const end = () => {
+      clearTimeout(cap);
+      clearTimeout(quiet);
+      pc.removeEventListener("icecandidate", onCand);
+      pc.removeEventListener("icegatheringstatechange", onState);
+      res();
+    };
+    const cap = setTimeout(end, max);
+    const onCand = (e) => {
+      if (!e.candidate) return end();
+      got[e.candidate.type || (/ typ (\w+)/.exec(e.candidate.candidate)?.[1] ?? "")] = true;
+      clearTimeout(quiet);
+      if ((!want.srflx || got.srflx || got.relay) && (!want.relay || got.relay)) quiet = setTimeout(end, 300);
+    };
+    const onState = () => pc.iceGatheringState === "complete" && end();
+    pc.addEventListener("icecandidate", onCand);
+    pc.addEventListener("icegatheringstatechange", onState);
+  });
+}
 let rtc = null, rtcTry = 0, onPayload = null, relayName = null, rejoining = null, leaveTimer = null;
 // while the direct link is open this page lets go of the relay (each open connection counts toward the relay's limit
 // for everyone); it joins again the moment it needs it: the link closed, or something must go over the relay
@@ -4958,8 +5053,8 @@ const CAM_I = {
   hide: '<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c5 0 9 5 10 7a14 14 0 0 1-3.1 3.9M6.6 6.6C4.4 8 3 10 2 12c1 2 5 7 10 7 1.7 0 3.2-.5 4.6-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
 };
 const camIc = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${CAM_I[k]}</svg>`;
-const KIND_SAY = { usb: "بالكيبل ⚡", lan: "على نفس الواي فاي ⚡", net: "مباشر عن طريق النت", relay: "عن طريق سيرفر نيوك" };
-const KIND_SHORT = { usb: "بالكيبل ⚡", lan: "نفس الواي فاي ⚡", net: "عن طريق النت", relay: "سيرفر نيوك" };
+const KIND_SAY = { usb: "⚡ بالكيبل", lan: "⚡ على نفس الواي فاي", net: "مباشر عن طريق النت", relay: "عن طريق سيرفر نيوك" };
+const KIND_SHORT = { usb: "⚡ بالكيبل", lan: "⚡ نفس الواي فاي", net: "عن طريق النت", relay: "سيرفر نيوك" };
 // the phone's lenses by the names its browser gives them (an iPhone names them; Android often says only front / back)
 function lensOf(label, i) {
   const l = String(label || "").toLowerCase();
@@ -5009,6 +5104,8 @@ $("camOpen").addEventListener("click", () => {
   let askSeen = 0; // the PC's requests (quality / lens / mic) already done
   let clean = false; // every button hidden: only the picture
   let liveAt = 0;
+  const opened = new Set(); // the folded rows the player opened («ضبط الصورة», «شكل النافذة», «وصّله بالكيبل»)
+  let iph = null; // an iPhone on the PC's cable: { need, installing, error }
   const vTrack = () => stream?.getVideoTracks()[0] ?? null;
   const aTrack = () => stream?.getAudioTracks()[0] ?? null;
   const caps = () => vTrack()?.getCapabilities?.() ?? {};
@@ -5030,8 +5127,8 @@ $("camOpen").addEventListener("click", () => {
       <div class="cam-lite" id="camLite" hidden>
         <i>${camIc("lite")}</i>
         <b>وضع خفيف</b>
-        <p>الصورة رايحة للبيسي، بس جوالك ما يعرضها: يبرد ويوفّر البطارية.</p>
-        <small>للبث الطويل خلّ جوالك على الشاحن.</small>
+        <p>الصورة رايحة للبيسي، وجوالك ما يعرضها عشان يبرد.</p>
+        <small>للبث الطويل خلّه على الشاحن</small>
         <button class="ghost" data-liteoff="1">اعرض الصورة</button>
       </div>
       <span class="cam-rec" id="camRecChip" hidden></span>
@@ -5053,14 +5150,15 @@ $("camOpen").addEventListener("click", () => {
   stat.hidden = true;
   $("funClose").before(stat);
 
+  // the pill: short words that never wrap; its state in data-s (a class like «back» belongs to the page's own buttons)
   function paintStat() {
     let t = "";
-    let cls = "cam-stat";
-    if (busy && !live) t = "نوصّل…";
-    else if (back) (t = "نرجّعه…"), (cls += " back");
-    else if (live && shaky) (t = "الاتصال ضعيف…"), (cls += " back");
-    else if (live) (t = KIND_SHORT[kindNow()] || "على البيسي"), (cls += " on");
-    stat.className = cls;
+    let s = "";
+    if (back) (t = "نرجّعه…"), (s = "slow");
+    else if (busy && !live) t = "نوصّل…";
+    else if (live && shaky) (t = "ضعيف…"), (s = "slow");
+    else if (live) (t = KIND_SHORT[kindNow()] || "شغّال"), (s = "on");
+    if (stat.dataset.s !== s) stat.dataset.s = s;
     stat.hidden = !t;
     if (stat.textContent !== t) stat.textContent = t;
   }
@@ -5093,9 +5191,71 @@ $("camOpen").addEventListener("click", () => {
     $("camLite").hidden = !P.lite;
     $("camMsg").hidden = Boolean(stream) || P.lite;
     const src = P.lite ? null : stream;
-    if (v.srcObject !== src) v.srcObject = src;
+    if (v.srcObject !== src) (v.srcObject = src), (fitDims = "");
     if (src) v.play?.().catch(() => {});
   }
+  // The picture always fills its frame. An iPhone's Safari (every browser there is Safari underneath) can keep drawing the
+  // picture by its old size and turn once the camera changes under it — a reconnect, the step up to 1080, the torch, a focus
+  // tap: the owner saw it small and upright in the middle of the black frame (2026-10-13). So: when the camera's picture
+  // changes size it is handed to the <video> again, and after any change to the camera the box is nudged by a pixel so
+  // Safari lays the picture out again. Other browsers don't need it (and never blink for it).
+  const webkit = /Apple/.test(navigator.vendor || "");
+  let fitDims = "";
+  // The <video> box itself takes the camera's own shape, sized to cover the frame and centred — so nothing hangs on the
+  // browser applying object-fit to a camera that changed size / turn under it (QA, 2026-10-13: the owner's "small picture
+  // in a big black frame" is what a stale fit draws; a box of the picture's own shape has nothing to letterbox).
+  function fitBox(extra = 0) {
+    const v = $("camPrev");
+    const st = $("camStage");
+    if (!v || !st) return;
+    const vw = v.videoWidth;
+    const vh = v.videoHeight;
+    const W = st.clientWidth;
+    const H = st.clientHeight;
+    if (!vw || !vh || !W || !H) {
+      v.style.width = v.style.height = v.style.left = v.style.top = "";
+      return;
+    }
+    const k = Math.max(W / vw, H / vh);
+    const w = Math.ceil(vw * k) + extra;
+    const h = Math.ceil(vh * k) + extra;
+    v.style.width = `${w}px`;
+    v.style.height = `${h}px`;
+    v.style.left = `${Math.round((W - w) / 2)}px`;
+    v.style.top = `${Math.round((H - h) / 2)}px`;
+  }
+  function refit(hard) {
+    const v = $("camPrev");
+    fitBox();
+    if (!webkit || !v?.srcObject) return;
+    if (hard) {
+      const s = v.srcObject;
+      v.srcObject = null;
+      v.srcObject = s;
+      v.play?.().catch(() => {});
+    }
+    fitBox(1);
+    requestAnimationFrame(() => requestAnimationFrame(() => fitBox()));
+  }
+  $("camPrev").addEventListener("resize", () => {
+    const v = $("camPrev");
+    const d = `${v.videoWidth}x${v.videoHeight}`;
+    const changed = fitDims && d !== fitDims;
+    fitDims = d;
+    refit(changed);
+  });
+  $("camPrev").addEventListener("loadedmetadata", () => fitBox());
+  // the frame changes size too: a turn of the phone, the buttons hidden, the side layout
+  const stageSeen = typeof ResizeObserver === "function" ? new ResizeObserver(() => fitBox()) : null;
+  stageSeen?.observe($("camStage"));
+  const onTurn = () => fitBox();
+  addEventListener("resize", onTurn);
+  // every change to the camera goes through here: always the camera's own picture size (never cropped to another shape —
+  // an upright camera asked for 1280×720 came back cut to a square), and Safari re-fits after it
+  const constrain = (c) =>
+    (vTrack()?.applyConstraints(c) ?? Promise.resolve()).finally(() => {
+      if (webkit) setTimeout(() => refit(false), 250);
+    });
   function paintTabs() {
     for (const b of funx.querySelectorAll(".cam-tabs button")) b.classList.toggle("on", b.dataset.tab === tab);
     const p = $("camPane");
@@ -5129,59 +5289,67 @@ $("camOpen").addEventListener("click", () => {
     }
   }
 
+  // Each tab short (owner, 2026-10-13: "كلام كثير… أبيه مختصر"): one line per thing, no explaining paragraphs; what's
+  // used rarely sits behind one row that opens (its open / closed state survives the pane being painted again).
+  const more = (k, title, note, inner) => `<details class="cam-more" data-more="${k}"${opened.has(k) ? " open" : ""}><summary>${title}${note ? `<small>${note}</small>` : ""}</summary><div class="in">${inner}</div></details>`;
+  // an iPhone on the PC's cable without Apple's driver: one line + one press (the PC installs «Apple Devices» itself)
+  const iphoneLine = () => {
+    if (!iph || !(iph.need || iph.installing || iph.error === "store")) return "";
+    if (iph.installing) return '<div class="cam-line"><span>نجهّز تعريف الآيفون…</span><em>بالبيسي</em></div>';
+    if (iph.error === "store") return '<div class="cam-line"><span>كمّل من المتجر اللي انفتح بالبيسي</span></div>';
+    return '<div class="cam-line"><span>آيفونك متصل، يبيله تعريف آبل</span><button class="chip on" data-iph="1">جهّزه</button></div>';
+  };
   function paneHtml() {
     const c = caps();
     if (tab === "pic") {
       const ls = lenses.length > 1 ? `<h3>العدسة</h3><div class="opts">${lenses.map((l) => `<button class="chip${(P.lens ? P.lens === l.id : l.facing === P.facing && l === lenses.find((x) => x.facing === P.facing)) ? " on" : ""}" data-lens="${esc(l.id)}">${esc(l.name)}</button>`).join("")}</div>` : "";
-      return `${ls}<h3>أعلى جودة</h3>${chips("q", [["720", "720"], ["1080", "1080"]])}
-        <h3>السرعة</h3>${chips("fps", [[30, "30 بالثانية"], [60, "60 بالثانية"]])}
-        <small class="hint" style="margin:0">تبدأ 720 وتطلع لحالها لاختيارك لما يكون الاتصال قوي (نفس الواي فاي أو الكيبل). عن طريق النت تبقى 720 عشان ما تعلّق.</small>
+      const q = (v) => `<button class="chip${P.q === v ? " on" : ""}" data-set="q" data-v="${v}"><bdi class="num">${v}</bdi></button>`;
+      const f = (v) => `<button class="chip${P.fps === v ? " on" : ""}" data-set="fps" data-v="${v}"><bdi class="num">${v}</bdi> بالثانية</button>`;
+      const tuned = P.fx.b || P.fx.c || P.fx.w || P.fx.s || P.fx.auto;
+      return `${ls}<h3>الجودة</h3><div class="opts">${q("720")}${q("1080")}<i class="sep"></i>${f(30)}${f(60)}</div>
         <h3>الخلفية</h3>${chips("bg", [["none", "بدون"], ["blur", "طمس"], ["img", "صورة"]], true)}
         ${P.fx.bg === "img" ? `<div class="cam-bgs">${[["lava", "حمم نيوك"], ["room", "غرفة"], ["night", "ليل"]].map(([v, t]) => `<button class="cam-bgt bg-${v}${P.fx.img === v ? " on" : ""}" data-fx="img" data-v="${v}"><span>${t}</span></button>`).join("")}<label class="cam-bgt bg-custom${P.fx.img === "custom" ? " on" : ""}"><input type="file" accept="image/*" id="camBgFile" hidden><span>من جوالك</span></label></div>` : ""}
-        ${sw("follow", "يلحق وجهك", "لو تحركت، الصورة تقرّب وتلحقك بهدوء.", P.fx.follow, "fxt")}
-        <h3>ضبط الصورة</h3>
-        ${slider("b", "إضاءة", -1)}${slider("c", "تباين", -1)}${slider("w", "دفا", -1)}${slider("s", "حدّة", 0)}
-        ${sw("auto", "صلّح الإضاءة", "لو الغرفة ظلمة يفتّح الصورة بروحه.", P.fx.auto, "fxt")}
-        <button class="wide ghost" data-reset="1">رجّع الصورة مثل ما كانت</button>
-        ${sw("mirror", "مرآة", "مثل ما تشوف نفسك بالمراية (الأمامية).", P.mirror)}
-        ${c.focusMode ? sw("focus", "قفل التركيز", "اضغط على الصورة عشان تركّز، وهذا يثبّته.", focusLocked, "lock") : '<small class="hint" style="margin:0">اضغط على الصورة عشان تركّز، وكبّر وصغّر بأصبعين.</small>'}
-        <small class="hint" style="margin:0">الطمس والصورة والملاحقة يسويها كرت الشاشة بالبيسي، جوالك ما يسخن.</small>`;
+        ${sw("follow", "يلحق وجهك", "", P.fx.follow, "fxt")}
+        ${P.facing === "user" ? sw("mirror", "مرآة", "", P.mirror) : ""}
+        ${more("look", "ضبط الصورة", tuned ? "متغيّرة" : "", `${slider("b", "إضاءة", -1)}${slider("c", "تباين", -1)}${slider("w", "دفا", -1)}${slider("s", "حدّة", 0)}
+          ${sw("auto", "صلّح الإضاءة", "للغرفة الظلمة", P.fx.auto, "fxt")}
+          ${c.focusMode ? sw("focus", "قفل التركيز", "", focusLocked, "lock") : ""}
+          ${tuned ? '<button class="wide ghost" data-reset="1">رجّعها مثل ما كانت</button>' : ""}`)}`;
     }
     if (tab === "snd")
-      return `${sw("mic", "صوت الجوال", "يوصل مع رابط برنامج البث ومع التسجيل. خلّه مطفّي لو ما تحتاجه: الجوال يرتاح.", P.mic)}
-        ${sw("noise", "يخفّف الضجة", "يشيل صوت المروحة والضجة اللي ورا.", P.noise)}`;
+      return `${sw("mic", "صوت الجوال", "يوصل للرابط والتسجيل", P.mic)}
+        ${sw("noise", "يخفّف الضجة", "", P.noise)}`;
     if (tab === "pc") {
       let vcHtml = "";
       if (vc?.built) {
-        if (!vc.installed) vcHtml = `<div class="cam-link"><b>كاميرا نيوك</b><small class="hint" style="margin:0">جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG» تختارها بأي موقع أو برنامج. بالبيسي يطلع «نعم» من الويندوز مرة وحدة، لازم أحد يضغطها.</small><button class="wide" data-vcsetup="1">فعّلها</button></div>`;
+        if (!vc.installed) vcHtml = `<div class="cam-line"><span>كاميرا نيوك</span><button class="chip" data-vcsetup="1">فعّلها</button></div>`;
         else {
-          vcHtml = sw("vcam", "كاميرا نيوك", "جوالك يطلع بالبيسي ككاميرا اسمها «NUKE GG»: اخترها بأي موقع أو برنامج.", vc.on);
-          if (vc.outdated) vcHtml += `<div class="cam-link"><small class="hint" style="margin:0">فيه نسخة أوضح من «كاميرا نيوك». بالبيسي يطلع «نعم» من الويندوز مرة وحدة.</small><button class="wide ghost" data-vcsetup="1">حدّثها</button></div>`;
-          if (vc.on && live && view?.others && !view.vcamMine) vcHtml += `<button class="wide ghost" data-vcfrom="1">خلّ «كاميرا نيوك» تاخذ صورة هالجوال</button>`;
+          vcHtml = sw("vcam", "كاميرا نيوك", "اخترها بأي موقع أو برنامج", vc.on);
+          if (vc.outdated) vcHtml += `<div class="cam-line"><span>نسخة أوضح جاهزة</span><button class="chip" data-vcsetup="1">حدّثها</button></div>`;
+          if (vc.on && live && view?.others && !view.vcamMine) vcHtml += `<button class="wide ghost" data-vcfrom="1">خلّها تاخذ صورة هالجوال</button>`;
         }
       }
-      return `<small class="hint" style="margin:0">كل هذا تقدر تغيّره من البيسي بعد: «جوالك» ← «كاميرا بثك».</small>
-        ${vcHtml}
-        ${sw("window", "نافذة على البيسي", "وجهك يطلع بنافذة فوق الشاشة، وبرنامج البث يلقطها.", P.window)}
-        <h3>الشكل</h3>${chips("shape", [["circle", "دائرة"], ["round", "مدوّرة"], ["square", "مربعة"]])}
-        <h3>الحجم</h3>${chips("size", [["s", "صغيرة"], ["m", "وسط"], ["l", "كبيرة"]])}
-        ${sw("border", "شارة NUKE", "شارة صغيرة بزاوية النافذة.", P.border)}
-        ${sw("top", "فوق كل شي", "النافذة تبقى فوق اللعبة والبرامج.", P.top)}
-        ${link ? `<div class="cam-link"><b>رابط برنامج البث${view?.slot === 2 ? " (الجوال الثاني)" : ""}</b><code dir="ltr">${esc(link)}</code><small class="hint" style="margin:0">ببرنامج البث: ضيف «مصدر متصفح» والصق الرابط. يجيب الصورة وصوت الجوال.</small><button class="wide ghost" data-copy="1">انسخه بالبيسي</button></div>` : ""}
-        <div class="cam-link"><b>جوال ثاني = كاميرا ثانية</b><small class="hint" style="margin:0">اربط جوال ثاني بنفس البيسي وافتح فيه «كاميرا بثك». كل جوال له نافذته ورابطه.</small></div>`;
+      return `${vcHtml}
+        ${sw("window", "نافذة على البيسي", "", P.window)}
+        ${P.window ? more("win", "شكل النافذة", "", `<div class="opts">${[["circle", "دائرة"], ["round", "مدوّرة"], ["square", "مربعة"]].map(([v, t]) => `<button class="chip${P.shape === v ? " on" : ""}" data-set="shape" data-v="${v}">${t}</button>`).join("")}</div>
+          <div class="opts">${[["s", "صغيرة"], ["m", "وسط"], ["l", "كبيرة"]].map(([v, t]) => `<button class="chip${P.size === v ? " on" : ""}" data-set="size" data-v="${v}">${t}</button>`).join("")}</div>
+          ${sw("border", "شارة NUKE", "", P.border)}
+          ${sw("top", "فوق كل شي", "", P.top)}`) : ""}
+        ${link ? `<div class="cam-line"><span>رابط برنامج البث${view?.slot === 2 ? " · الجوال الثاني" : ""}</span><button class="chip" data-copy="1">انسخه بالبيسي</button></div>` : ""}`;
     }
     if (tab === "net") {
       const kind = kindNow();
-      const now = live && kind ? `<div class="cam-net"><b>${KIND_SAY[kind] ?? "متصل"}</b><span>${stats?.kbps ? `<bdi class="num">${(stats.kbps / 1000).toFixed(1)}</bdi> ميقا` : ""}${stats?.h ? ` · <bdi class="num">${stats.h}p ${stats.fps || ""}</bdi>` : ""}</span>${kind === "relay" ? '<small class="hint" style="margin:0">عن طريق سيرفر نيوك نخلّي الجودة 720 عشان باقة جوالك.</small>' : kind === "net" ? '<small class="hint" style="margin:0">عن طريق النت نخلّيها 720 عشان تمشي ناعمة وما تعلّق.</small>' : ""}</div>` : `<small class="hint" style="margin:0">${live ? "نقيس الاتصال…" : "ابدأ البث وتشوف هنا كيف يوصل الجوال."}</small>`;
-      const server = ice.ready ? "جاهز: لو الطريق المباشر مسكّر (بيانات الجوال مثلاً) تمر الصورة عن طريقه بروحها." : "للحين مو مفعّل: صاحب التطبيق يفعّله مرة وحدة. بدونه ببيانات الجوال أحياناً يمشي وأحياناً لا.";
-      const fix = usb?.takesInternet && !usb.alone ? `<div class="cam-link warn"><b>البيسي صار ياخذ النت من جوالك</b><small class="hint" style="margin:0">عشان ما ياكل باقتك، خلّ نت البيسي من الراوتر. بالبيسي يطلع «نعم» من الويندوز مرة وحدة.</small><button class="wide" data-usbfix="1">خلّ نت البيسي من الراوتر</button></div>` : "";
+      const nums = [stats?.kbps ? `<bdi class="num">${(stats.kbps / 1000).toFixed(1)}</bdi> ميقا` : "", stats?.h ? `<bdi class="num">${Math.min(stats.w || stats.h, stats.h)}p${stats.fps ? ` ${stats.fps}` : ""}</bdi>` : ""].filter(Boolean).join(" · ");
+      const now = live && kind ? `<div class="cam-net"><b>${KIND_SAY[kind] ?? "متصل"}</b>${nums ? `<span>${nums}</span>` : ""}</div>` : `<div class="cam-net off"><b>${back ? "نرجّعه…" : live ? "نقيس الاتصال…" : "ابدأ البث وتشوف الاتصال هنا"}</b></div>`;
+      const fix = usb?.takesInternet && !usb.alone ? `<div class="cam-link warn"><b>البيسي ياخذ النت من جوالك</b><button class="wide" data-usbfix="1">خلّ نت البيسي من الراوتر</button></div>` : "";
       return `${now}
-        <small class="hint" style="margin:0">للبث الطويل خلّ جوالك على الشاحن.</small>
-        ${sw("lite", "وضع خفيف", "جوالك ما يعرض الصورة وهو يبث: يبرد ويوفّر البطارية.", P.lite)}
-        <h3>سيرفر نيوك</h3><small class="hint" style="margin:0">${server}</small>
-        <h3>بالكيبل (أوضح صورة وبدون تأخير)</h3>
-        <ol class="cam-steps"><li>اشبك الجوال بالبيسي بالكيبل.</li><li><b>أندرويد:</b> الإعدادات ← نقطة الاتصال ← «مشاركة الإنترنت بالكيبل».</li><li><b>آيفون:</b> الإعدادات ← نقطة الاتصال الشخصية ← شغّلها (البيسي يبيله برنامج آيتونز).</li><li>ابدأ البث: يطلع فوق «بالكيبل ⚡».</li></ol>
-        ${fix}`;
+        ${sw("lite", "وضع خفيف", "يبرّد الجوال ويوفّر البطارية", P.lite)}
+        <div class="cam-line"><span>سيرفر نيوك</span><em class="${ice.ready ? "ok" : ""}">${ice.ready ? "جاهز" : "مو مفعّل"}</em></div>
+        ${fix}
+        ${iphoneLine()}
+        ${more("usb", "وصّله بالكيبل", "أوضح وأسرع", `<div class="cam-how"><b>آيفون</b><span>اشبكه ← الإعدادات ← نقطة الاتصال الشخصية ← شغّلها.</span><small>البيسي يبي برنامج «Apple Devices» من متجر مايكروسوفت (مجاني).</small></div>
+          <div class="cam-how"><b>أندرويد</b><span>اشبكه ← الإعدادات ← نقطة الاتصال ← «مشاركة الإنترنت بالكيبل».</span></div>
+          <div class="cam-how"><small>بعدها يطلع فوق: ⚡ بالكيبل</small></div>`)}`;
     }
     return "";
   }
@@ -5277,6 +5445,11 @@ $("camOpen").addEventListener("click", () => {
       await openCam();
       if (P.mic && !aTrack()) await setMic();
     } catch (err) {
+      // the old camera was already let go: without a picture the message shows (never a black box with no word)
+      if (vTrack()?.readyState !== "live") {
+        stream?.getTracks().forEach((t) => t.stop());
+        stream = null;
+      }
       $("camMsg").textContent = err?.name === "NotAllowedError" ? "اسمح للصفحة تستخدم الكاميرا من إعدادات المتصفح، وجرّب مرة ثانية." : "ما قدرنا نفتح الكاميرا.";
     }
     draw();
@@ -5304,7 +5477,7 @@ $("camOpen").addEventListener("click", () => {
     level = l;
     const [w, h] = sizeOf(target().q);
     try {
-      await vTrack()?.applyConstraints({ width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: target().fps } });
+      await constrain({ width: { ideal: w }, height: { ideal: h }, frameRate: { ideal: target().fps }, resizeMode: "none" });
     } catch {}
     encode();
   }
@@ -5435,7 +5608,13 @@ $("camOpen").addEventListener("click", () => {
   }
 
   async function goLive() {
-    if (!stream || busy) return;
+    if (busy) return;
+    // no camera yet (refused, or taken by another app a moment ago): asked once more, else said why (never a dead button)
+    if (!stream && !back) {
+      await refresh();
+      if (!stream) return toast($("camMsg").textContent || "ما قدرنا نفتح الكاميرا.", true);
+    }
+    if (!stream) return;
     busy = true;
     want = true;
     const again = back; // a reconnect: the PC doesn't announce it again
@@ -5444,9 +5623,11 @@ $("camOpen").addEventListener("click", () => {
     good = poor = 0;
     lastOut = null;
     pcKind = null;
-    // back to 720p30 for the start (the step up comes once the link proved itself)
+    // back to 720p30 for the start (the step up comes once the link proved itself) — only when the camera is above it:
+    // asking again for the same size made some phones restart the camera on every reconnect
     try {
-      await vTrack()?.applyConstraints({ width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } });
+      const s = vTrack()?.getSettings?.() ?? {};
+      if (Math.min(s.width || 0, s.height || 0) > 720 || (s.frameRate || 0) > 31) await constrain({ width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 }, resizeMode: "none" });
     } catch {}
     paintStat();
     paintGo();
@@ -5477,12 +5658,9 @@ $("camOpen").addEventListener("click", () => {
         if (shaky) quietTimer = setTimeout(() => pc === mine && mine.connectionState === "disconnected" && lostLink(), 12000);
         paintStat();
       };
+      const gathered = iceEnough(pc, [...RTC_ICE, ...(ice.ice || [])]);
       await pc.setLocalDescription(await pc.createOffer());
-      await new Promise((res) => {
-        if (pc.iceGatheringState === "complete") return res();
-        const t = setTimeout(res, 3000);
-        pc.addEventListener("icegatheringstatechange", () => pc.iceGatheringState === "complete" && (clearTimeout(t), res()));
-      });
+      await gathered;
       const r = await cmd("cam.start", { sdp: pc.localDescription.sdp, opts: winOpts(), again }, 25000);
       if (!r.ok) throw new Error(r.error || "fail");
       await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
@@ -5493,9 +5671,7 @@ $("camOpen").addEventListener("click", () => {
       shaky = false;
       backTry = 0;
       encode();
-      try {
-        wakeCam ??= await navigator.wakeLock?.request("screen");
-      } catch {}
+      void keepAwake();
       if (!again) buzz([20, 40, 20]);
       // the phone's own background picture goes again with every new link
       try {
@@ -5546,8 +5722,17 @@ $("camOpen").addEventListener("click", () => {
       if (want && !live && !busy) void goLive();
     }, wait);
   }
+  // the screen stays on while sending; the browser lets go of that whenever the page is left, so it's asked again on
+  // every return (it used to be asked once: after a look at another app the phone dimmed, locked and the camera stopped)
+  async function keepAwake() {
+    if (!want || document.hidden || (wakeCam && !wakeCam.released)) return;
+    try {
+      wakeCam = (await navigator.wakeLock?.request("screen")) ?? null;
+    } catch {}
+  }
   const onVisible = () => {
     if (document.hidden || !want) return;
+    void keepAwake();
     if (!live || vTrack()?.readyState !== "live") {
       if (live) lostLink();
       else {
@@ -5674,7 +5859,7 @@ $("camOpen").addEventListener("click", () => {
     if (c.focusMode?.includes("single-shot")) set.focusMode = "single-shot";
     else if (c.focusMode?.includes("continuous")) set.focusMode = "continuous";
     if (c.exposureMode?.includes("single-shot")) set.exposureMode = "single-shot";
-    vTrack()?.applyConstraints({ advanced: [set] }).catch(() => {});
+    constrain({ advanced: [set] }).catch(() => {});
     // the digital zoom (an iPhone) follows the tap too
     if (digital.z > 1.01) {
       digital.x = Math.max(0, Math.min(1, x));
@@ -5700,7 +5885,7 @@ $("camOpen").addEventListener("click", () => {
       sendOpts();
     } else if (k === "torch" && c.torch) {
       torch = !torch;
-      t.applyConstraints({ advanced: [{ torch }] }).catch(() => {});
+      constrain({ advanced: [{ torch }] }).catch(() => {});
       paintTools();
     } else if (k === "mic") {
       P.mic = !P.mic;
@@ -5793,6 +5978,8 @@ $("camOpen").addEventListener("click", () => {
     if (b.dataset.tab) {
       tab = tab === b.dataset.tab ? null : b.dataset.tab;
       if (tab === "net") void cmd("cam.usb").then((r) => r.ok && ((usb = r.data), tab === "net" && drawPane()));
+      // an iPhone on the PC's cable that still needs Apple's driver: its line shows at the top of the tab (not folded)
+      if (tab === "net") void lookIphone();
       if (tab === "pc") void cmd("cam.state").then((r) => r.ok && r.data && (adopt(r.data), tab === "pc" && drawPane()));
       return paintTabs();
     }
@@ -5846,7 +6033,7 @@ $("camOpen").addEventListener("click", () => {
       const c = caps();
       focusLocked = !focusLocked;
       const mode = focusLocked ? (c.focusMode?.includes("manual") ? "manual" : "single-shot") : c.focusMode?.includes("continuous") ? "continuous" : null;
-      if (mode) vTrack()?.applyConstraints({ advanced: [{ focusMode: mode }] }).catch(() => {});
+      if (mode) constrain({ advanced: [{ focusMode: mode }] }).catch(() => {});
       return drawPane();
     }
     if (b.dataset.vcsetup) {
@@ -5862,6 +6049,15 @@ $("camOpen").addEventListener("click", () => {
     if (b.dataset.vcfrom) {
       const r = await cmd("cam.vcamFrom");
       if (r.ok) view = r.data;
+      return drawPane();
+    }
+    if (b.dataset.iph) {
+      iph = { ...iph, installing: true, need: false };
+      drawPane();
+      const r = await cmd("cam.iphoneInstall", {}, 600000);
+      iph = r.ok && r.data ? r.data : { ...iph, installing: false, need: true };
+      if (r.ok && r.data?.driver) toast("تعريف الآيفون جاهز: شغّل نقطة الاتصال الشخصية");
+      else if (!r.ok) toast("حدّث NUKE GG بالبيسي.", true);
       return drawPane();
     }
     if (b.dataset.usbfix) {
@@ -5895,14 +6091,61 @@ $("camOpen").addEventListener("click", () => {
       sendOpts();
     }
   };
+  // a folded row opened / closed: remembered (the pane is painted again every few seconds); the cable row looks once
+  // whether an iPhone on the PC's cable still needs Apple's driver
+  function lookIphone() {
+    return cmd("cam.iphone").then((r) => {
+      if (!r.ok || !r.data) return;
+      const was = JSON.stringify(iph);
+      iph = r.data;
+      if (tab === "net" && was !== JSON.stringify(iph)) drawPane();
+    });
+  }
+  const onToggle = (e) => {
+    const d = e.target;
+    if (!d?.matches?.("details[data-more]")) return;
+    const k = d.dataset.more;
+    if (d.open) opened.add(k);
+    else opened.delete(k);
+    if (k === "usb" && d.open) void lookIphone();
+  };
   const body = $("funBody");
+  body.addEventListener("toggle", onToggle, true);
   body.addEventListener("click", onClick);
   body.addEventListener("input", onInput);
   body.addEventListener("change", onChange);
   body.addEventListener("touchstart", onTouchStart, { passive: true });
   body.addEventListener("touchmove", onTouchMove, { passive: false });
   body.addEventListener("touchend", onTouchEnd);
+  // Android's back gesture / button: the open tab or the hidden buttons go first; while sending it never stops the stream
+  // by surprise (only «وقّف البث» / ✕ do that); otherwise it closes the camera view instead of leaving the page
+  let ownHist = false;
+  try {
+    history.pushState({ nkcam: 1 }, "");
+    ownHist = true;
+  } catch {}
+  const onPop = () => {
+    if (!camCleanup) return;
+    if (tab || clean || live || back) {
+      if (tab) (tab = null), paintTabs();
+      else if (clean) setClean(false);
+      else toast("البث شغّال: وقّفه من «وقّف البث»");
+      try {
+        history.pushState({ nkcam: 1 }, "");
+      } catch {}
+      return;
+    }
+    ownHist = false;
+    closeFun();
+  };
+  window.addEventListener("popstate", onPop);
   camCleanup = () => {
+    window.removeEventListener("popstate", onPop);
+    if (ownHist && history.state?.nkcam) {
+      ownHist = false;
+      history.back();
+    }
+    body.removeEventListener("toggle", onToggle, true);
     body.removeEventListener("click", onClick);
     body.removeEventListener("input", onInput);
     body.removeEventListener("change", onChange);
@@ -5915,6 +6158,8 @@ $("camOpen").addEventListener("click", () => {
     stream = null;
     clearInterval(recTimer);
     funx.classList.remove("camx", "clean");
+    stageSeen?.disconnect();
+    removeEventListener("resize", onTurn);
     stat.remove();
     camCleanup = null;
   };
