@@ -2,13 +2,24 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
+<!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy): the link's words are someone else's -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-o1zUbwxY+sw60S2noIjVj5cfQn0fJuB10KlQNWuZ/jg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <title>تحدّي ردة الفعل · NUKE GG</title>
 <link rel="icon" href="remote-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" />
+<!-- the font never holds the first paint back (friends open this on mobile data): "print" until it loaded -->
+<link id="nkFont" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" media="print" crossorigin />
+<script>
+(() => {
+  const l = document.getElementById("nkFont");
+  const on = () => (l.media = "all");
+  l.addEventListener("load", on);
+  if (l.sheet) on();
+})();
+</script>
 <!-- «تحدّى ربعك بردة الفعل» (owner, 2026-10-12): a friend got a link from someone's NUKE phone page, plays the same game here in any
      browser (no app, nothing kept but his own best on his phone) and sees who won; he can send his own score back -->
 <script src="rx-game.js" defer></script>
@@ -55,7 +66,7 @@
 </head>
 <body>
 <div class="wrap">
-  <header><img src="remote-icon.png" alt="" /><b>NUKE GG</b></header>
+  <header><img src="remote-logo.webp" alt="" /><b>NUKE GG</b></header>
   <div id="main"></div>
   <p class="foot">لعبة صغيرة من NUKE GG · ما ينحفظ عندنا شي</p>
 </div>
@@ -65,7 +76,9 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const h = new URLSearchParams(location.hash.slice(1));
 const mode = h.get("m") === "blocks" ? "blocks" : "circle";
-const theirs = Math.round(Number(h.get("s"))) || null;
+// the friend's score as the link says it: nobody is faster than ~80 ms or slower than 2 s (a link edited to "1 ms" is clamped)
+const theirsRaw = Math.round(Number(h.get("s")));
+const theirs = Number.isFinite(theirsRaw) && theirsRaw > 0 ? Math.min(2000, Math.max(80, theirsRaw)) : null;
 const who = (h.get("n") || "").slice(0, 20).trim() || "واحد من ربعك";
 const modeWord = mode === "blocks" ? "خمس بلوكات تطلع، تضغطها بأسرع ما تقدر" : "أول ما تخضرّ الدائرة اضغطها";
 
@@ -100,8 +113,8 @@ function done(ms) {
   const won = theirs != null && ms < theirs, tie = theirs != null && ms === theirs;
   let name = "";
   try { name = localStorage.getItem("nk-fun-name") || ""; } catch {}
-  $("main").innerHTML = `<div class="res"><b class="dn">${ms} ms</b><span class="hint">${NKRx.rank(ms)}</span>` +
-    (theirs != null ? `<p class="verdict ${won ? "win" : tie ? "" : "lose"}">${won ? `غلبت ${esc(who)}! 🏆` : tie ? "تعادل!" : `${esc(who)} أسرع منك بـ <span class="dn">${ms - theirs} ms</span>`}</p>` : "") +
+  $("main").innerHTML = `<div class="res"><b class="dn">${ms} ms</b><span class="hint">${NKRx.rank(ms, mode)}</span>` +
+    (theirs != null ? `<p class="verdict ${won ? "win" : tie ? "" : "lose"}">${won ? `غلبت ${esc(who)}!` : tie ? "تعادل!" : `${esc(who)} أسرع منك بـ <span class="dn">${ms - theirs} ms</span>`}</p>` : "") +
     `</div><input id="name" class="name" maxlength="20" dir="auto" placeholder="اسمك (يشوفه اللي ترسل له)" value="${esc(name)}" />` +
     '<div class="row"><button class="blk" id="send">رد التحدّي</button><button class="blk ghost" id="again">مرة ثانية</button></div>';
   if (won) confetti();
@@ -115,7 +128,7 @@ function done(ms) {
     const text = theirs != null && won ? `غلبتك! ${ms} ms، تقدر ترد؟` : `ردة فعلي ${ms} ms، تقدر تغلبني؟`;
     try {
       if (navigator.share) await navigator.share({ text, url: url.href });
-      else { await navigator.clipboard.writeText(`${text} ${url.href}`); $("send").textContent = "انسخ ✓"; }
+      else { await navigator.clipboard.writeText(`${text} ${url.href}`); $("send").textContent = "نسخناه، الصقه لربعك"; }
     } catch {}
   });
 }
