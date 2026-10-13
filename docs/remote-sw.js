@@ -2,14 +2,17 @@
 //  1. Opens fast: what the page needs is kept on the phone.
 //     • the page: from the internet when it answers quickly (so a new version arrives the first time), else the
 //       copy kept here (slow or no internet) — and the new one is kept for next time
-//     • the Supabase library, jsQR and the font files: fixed versions that never change → straight from here
-//     • the icon, the manifest and the font list: from here, refreshed behind
+//     • the Supabase library (only when there's no relay of ours) and the font files: fixed versions that never change →
+//       straight from here
+//     • the logo, the icons, the manifest, the game / QR scripts next to it (rx-game.js, jsqr.js) and the font list: from
+//       here, refreshed behind
+//     • a cache that fails (storage full, a private window, a store gone bad) never stops anything: then from the internet
 //     Only remote.html and its own files: the other pages next to it (admin.html…) are never touched.
 //     A new caching way = a new CACHE name; the old ones are deleted when it starts.
 //  2. Shows the notifications the PC sends (Web Push):
 //     • short title + one line; a newer one of the same kind replaces the older (`tag`), so they don't pile up
 //     • tapping one opens the page on its tab (e.g. «الحالة» for "the RAM is full")
-const CACHE = "nk-remote-v2";
+const CACHE = "nk-remote-v3";
 const PAGE_WAIT = 1500; // ms the internet gets before the kept page is shown
 
 self.addEventListener("install", (event) => {
@@ -17,7 +20,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(["remote.html", "remote-icon.png", "remote-app.png", "remote.webmanifest"]))
+      .then((c) => c.addAll(["remote.html", "remote-logo.webp", "remote-icon.png", "remote-app.png", "remote.webmanifest"]))
       .catch(() => {}), // (kept on the first visit instead)
   );
 });
@@ -81,46 +84,72 @@ self.addEventListener("fetch", (event) => {
       }),
     );
   }
+  // the pages for friends next to it (send.html, challenge.html) load their own files from the internet as usual: they
+  // are opened by people who never installed anything, and nothing of theirs is kept on this phone
+  if (/\/(send|challenge)\.html/.test(req.referrer || "")) return;
   if (fixed(u)) return event.respondWith(keptFirst(req));
   if (here(u) && /\/remote\.html$/.test(u.pathname)) return event.respondWith(pageFirst(event, req, pageKey(u)));
-  if ((here(u) && /\/remote-(icon|app)\.png$|\/(tab|ban)-[a-z]+\.jpg$|\/remote\.webmanifest$/.test(u.pathname)) || u.hostname === "fonts.googleapis.com") return event.respondWith(keptThenFresh(event, req));
+  if ((here(u) && /\/remote-(icon|app)\.png$|\/remote-logo\.webp$|\/(tab|ban)-[a-z]+\.jpg$|\/remote\.webmanifest$|\/(rx-game|jsqr)\.js$/.test(u.pathname)) || u.hostname === "fonts.googleapis.com") return event.respondWith(keptThenFresh(event, req));
 });
 
 // good answers only (a broken one would stick)
 const good = (res) => res && res.ok && (res.type === "basic" || res.type === "cors" || res.type === "default");
+// The phone's cache can fail (storage full, a private window, a store gone bad: "UnknownError"): then everything simply
+// comes from the internet as if this worker weren't here — a cache error never stops the page from opening (QA,
+// 2026-10-13: the page, its logo and the friends' pages all failed while caches.open() kept rejecting).
+const openCache = () => caches.open(CACHE).catch(() => null);
+const keepIn = (c, key, res) => {
+  if (!c || !good(res)) return;
+  try {
+    c.put(key, res.clone()).catch(() => {});
+  } catch {}
+};
+const matchIn = (c, req, opts) => (c ? c.match(req, opts).catch(() => undefined) : Promise.resolve(undefined));
 
 async function pageFirst(event, req, key) {
-  const c = await caches.open(CACHE);
-  const net = fetch(req).then((res) => {
-    if (good(res)) c.put(key, res.clone()).catch(() => {});
-    return res;
-  });
-  event.waitUntil(net.catch(() => {}));
-  const kept = await c.match(key);
-  if (!kept) return net; // the first time: the internet
-  return Promise.race([net.then((res) => (good(res) ? res : kept)).catch(() => kept), new Promise((r) => setTimeout(() => r(kept), PAGE_WAIT))]);
+  try {
+    const c = await openCache();
+    const net = fetch(req).then((res) => {
+      keepIn(c, key, res);
+      return res;
+    });
+    event.waitUntil(net.catch(() => {}));
+    const kept = await matchIn(c, key);
+    if (!kept) return net; // the first time (or no cache): the internet
+    return Promise.race([net.then((res) => (good(res) ? res : kept)).catch(() => kept), new Promise((r) => setTimeout(() => r(kept), PAGE_WAIT))]);
+  } catch {
+    return fetch(req);
+  }
 }
 
 async function keptFirst(req) {
-  const c = await caches.open(CACHE);
-  const kept = await c.match(req);
-  if (kept) return kept;
-  const res = await fetch(req);
-  if (good(res)) c.put(req, res.clone()).catch(() => {});
-  return res;
+  try {
+    const c = await openCache();
+    const kept = await matchIn(c, req);
+    if (kept) return kept;
+    const res = await fetch(req);
+    keepIn(c, req, res);
+    return res;
+  } catch {
+    return fetch(req);
+  }
 }
 
 async function keptThenFresh(event, req) {
-  const c = await caches.open(CACHE);
-  const kept = await c.match(req, { ignoreSearch: here(new URL(req.url)) });
-  const net = fetch(req)
-    .then((res) => {
-      if (good(res)) c.put(req, res.clone()).catch(() => {});
-      return res;
-    })
-    .catch(() => kept || Response.error());
-  event.waitUntil(net.catch(() => {}));
-  return kept || net;
+  try {
+    const c = await openCache();
+    const kept = await matchIn(c, req, { ignoreSearch: here(new URL(req.url)) });
+    const net = fetch(req)
+      .then((res) => {
+        keepIn(c, req, res);
+        return res;
+      })
+      .catch(() => kept || Response.error());
+    event.waitUntil(net.catch(() => {}));
+    return kept || net;
+  } catch {
+    return fetch(req);
+  }
 }
 
 self.addEventListener("push", (event) => {
