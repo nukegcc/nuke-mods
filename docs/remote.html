@@ -857,8 +857,20 @@
   .cam-ring { position: absolute; z-index: 2; width: 70px; height: 70px; margin: -35px 0 0 -35px; border: 2px solid var(--gold); border-radius: 16px; opacity: 0; pointer-events: none; }
   .cam-ring.on { animation: camring .9s ease-out forwards; }
   @keyframes camring { 0% { opacity: 0; transform: scale(1.5); } 25% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
-  .cam-zoom { position: absolute; z-index: 2; bottom: 12px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 99px; background: #0e0a0ab3; font: 700 15px var(--f-num); color: var(--gold); opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .cam-zoom { position: absolute; z-index: 2; bottom: 64px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 99px; background: #0e0a0ab3; font: 700 15px var(--f-num); color: var(--gold); opacity: 0; transition: opacity .2s; pointer-events: none; }
   .cam-zoom.on { opacity: 1; }
+  /* the lenses, like the phone's own camera: .5 · 1 · 2 · the zoom lens, the one in use bigger and gold with its zoom */
+  .cam-lens { position: absolute; z-index: 2; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 99px; background: #0e0a0a8c; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); touch-action: none; user-select: none; -webkit-user-select: none; }
+  .cam-lens[hidden] { display: none; }
+  .cam-lens button { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; padding: 0; color: #fff; background: rgb(255 255 255 / .09); font: 700 13px var(--f-num); transition: width .18s, height .18s, color .18s, background .18s; }
+  .cam-lens button.on { width: 42px; height: 42px; font-size: 14px; color: var(--gold); background: #0e0a0ae0; box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .funx.camx.clean .cam-lens, .cam-prev.lite .cam-lens { display: none; }
+  /* asked once: the phone gives 1080 or 60, not both */
+  .cam-ask { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 64px; margin: 0 auto; max-width: 330px; padding: 12px; border-radius: 16px; background: #0e0a0ae6; box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .14); text-align: center; font-size: 13.5px; font-weight: 700; }
+  .cam-ask[hidden] { display: none; }
+  .cam-ask .row { display: flex; gap: 8px; margin-top: 10px; direction: ltr; }
+  .cam-ask .row button { flex: 1; min-height: 40px; border-radius: 12px; font: 700 15px var(--f-num); }
+  .cam-ask small { display: block; margin-top: 4px; color: var(--dim); font-size: 11.5px; font-weight: 400; }
   .cam-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; color: var(--dim); font-size: 13px; text-align: center; }
   .cam-msg[hidden] { display: none; }
   /* «وضع خفيف»: the phone draws nothing; a dark card says it's still sending */
@@ -5055,7 +5067,7 @@ $("comeEdit").addEventListener("click", () => {
 // The settings stay on this phone (nk-cam).
 const CAM_KEY = "nk-cam";
 const FX_DEF = { bg: "none", img: "lava", follow: false, b: 0, c: 0, w: 0, s: 0, auto: false };
-const CAM_DEF = { q: "1080", fps: 30, facing: "user", lens: "", mirror: true, mic: false, noise: true, lite: false, window: true, shape: "round", size: "m", border: true, top: false, fx: FX_DEF };
+const CAM_DEF = { prio: "", q: "1080", fps: 30, facing: "user", lens: "", mirror: true, mic: false, noise: true, lite: false, window: true, shape: "round", size: "m", border: true, top: false, fx: FX_DEF };
 const camPrefs = () => {
   try {
     const p = { ...CAM_DEF, ...JSON.parse(localStorage.getItem(CAM_KEY) || "{}") };
@@ -5105,14 +5117,18 @@ function camWay(lc, rc) {
 }
 // the phone's lenses by the names its browser gives them (an iPhone names them; Android often says only front / back)
 function lensOf(label, i) {
-  const l = String(label || "").toLowerCase();
-  if (/front|user|selfie|أمام/.test(l)) return { name: "الأمامية", facing: "user", rank: 0 };
-  if (/ultra/.test(l)) return { name: "واسعة", facing: "environment", rank: 2 };
-  if (/tele/.test(l)) return { name: "تقريب", facing: "environment", rank: 3 };
-  if (/dual|triple/.test(l)) return { name: "تلقائي", facing: "environment", rank: 4, combo: true };
-  if (/back|rear|environment|خلف/.test(l)) return { name: "الخلفية", facing: "environment", rank: 1 };
-  return { name: `كاميرا ${i + 1}`, facing: "environment", rank: 5 };
+  // Arabic marks out first («المقرِّبة»); the joined cameras before the wide one («المزدوجة واسعة الزاوية» is a joined one)
+  const l = String(label || "").toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, "");
+  if (/front|user|selfie|أمام/.test(l)) return { name: "الأمامية", facing: "user", rank: 0, kind: "front" };
+  if (/dual|triple|مزدوج|ثنائي|ثلاثي/.test(l)) return { name: "تلقائي", facing: "environment", rank: 4, combo: true, kind: "combo" };
+  if (/ultra|فائق|عريض|واسع/.test(l)) return { name: "واسعة", facing: "environment", rank: 2, kind: "ultra" };
+  if (/tele|مقرب|تقريب|تيلي/.test(l)) return { name: "تقريب", facing: "environment", rank: 3, kind: "tele" };
+  if (/back|rear|environment|خلف/.test(l)) return { name: "الخلفية", facing: "environment", rank: 1, kind: "main" };
+  return { name: `كاميرا ${i + 1}`, facing: "environment", rank: 5, kind: "other" };
 }
+// The zoom lens's number on an iPhone (2 / 3 / 5): the page can't read it, so it goes by the screen's size; a guess
+const TELE_X = { "375x812": "2", "414x896": "2", "390x844": "3", "428x926": "3", "393x852": "3", "430x932": "5", "402x874": "5", "440x956": "5" };
+const teleX = () => TELE_X[`${Math.min(screen.width, screen.height)}x${Math.max(screen.width, screen.height)}`] || "3";
 $("camOpen").addEventListener("click", () => {
   buzz();
   const P = camPrefs();
@@ -5182,6 +5198,8 @@ $("camOpen").addEventListener("click", () => {
       </div>
       <span class="cam-rec" id="camRecChip" hidden></span>
       <i class="cam-ring" id="camRing"></i><span class="cam-zoom" id="camZoom"></span>
+      <div class="cam-ask" id="camAsk" hidden></div>
+      <div class="cam-lens" id="camLens" dir="ltr" hidden></div>
       <span class="cam-cleanhint" id="camCleanHint">اضغط على الصورة وترجع الأزرار</span>
       <div class="cam-tools" id="camTools"></div>
     </div>
@@ -5314,6 +5332,7 @@ $("camOpen").addEventListener("click", () => {
   function draw() {
     paintStat();
     paintTools();
+    paintLens();
     paintGo();
     paintRec();
     paintPreview();
@@ -5357,7 +5376,7 @@ $("camOpen").addEventListener("click", () => {
       const tuned = P.fx.b || P.fx.c || P.fx.w || P.fx.s || P.fx.auto;
       const n60 = sixtyNote();
       return `${ls}<h3>الجودة</h3><div class="opts">${q("720")}${q("1080")}<i class="sep"></i>${f(30)}${f(60)}</div>
-        ${n60 ? `<div class="cam-line"><span>${n60}</span></div>` : ""}
+        ${n60 ? `<div class="cam-line"><span>${n60}</span>${prioChip()}</div>` : ""}
         <h3>الخلفية</h3>${chips("bg", [["none", "بدون"], ["blur", "طمس"], ["img", "صورة"]], true)}
         ${P.fx.bg === "img" ? `<div class="cam-bgs">${[["lava", "حمم نيوك"], ["room", "غرفة"], ["night", "ليل"]].map(([v, t]) => `<button class="cam-bgt bg-${v}${P.fx.img === v ? " on" : ""}" data-fx="img" data-v="${v}"><span>${t}</span></button>`).join("")}<label class="cam-bgt bg-custom${P.fx.img === "custom" ? " on" : ""}"><input type="file" accept="image/*" id="camBgFile" hidden><span>من جوالك</span></label></div>` : ""}
         ${sw("follow", "يلحق وجهك", "", P.fx.follow, "fxt")}
@@ -5395,7 +5414,7 @@ $("camOpen").addEventListener("click", () => {
       const fix = usb?.takesInternet && !usb.alone ? `<div class="cam-link warn"><b>البيسي ياخذ النت من جوالك</b><button class="wide" data-usbfix="1">خلّ نت البيسي من الراوتر</button></div>` : "";
       const n60 = sixtyNote();
       return `${now}
-        ${n60 ? `<div class="cam-line"><span>${n60}</span></div>` : ""}
+        ${n60 ? `<div class="cam-line"><span>${n60}</span>${prioChip()}</div>` : ""}
         ${sw("lite", "وضع خفيف", "يبرّد الجوال ويوفّر البطارية", P.lite)}
         <div class="cam-line"><span>سيرفر نيوك</span><em class="${ice.ready ? "ok" : ""}">${ice.ready ? "جاهز" : "مو مفعّل"}</em></div>
         ${fix}
@@ -5487,15 +5506,19 @@ $("camOpen").addEventListener("click", () => {
   // size at 30 and say so, never a silent 30.
   async function checkSixty() {
     camGives = null;
+    paintAsk();
     const t = target();
     if (t.fps !== 60) return;
     const fr = () => Number(vTrack()?.getSettings?.().frameRate) || 0;
     if (!fr() || fr() >= 45) return;
     if (t.q === "1080") {
+      // he chose sharpness: 1080 at what the camera gives
+      if (P.prio === "q") return void (camGives = { q: "1080", fps: Math.round(fr()) || 30 }, paintAsk());
       try {
         await constrain({ width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 60 }, resizeMode: "none" });
       } catch {}
-      if (fr() >= 45) return void (camGives = { q: "720", fps: 60 });
+      // smoothness, chosen or not yet asked (then asked once on the picture, 720 at 60 meanwhile)
+      if (fr() >= 45) return void ((camGives = { q: "720", fps: 60, ask: !P.prio }), paintAsk());
       try {
         await constrain({ width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 }, resizeMode: "none" });
       } catch {}
@@ -5505,6 +5528,8 @@ $("camOpen").addEventListener("click", () => {
   // the line that says why it isn't 60 when 60 was picked (shown in «الاتصال» and under «الجودة»)
   function sixtyNote() {
     if (P.fps !== 60) return "";
+    if (camGives?.ask) return "";
+    if (camGives?.q === "1080" && P.prio === "q") return `جوالك يعطي <bdi class="num">${camGives.fps}</bdi> على <bdi class="num">1080</bdi>`;
     if (camGives?.fps === 60) return `جوالك يعطي <bdi class="num">60</bdi> على <bdi class="num">720</bdi> بس`;
     if (camGives) return `جوالك يعطي <bdi class="num">${camGives.fps}</bdi> بهالجودة`;
     if (!live) return "";
@@ -5882,13 +5907,140 @@ $("camOpen").addEventListener("click", () => {
     clearTimeout(showZoom.t);
     showZoom.t = setTimeout(() => el.classList.remove("on"), 900);
   }
+  // ---- the lenses on the picture (owner, 2026-10-13: "خيار اتحكم بالعدسه نفس عدسات الكام"; his pick: circles under the
+  // picture): .5 = the wide lens (or the camera's own zoom below 1 on an Android), 1 = the main one, 2 = the main one zoomed
+  // (the camera's zoom where it has one, else the PC zooms in), then the zoom lens. A tap jumps; dragging along them zooms.
+  let stops = [];
+  const zoomNow = () => hwZoom ?? (Number(vTrack()?.getSettings?.().zoom) || 1);
+  function lensStops() {
+    const c = caps();
+    const back = lenses.filter((l) => l.facing === "environment" && !l.combo);
+    const main = back.find((l) => l.kind === "main");
+    const mainId = main?.id || "";
+    if (P.facing === "user") {
+      const id = lenses.find((l) => l.id === P.lens && l.facing === "user") ? P.lens : "";
+      return [{ k: "1", lens: id, facing: "user", z: 1, x: 1 }, { k: "2", lens: id, facing: "user", z: 2, x: 1 }];
+    }
+    const out = [];
+    const ultra = back.find((l) => l.kind === "ultra");
+    const onMain = !P.lens || P.lens === mainId;
+    if (ultra) out.push({ k: ".5", lens: ultra.id, z: 1, x: 0.5 });
+    else if (onMain && c.zoom && c.zoom.min > 0 && c.zoom.min <= 0.7) out.push({ k: ".5", lens: mainId, z: "min", x: 1 });
+    out.push({ k: "1", lens: mainId, z: 1, x: 1 }, { k: "2", lens: mainId, z: 2, x: 1 });
+    const tele = back.find((l) => l.kind === "tele");
+    if (tele) out.push({ k: teleX(), lens: tele.id, z: 1, x: Number(teleX()) });
+    return out;
+  }
+  const sameLens = (a, b) => (a || "") === (b || "") || (!a && b === stopsMain()) || (!b && a === stopsMain());
+  const stopsMain = () => lenses.find((l) => l.facing === "environment" && l.kind === "main")?.id || "";
+  // the stop in use: the lens open now, and its zoom (the camera's × the PC's)
+  function stopOn() {
+    const mine = stops.filter((s) => sameLens(s.lens, P.lens));
+    if (!mine.length) return { i: -1, x: 0 };
+    const z = (caps().zoom ? zoomNow() : 1) * digital.z;
+    const at = mine.length > 1 && z >= 1.9 ? mine.find((s) => s.z === 2) : mine.find((s) => s.z !== 2) ?? mine[0];
+    return { i: stops.indexOf(at), x: (at.x || 1) * z };
+  }
+  const fmtX = (x) => (x < 1 ? String(Math.round(x * 10) / 10).replace(/^0/, "") : String(Math.round(x * 10) / 10));
+  function paintLens() {
+    const el = $("camLens");
+    if (!el) return;
+    stops = stream && !P.lite ? lensStops() : [];
+    el.hidden = stops.length < 2;
+    if (el.hidden) return void (el.innerHTML = "");
+    const on = stopOn();
+    el.innerHTML = stops.map((s, i) => `<button data-stop="${i}" class="${i === on.i ? "on" : ""}" aria-label="عدسة ${s.k}">${i === on.i ? `${fmtX(on.x)}×` : s.k}</button>`).join("");
+  }
+  function hwTo(v) {
+    const c = caps();
+    if (!c.zoom) return false;
+    hwZoom = Math.max(c.zoom.min, Math.min(c.zoom.max, v));
+    vTrack()?.applyConstraints({ advanced: [{ zoom: hwZoom }] }).catch(() => {});
+    return true;
+  }
+  async function goStop(i) {
+    const s = stops[i];
+    if (!s) return;
+    if (!sameLens(s.lens, P.lens) || (s.facing || "environment") !== P.facing) {
+      P.lens = s.lens;
+      P.facing = s.facing || "environment";
+      camSave(P);
+      digital.z = 1;
+      await refresh(); // another lens = the camera opened again (an iPhone runs one at a time)
+    }
+    const c = caps();
+    if (s.z === "min") hwTo(c.zoom?.min ?? 1), (digital.z = 1);
+    else if (s.z === 2 && c.zoom && c.zoom.max >= 2) hwTo(2), (digital.z = 1);
+    else if (s.z === 2) (digital.z = 2), c.zoom && hwTo(Math.max(1, c.zoom.min));
+    else (digital.z = 1), c.zoom && hwTo(Math.max(1, c.zoom.min));
+    applyDigitalZoom();
+    sendOpts();
+    paintLens();
+    if (tab) drawPane();
+  }
+  // dragging along the circles: the zoom follows the finger (on the lens in use)
+  {
+    const el = $("camLens");
+    let drag = null;
+    el.addEventListener("pointerdown", (e) => {
+      drag = { x: e.clientX, id: e.pointerId, hw: caps().zoom ? zoomNow() : null, d: digital.z, moved: false };
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) < 8) return;
+      // held only once it's a drag (held from the start, a tap's click would land on the row, not the circle)
+      if (!drag.moved)
+        try {
+          el.setPointerCapture(drag.id);
+        } catch {}
+      drag.moved = true;
+      const k = Math.exp(dx / 90);
+      const c = caps();
+      if (drag.hw != null && c.zoom) hwTo(drag.hw * k), showZoom(hwZoom / (c.zoom.min || 1));
+      else (digital.z = Math.max(1, Math.min(4, drag.d * k))), applyDigitalZoom(), showZoom(digital.z), sendOpts();
+      paintLens();
+    });
+    const end = () => {
+      if (drag?.moved) el.dataset.dragged = "1";
+      drag = null;
+    };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+  }
+  // the one question: 1080 or 60 (a line in «الجودة» and «الاتصال» changes it later)
+  function paintAsk() {
+    const el = $("camAsk");
+    if (!el) return;
+    el.hidden = !camGives?.ask;
+    if (!el.hidden) el.innerHTML = `جوالك ما يعطي <bdi class="num">1080</bdi> و<bdi class="num">60</bdi> مع بعض<small>وش تبي أكثر؟ تقدر تغيّره بعدين</small><div class="row"><button class="chip" data-prio="q">1080 · 30</button><button class="chip on" data-prio="fps">720 · 60</button></div>`;
+    if (tab) drawPane();
+  }
+  // the other choice beside the line (only when the camera really gives one or the other)
+  const prioChip = () => {
+    if (!camGives || camGives.ask || P.fps !== 60 || P.q !== "1080") return "";
+    if (camGives.q === "720") return '<button class="chip" data-prio="q">خلّها 1080</button>';
+    return P.prio === "q" ? '<button class="chip" data-prio="fps">خلّها 60</button>' : "";
+  };
+  async function setPrio(v) {
+    P.prio = v;
+    camSave(P);
+    if (camGives) camGives.ask = false;
+    paintAsk();
+    if (level === "high") {
+      level = "base";
+      await setLevel("high");
+    }
+    toast(v === "q" ? "خليناها 1080" : "خليناها 60");
+    if (tab) drawPane();
+  }
   let pinch = null;
   let tapAt = null;
   let lastTap = 0;
   const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
   const onTouchStart = (e) => {
     const st = e.target.closest?.("#camStage");
-    if (!st || e.target.closest(".cam-tools,.cam-lite") || clean || P.lite) return;
+    if (!st || e.target.closest(".cam-tools,.cam-lite,.cam-lens,.cam-ask") || clean || P.lite) return;
     if (e.touches.length === 2) {
       const c = caps();
       pinch = { d: dist(e.touches), hw: c.zoom ? (hwZoom ?? vTrack()?.getSettings().zoom ?? c.zoom.min) : null, z: digital.z };
@@ -5913,6 +6065,7 @@ $("camOpen").addEventListener("click", () => {
         showZoom(digital.z);
         sendOpts();
       }
+      paintLens();
     });
   };
   const onTouchEnd = (e) => {
@@ -5924,7 +6077,7 @@ $("camOpen").addEventListener("click", () => {
     const t = e.changedTouches[0];
     const moved = Math.hypot(t.clientX - tapAt.x, t.clientY - tapAt.y) > 12 || Date.now() - tapAt.t > 500;
     tapAt = null;
-    if (moved || !e.target.closest?.("#camStage") || e.target.closest(".cam-tools")) return;
+    if (moved || !e.target.closest?.("#camStage") || e.target.closest(".cam-tools,.cam-lens,.cam-ask")) return;
     // a double tap: back to no zoom
     if (Date.now() - lastTap < 300) {
       digital.z = 1;
@@ -5934,6 +6087,7 @@ $("camOpen").addEventListener("click", () => {
       applyDigitalZoom();
       showZoom(1);
       sendOpts();
+      paintLens();
       lastTap = 0;
       return;
     }
@@ -6078,6 +6232,12 @@ $("camOpen").addEventListener("click", () => {
     buzz(6);
     if (b.id === "camGo") return live || back ? stopLive() : goLive();
     if (b.dataset.tool) return tool(b.dataset.tool);
+    if (b.dataset.stop != null) {
+      const el = $("camLens");
+      if (el.dataset.dragged) return void delete el.dataset.dragged; // the end of a drag, not a tap
+      return goStop(Number(b.dataset.stop));
+    }
+    if (b.dataset.prio) return setPrio(b.dataset.prio);
     if (b.dataset.liteoff) return setLite(false);
     if (b.dataset.tab) {
       tab = tab === b.dataset.tab ? null : b.dataset.tab;
@@ -6103,6 +6263,8 @@ $("camOpen").addEventListener("click", () => {
       P.lens = l.id;
       P.facing = l.facing;
       camSave(P);
+      digital.z = 1;
+      applyDigitalZoom();
       await refresh();
       sendOpts();
       return;
