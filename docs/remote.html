@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-i1VP07WM8VXjc3yjH14WBvuV0NLstWldWzFlahHTwo8=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-Hq2tOe+c22ShCfCPSbzmW+MInVJao+GTUfuoEavllao=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -93,10 +93,9 @@
   .toast.bad { color: #ffb4ad; border-color: rgba(239,59,45,.4); }
   .hidden { display: none !important; }
   /* tabs */
-  /* an iPhone opened from the home screen sometimes starts with the screen counted short by the status bar's height
-     (the bottom bar then floats with an empty strip under it): the page is made that much taller, and if it still
-     happens the script below pulls everything anchored to the bottom down by the missing part (--iosgap) */
-  html.iosgap { min-height: calc(100% + env(safe-area-inset-top)); }
+  /* an iPhone opened from the home screen sometimes starts with its window shorter than the screen by the status bar's
+     height. Pulling things down into that strip (--iosgap, 2026-10-13) was wrong: iOS cuts off whatever is drawn there,
+     so the camera view's «ابدأ البث» was hidden (owner's photo). Everything stays inside the window; --iosgap is 0. */
   nav { position: fixed; inset-inline: 0; bottom: var(--iosgap, 0px); z-index: 20; display: flex; justify-content: center; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: rgba(14,10,10,.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
   nav .in { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; max-width: 480px; }
   nav button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border-radius: 14px; background: transparent; color: var(--dim); font-size: 11.5px; font-weight: 700; }
@@ -234,8 +233,11 @@
   .app img, .app .ph { width: 34px; height: 34px; border-radius: 9px; background: #241b1c; object-fit: contain; }
   .app span { width: 100%; text-align: center; overflow-wrap: anywhere; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .chip.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.14); color: #fff; }
-  .scan { position: fixed; inset: 0; z-index: 50; background: #000; display: flex; flex-direction: column; }
-  .scan video { flex: 1; width: 100%; object-fit: cover; }
+  /* the camera picture is pinned to the whole screen: its own size (which an iPhone changes a few times while the camera
+     starts) never moves the layout (2026-10-13: the scanner shook as it opened) */
+  .scan { position: fixed; inset: 0 0 var(--iosgap, 0px); z-index: 50; background: #000; overflow: hidden; overscroll-behavior: none; touch-action: none; }
+  .scan video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .25s; transform: translateZ(0); }
+  .scan video.on { opacity: 1; }
   .scan .frame { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
   .scan .frame div { width: 68vw; max-width: 300px; aspect-ratio: 1; border-radius: 28px; box-shadow: 0 0 0 9999px rgba(0,0,0,.55); border: 3px solid var(--red); }
   .scan .bar2 { position: absolute; inset-inline: 0; bottom: 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; align-items: center; background: linear-gradient(transparent, rgba(0,0,0,.85)); }
@@ -1513,25 +1515,6 @@ function ago(t) {
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 const iosSafari = isIos && !standalone;
-// the home-screen iPhone's short screen (see the CSS above): measured at start and whenever the screen changes;
-// it heals by itself once iOS gets the size right (then the gap is 0 again)
-if (isIos && standalone) {
-  const fixGap = () => {
-    const tall = innerWidth < innerHeight ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-    const gap = tall - innerHeight;
-    // only the status bar's height (about 20–60): anything else is the keyboard or a real change
-    const on = gap > 12 && gap < 80;
-    document.documentElement.style.setProperty("--iosgap", on ? `-${gap}px` : "0px");
-    document.documentElement.classList.toggle("iosgap", on);
-  };
-  fixGap();
-  addEventListener("resize", fixGap);
-  addEventListener("orientationchange", () => setTimeout(fixGap, 300));
-  addEventListener("pageshow", fixGap);
-  visualViewport?.addEventListener("resize", fixGap);
-  setTimeout(fixGap, 500);
-  setTimeout(fixGap, 1500);
-}
 // remote-sw.js keeps the page and its library on the phone (it opens fast) and shows the notifications
 navigator.serviceWorker?.register("remote-sw.js").catch(() => {});
 
@@ -1879,18 +1862,25 @@ function stopScan(fromBack = false) {
   scanOn = false;
   scanStream?.getTracks().forEach((t) => t.stop());
   scanStream = null;
+  $("scanVideo").classList.remove("on");
+  $("scanVideo").srcObject = null;
   overlayDone($("scan"), fromBack);
 }
 async function startScan() {
+  // the screen first (still and dark), then the camera fades in once it draws: nothing jumps while it starts
+  const v = $("scanVideo");
+  v.classList.remove("on");
+  overlayOpen($("scan"), stopScan);
   try {
     scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
   } catch {
+    overlayDone($("scan"));
     return toast("ما قدرنا نفتح الكاميرا. اسمح للصفحة تستخدمها وجرّب مرة ثانية.", true);
   }
-  const v = $("scanVideo");
+  if (!isOpen($("scan"))) return scanStream.getTracks().forEach((t) => t.stop()); // closed while it was asking
+  v.addEventListener("playing", () => v.classList.add("on"), { once: true });
   v.srcObject = scanStream;
   await v.play().catch(() => {});
-  overlayOpen($("scan"), stopScan);
   scanOn = true;
   const det = "BarcodeDetector" in window ? new window.BarcodeDetector({ formats: ["qr_code"] }) : null;
   const jsqr = det ? null : await loadJsQR().catch(() => null);
