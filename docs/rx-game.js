@@ -1,11 +1,19 @@
 // «تحدّى ربعك بردة الفعل» (owner's pick, 2026-10-12: «دائرة وحدة» and «خمس بلوكات», the look chosen in the phone's settings).
 // Shared by remote.html (the player) and challenge.html (a friend who got the link, in any browser, no app).
 //   NKRx.play(box, mode "circle" | "blocks", onDone(ms))   draws the game inside `box`; ms = the reaction (blocks: the average of 5)
-//   NKRx.rank(ms) → a word for the result
+//   NKRx.rank(ms, mode) → a word for the result (each look on its own scale)
 "use strict";
 (function () {
   const now = () => performance.now();
-  const rank = (ms) => (ms < 180 ? "مثل الفهد" : ms < 230 ? "سريع جداً" : ms < 290 ? "زين" : "تقدر أحسن");
+  // the words for a result, each look by its own scale: the circle is a pure reaction (a fast person ~200 ms); the five blocks
+  // add the finger's travel to a random spot (a fast person ~400 ms) — the circle's scale said «تقدر أحسن» to everyone there
+  const SCALE = { circle: [180, 230, 290], blocks: [360, 440, 540] };
+  const rank = (ms, mode = "circle") => {
+    const [a, b, c] = SCALE[mode] ?? SCALE.circle;
+    return ms < a ? "مثل الفهد" : ms < b ? "سريع جداً" : ms < c ? "زين" : "تقدر أحسن";
+  };
+  // faster than a person can see and press (~100 ms): a guess, counted as «بدري»
+  const GUESS_MS = 100;
   const buzz = (ms) => navigator.vibrate?.(ms);
 
   function circle(box, done) {
@@ -21,7 +29,9 @@
       } else if (state === "wait") {
         clearTimeout(timer); state = "early"; set("idle", "بدري! مرة ثانية"); say.textContent = "ضغطت قبل لا تخضرّ"; buzz(80);
       } else if (state === "go") {
-        const ms = Math.round(now() - t0); state = "done"; buzz(20); done(ms);
+        const ms = Math.round(now() - t0);
+        if (ms < GUESS_MS) { state = "early"; set("idle", "بدري! مرة ثانية"); say.textContent = "ضغطت قبل لا تشوفها"; buzz(80); return; }
+        state = "done"; buzz(20); done(ms);
       }
     });
   }
@@ -45,7 +55,10 @@
       if (e.target.closest(".rx-start")) { e.preventDefault(); round = 0; times = []; playing = true; return next(); }
       if (!playing) return;
       if (e.target.closest(".rx-tgt")) {
-        e.preventDefault(); buzz(10);
+        e.preventDefault();
+        // (a block hit faster than a person can see it: a guess, the round starts over)
+        if (now() - t0 < GUESS_MS) { clearTimeout(timer); buzz(80); return next(); }
+        buzz(10);
         times.push(now() - t0); round++;
         if (round < 5) return next();
         playing = false; paint();
