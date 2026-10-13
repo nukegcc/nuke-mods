@@ -859,6 +859,9 @@
   @keyframes camring { 0% { opacity: 0; transform: scale(1.5); } 25% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
   .cam-zoom { position: absolute; z-index: 2; bottom: 64px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 99px; background: #0e0a0ab3; font: 700 15px var(--f-num); color: var(--gold); opacity: 0; transition: opacity .2s; pointer-events: none; }
   .cam-zoom.on { opacity: 1; }
+  .cam-still { position: absolute; z-index: 1; pointer-events: none; opacity: 1; transition: opacity .38s ease; }
+  .cam-prev.mirror .cam-still { transform: scaleX(-1); }
+  .cam-still.out { opacity: 0; }
   /* the lenses, like the phone's own camera: .5 · 1 · 2 · the zoom lens, the one in use bigger and gold with its zoom */
   .cam-lens { position: absolute; z-index: 2; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 99px; background: #0e0a0a8c; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); touch-action: none; user-select: none; -webkit-user-select: none; }
   .cam-lens[hidden] { display: none; }
@@ -5660,6 +5663,11 @@ $("camOpen").addEventListener("click", () => {
     // the PC's side: its own look at the way (it can tell a cable), settings it changed, its recording
     const r = await cmd("cam.state", {}, 6000);
     if (r.ok && r.data && pc === mine) {
+      // «وقّف البث» pressed on the PC: the phone stops too (no reconnect)
+      if (r.data.live === false && r.data.stopped === "pc") {
+        stopLive(false);
+        return toast("وقّفت البث من البيسي");
+      }
       // the PC lost this link (its side broke first): started again at once, no 12-second wait
       if (r.data.live === false && r.data.back && performance.now() - liveAt > 6000) return lostLink();
       adopt(r.data);
@@ -5895,8 +5903,9 @@ $("camOpen").addEventListener("click", () => {
   }
   // ---- two fingers: the camera's own zoom where it has one (Android), else the PC zooms in (an iPhone) ----
   const digital = { z: 1, x: 0.5, y: 0.5 };
-  function applyDigitalZoom() {
+  function applyDigitalZoom(glide = false) {
     const v = $("camPrev");
+    v.style.transition = glide ? "scale .32s cubic-bezier(.2,.8,.2,1)" : "";
     v.style.transformOrigin = `${digital.x * 100}% ${digital.y * 100}%`;
     v.style.scale = digital.z > 1.01 ? String(digital.z) : "";
   }
@@ -5958,22 +5967,74 @@ $("camOpen").addEventListener("click", () => {
     vTrack()?.applyConstraints({ advanced: [{ zoom: hwZoom }] }).catch(() => {});
     return true;
   }
+  // the camera's own zoom, glided over ~0.3 s (a jump read as a cut)
+  let glideRaf = 0;
+  function hwGlide(to) {
+    const c = caps();
+    if (!c.zoom) return false;
+    const from = zoomNow();
+    const end = Math.max(c.zoom.min, Math.min(c.zoom.max, to));
+    cancelAnimationFrame(glideRaf);
+    const t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / 300);
+      const e = 1 - Math.pow(1 - k, 3);
+      hwTo(from + (end - from) * e);
+      if (k < 1) glideRaf = requestAnimationFrame(step);
+    };
+    glideRaf = requestAnimationFrame(step);
+    return true;
+  }
+  // another lens: a still of the last picture stays over the preview and melts into the new lens, and the PC does the same
+  function previewStill() {
+    const v = $("camPrev");
+    const st = $("camStage");
+    if (!v?.videoWidth || P.lite) return null;
+    const cv = document.createElement("canvas");
+    cv.className = "cam-still";
+    cv.width = Math.min(720, v.videoWidth);
+    cv.height = Math.round((cv.width * v.videoHeight) / v.videoWidth);
+    try {
+      cv.getContext("2d").drawImage(v, 0, 0, cv.width, cv.height);
+    } catch {
+      return null;
+    }
+    for (const k of ["width", "height", "left", "top", "transform", "scale", "transformOrigin"]) cv.style[k] = v.style[k] || getComputedStyle(v)[k];
+    st.insertBefore(cv, v.nextSibling);
+    return cv;
+  }
   async function goStop(i) {
     const s = stops[i];
     if (!s) return;
     if (!sameLens(s.lens, P.lens) || (s.facing || "environment") !== P.facing) {
+      const still = previewStill();
+      if (live) void cmd("cam.opts", { opts: { ...winOpts(), fx: { ...fxOpts(), swap: Date.now() } } });
       P.lens = s.lens;
       P.facing = s.facing || "environment";
       camSave(P);
       digital.z = 1;
       await refresh(); // another lens = the camera opened again (an iPhone runs one at a time)
+      if (still) {
+        // melt once the new lens draws its first picture (or 1.5 s at most)
+        const v = $("camPrev");
+        let gone = false;
+        const melt = () => {
+          if (gone) return;
+          gone = true;
+          still.classList.add("out");
+          setTimeout(() => still.remove(), 420);
+        };
+        if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(() => requestAnimationFrame(melt));
+        else v.addEventListener("playing", melt, { once: true });
+        setTimeout(melt, 1500);
+      }
     }
     const c = caps();
-    if (s.z === "min") hwTo(c.zoom?.min ?? 1), (digital.z = 1);
-    else if (s.z === 2 && c.zoom && c.zoom.max >= 2) hwTo(2), (digital.z = 1);
-    else if (s.z === 2) (digital.z = 2), c.zoom && hwTo(Math.max(1, c.zoom.min));
-    else (digital.z = 1), c.zoom && hwTo(Math.max(1, c.zoom.min));
-    applyDigitalZoom();
+    if (s.z === "min") hwGlide(c.zoom?.min ?? 1), (digital.z = 1);
+    else if (s.z === 2 && c.zoom && c.zoom.max >= 2) hwGlide(2), (digital.z = 1);
+    else if (s.z === 2) (digital.z = 2), c.zoom && hwGlide(Math.max(1, c.zoom.min));
+    else (digital.z = 1), c.zoom && hwGlide(Math.max(1, c.zoom.min));
+    applyDigitalZoom(true);
     sendOpts();
     paintLens();
     if (tab) drawPane();
