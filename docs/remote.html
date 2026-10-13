@@ -2,22 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
+<!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-i1VP07WM8VXjc3yjH14WBvuV0NLstWldWzFlahHTwo8=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="NUKE Remote" />
+<meta name="apple-mobile-web-app-title" content="NUKE GG" />
 <link rel="manifest" href="remote.webmanifest" />
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
-<title>NUKE Remote</title>
+<title>NUKE GG</title>
 <script src="rx-game.js" defer></script>
-<!-- opens fast: the library starts downloading at once, and the font never holds the first paint back
-     (the phone's own font shows first; remote-sw.js keeps both on the phone for next time) -->
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
+     the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin />
+<link id="nkFont" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" media="print" crossorigin />
+<script>
+(() => {
+  const l = document.getElementById("nkFont");
+  const on = () => (l.media = "all");
+  l.addEventListener("load", on);
+  if (l.sheet) on();
+})();
+</script>
 <style>
   :root { --bg:#0e0a0a; --card:#171213; --card2:#1e1718; --line:rgba(255,255,255,.08); --text:#fff; --dim:rgba(255,255,255,.55); --red:#ef3b2d; --gold:#ffc93c; --green:#34d399; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -818,7 +827,7 @@
   .comeset h3 { margin: 0 2px -6px; font-size: 13px; color: var(--dim); font-weight: 700; }
   .comeset .opts { display: flex; flex-wrap: wrap; gap: 7px; }
   .comeset .opts .chip { min-height: 38px; padding: 0 12px; font-size: 13px; }
-  .comeset .opts .chip.x::after { content: " ✕"; color: var(--dim); }
+  .comeset .opts .chip.rm::after { content: " ✕"; color: var(--dim); }
   .comeset .wide { width: 100%; }
   /* «كاميرا بثك»: the camera fills the screen, the settings in a sheet from the bottom (owner's pick, 2026-10-13). Its own
      full-screen layout (no centring: a tall view used to spill over the title on an iPhone), a fixed frame that never
@@ -958,23 +967,113 @@
     .funx.camx.clean .camv2 { grid-template-columns: minmax(0, 1fr); }
   }  .scrpair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .catbit { position: fixed; z-index: 80; width: 6px; height: 6px; pointer-events: none; box-shadow: inset -1px -1px 0 rgb(0 0 0 / .35); }
-  @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }</style>
+  @media (prefers-reduced-motion: reduce) { .cats button { transition: none; } }
+  /* ===== the phone page's QA fixes (2026-10-13) ===== */
+  /* the notice's drawn mark (never a typed ✓ / emoji) */
+  .toast { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .toast .tk { width: 18px; height: 18px; flex: none; color: #7cff5a; filter: drop-shadow(1px 1px 0 #000); }
+  .toast.bad .tk { color: #ff8a7a; }
+  /* pairing: the 4 digits the PC shows too */
+  .paircode { margin: -6px auto 18px; display: grid; gap: 8px; justify-items: center; }
+  .paircode b { font-family: var(--f-num); font-weight: 700; font-size: 54px; line-height: 1; letter-spacing: 12px; padding-inline-start: 12px; color: var(--gold); text-shadow: 0 0 22px rgba(255,201,60,.35); }
+  .paircode small { font-size: var(--fs-hint); color: var(--dim); max-width: 34ch; line-height: 1.6; }
+  /* line icons where emoji used to be */
+  .talk button svg { width: 46px; height: 46px; color: #fff; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
+  .vol .sun { display: grid; place-items: center; color: var(--gold); }
+  .vol .sun svg { width: 24px; height: 24px; }
+  .priv .ic { display: grid; place-items: center; color: var(--dim); }
+  .priv .ic svg { width: 24px; height: 24px; }
+  .priv.live .ic { color: #ff8a80; }
+  .priv small .live-dot { display: inline-block; width: 8px; height: 8px; margin-inline-end: 6px; border-radius: 50%; background: #ff5a4a; box-shadow: 0 0 6px #ff5a4a; vertical-align: 1px; }
+  .frow .ic svg { width: 22px; height: 22px; color: var(--dim); }
+  .scene i { display: grid; place-items: center; }
+  .scene i svg { width: 28px; height: 28px; color: var(--gold); }
+  .sclist .pcrow i svg, .emojis button svg { width: 22px; height: 22px; color: var(--gold); }
+  .emojis button { display: grid; place-items: center; }
+  .mic { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .mic svg { width: 18px; height: 18px; flex: none; }
+  svg.tk { width: 16px; height: 16px; flex: none; vertical-align: -3px; margin-inline-end: 5px; color: #7cff5a; }
+  .toast svg.tk { margin: 0; }
+  .cst > i svg.tk { width: 14px; height: 14px; margin: 0; color: inherit; }
+  .wide svg.tk { color: inherit; }
+  .g button { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .g button .pl { width: 13px; height: 13px; flex: none; }
+  .chip.tpl svg { width: 18px; height: 18px; flex: none; color: var(--gold); }
+  .wkempty { margin: auto 0; display: grid; gap: 8px; text-align: center; padding: 0 12px; }
+  .wkempty b { font-size: 20px; font-weight: 900; }
+  /* tap targets: 44 px at least (the overlays' ✕, the cards' «العب», the small red words and chips get a bigger hit area) */
+  .x, .back, .soon-x { width: 44px; height: 44px; }
+  .g button { min-height: 44px; }
+  h2 .more { position: relative; }
+  h2 .more::after { content: ""; position: absolute; inset: -13px -10px; }
+  section h2 .seg button { position: relative; min-height: 32px; }
+  section h2 .seg button::after { content: ""; position: absolute; inset: -8px 0; }
+  .cam-lens button { position: relative; }
+  .cam-lens button::after { content: ""; position: absolute; inset: -5px -2px; }
+  .setrow:has(> button.sw) { cursor: pointer; }
+  /* a row's own small button («سكّره»…): 40 px, and a hit area a little past its edges */
+  .pr button, .tr button, .now button { min-height: 40px; }
+  .pr button::after, .tr button::after, .now button::after { content: ""; position: absolute; inset: -4px -2px; }
+  /* the games grid: a game with no picture shows its letters (gold, on a stone block), never an empty box */
+  .g .pic .ini { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--f-num); font-weight: 700; font-size: 30px; letter-spacing: 1px;
+    color: var(--gold); text-shadow: 2px 2px 0 #000; image-rendering: pixelated; background: linear-gradient(rgb(23 18 19 / .45), rgb(23 18 19 / .45)), var(--tex-dark) 0 0 / 24px 24px; }
+  /* «وأنا جاي»: the game picker (last played first) and its search */
+  .comeset .opts .chip.more-games { color: var(--gold); }
+  .comeset .search { margin: 2px 0 0; }
+  /* «تنتظرها»: a game that's already out is shown, not offered */
+  .soon-hit:disabled { opacity: .55; }
+  .soon-hit:disabled em { width: auto; font-size: 12px; color: var(--dim); }
+  /* the camera's quality on two labelled lines (they wrapped into one 3-way row on narrow phones) */
+  .cam-q { display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: 8px; }
+  .cam-q > span { font-size: 13px; font-weight: 700; color: var(--dim); }
+  /* short screens (an iPhone SE, a phone on its side): the banner and the category tiles take less of the first screen */
+  @media (max-height: 720px) and (orientation: portrait) {
+    .tabhead { height: 74px; }
+    .tabhead small { display: none; }
+    .tabhead b { font-size: 21px; }
+    .tabhead div { bottom: 10px; }
+    .cats { gap: 6px; padding-bottom: 10px; }
+    .cats button { min-height: 46px; flex-direction: row; gap: 6px; padding: 6px 4px; font-size: 12px; }
+    .cats button svg { width: 17px; height: 17px; }
+    /* the camera: its settings never cover more than ~40 % of a short screen (the face stays in view) */
+    .cam-pane { max-height: 40dvh; }
+  }
+  @media (orientation: landscape) and (max-height: 520px) {
+    .tabhead { display: none; }
+    .cats { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+    .cats button { min-height: 44px; flex-direction: row; gap: 6px; padding: 6px 4px; font-size: 12px; }
+    .cats button svg { width: 17px; height: 17px; }
+  }</style>
 </head>
 <body>
 <div class="wrap">
   <div id="intro" class="center">
-    <img class="big" src="remote-icon.png" alt="" />
-    <h2 id="introTitle">NUKE Remote</h2>
-    <p id="introText">افتح NUKE GG على البيسي، وروح الإعدادات ← التطبيق ← «جوالك»، وصوّر الـ QR بكاميرا جوالك.</p>
+    <img class="big" src="remote-logo.webp" alt="" />
+    <h2 id="introTitle">NUKE GG</h2>
+    <p id="introText">افتح NUKE GG على البيسي ← «جوالك» ← «جوالك أنت» ← «اربط جوال»، وصوّر الـ QR بكاميرا جوالك.</p>
+    <div id="introCode" class="paircode hidden"><b dir="ltr"></b><small>ما طلع رقم على البيسي؟ يبيله تحديث NUKE GG، ووافق بس إذا الطلب منك.</small></div>
     <div id="introSpin" class="spin hidden"></div>
-    <button id="scanBtn" class="wide hidden" style="max-width:320px;margin:0 auto">📷 صوّر الـ QR من هنا</button>
+    <button id="scanBtn" class="wide hidden" style="max-width:320px;margin:0 auto">صوّر الـ QR من هنا</button>
     <button id="introAlt" class="wide ghost hidden" style="max-width:320px;margin:10px auto 0"></button>
   </div>
+  <script>
+  // a phone that's already paired never reads "go pair it" while the page is still downloading (slow internet, the first
+  // open after an update): a quiet «نفتح…» until the page's own script takes over
+  (() => {
+    try {
+      const l = JSON.parse(localStorage.getItem("nk-remote-pcs") || "null");
+      if (!Array.isArray(l) || !l.length || location.hash.includes("p=")) return;
+      document.getElementById("introTitle").textContent = "NUKE GG";
+      document.getElementById("introText").textContent = "نفتح…";
+      document.getElementById("introSpin").classList.remove("hidden");
+    } catch {}
+  })();
+  </script>
   <div id="pcSheet" class="sheet hidden"><div class="in">
-    <h3>أجهزتك</h3>
+    <div class="sheethead"><h3>أجهزتك</h3><button id="pcClose" class="x" aria-label="سكّر">×</button></div>
     <div id="pcList"></div>
     <button id="pcAdd" class="wide ghost" style="margin-top:6px">+ أضف بيسي</button>
-    <p class="hint">صوّر الـ QR من البيسي الثاني (الإعدادات ← التطبيق ← «جوالك»)، وتتنقّل بينهم من هنا.</p>
+    <p class="hint">على البيسي الثاني: NUKE GG ← «جوالك» ← «جوالك أنت» ← «اربط جوال»، وصوّر الـ QR. وتتنقّل بينهم من هنا.</p>
   </div></div>
   <div id="scan" class="scan hidden">
     <video id="scanVideo" playsinline muted></video>
@@ -1005,7 +1104,7 @@
 
   <div id="app" class="hidden">
     <header>
-      <img src="remote-icon.png" alt="" />
+      <img src="remote-logo.webp" alt="" />
       <button id="pcBtn" class="t pcBtn" aria-label="أجهزتك">
         <h1><span id="pcName">البيسي</span><span class="chev">▼</span></h1>
         <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
@@ -1026,7 +1125,7 @@
       </section>
       <section data-cat="mine" id="weekBox" class="hidden">
         <h2><span>أسبوعك</span></h2>
-        <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض 🔥</span></div><div><b id="wLevel">—</b><span>مستواك 👑</span></div></div>
+        <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض</span></div><div><b id="wLevel">—</b><span>مستواك</span></div></div>
         <button id="wkOpen" class="wide ghost" style="margin-top:10px">شوف أسبوعك</button>
       </section>
       <!-- «تحدّي»: the reaction challenge (owner's pick, 2026-10-12), its look chosen in الإعدادات -->
@@ -1118,7 +1217,7 @@
       </section>
       <section data-cat="send">
         <h2><span>تكلم من جوالك</span></h2>
-        <div class="talk"><button id="talkBtn" aria-label="اضغط واستمر وتكلم">🎙️</button><p id="talkState">اضغط على الزر واستمر وأنت تتكلم، وأول ما تتركه يطلع صوتك من سماعات البيسي.</p></div>
+        <div class="talk"><button id="talkBtn" aria-label="اضغط واستمر وتكلم"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg></button><p id="talkState">اضغط على الزر واستمر وأنت تتكلم، وأول ما تتركه يطلع صوتك من سماعات البيسي.</p></div>
       </section>
       <section data-cat="send">
         <h2><span>ملفات البيسي</span></h2>
@@ -1132,7 +1231,7 @@
       <section data-cat="apps" id="appsBox" class="hidden">
         <h2><span>برامجك</span><button id="appsAllBtn" class="more hidden">كل البرامج</button></h2>
         <div id="apps" class="apps"></div>
-        <p id="appsEmpty" class="hint hidden" style="margin-top:0">اضغط «كل البرامج» وحط ⭐ على اللي تبيه، ويطلع هنا.</p>
+        <p id="appsEmpty" class="hint hidden" style="margin-top:0">اضغط «كل البرامج» وحط النجمة على اللي تبيه، ويطلع هنا.</p>
       </section>
       <section data-cat="sound">
         <h2><span>الصوت</span><span id="volNote"></span></h2>
@@ -1147,7 +1246,7 @@
       </section>
       <section data-cat="sound" id="screenBox" class="hidden">
         <h2><span>الشاشة</span></h2>
-        <div id="brightBox" class="vol bright hidden"><span class="sun">☀️</span><input id="brightRange" type="range" min="0" max="100" step="1" value="0" aria-label="سطوع الشاشة" /><b id="brightNum">—</b></div>
+        <div id="brightBox" class="vol bright hidden"><span class="sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><input id="brightRange" type="range" min="0" max="100" step="1" value="0" aria-label="سطوع الشاشة" /><b id="brightNum">—</b></div>
         <div class="scrpair"><button id="scrWake" class="wide">شغّل الشاشة</button><button id="scrOff" class="wide ghost" style="color:#fff">طفّها</button></div>
         <div class="setrow" style="padding:4px 2px"><div><b>خلّ الشاشة صاحية</b><small>ما تطفي بروحها لين تطفّي هذا</small></div><button id="awakeSw" class="sw" aria-label="خلّ الشاشة صاحية"></button></div>
         <div id="modes" class="modes">
@@ -1219,7 +1318,7 @@
       </section>
       <section data-cat="net">
         <h2><span>سرعة نت البيسي</span><span id="speedWhen" class="was"></span></h2>
-        <div class="speed"><div id="spDownBox"><span>تنزيل</span><b id="spDown">—</b><small>ميجابت</small></div><div id="spUpBox"><span>رفع</span><b id="spUp">—</b><small>ميجابت</small></div><div id="spPingBox"><span>البنق</span><b id="spPing">—</b><small>مللي ثانية</small></div></div>
+        <div class="speed"><div id="spDownBox"><span>تنزيل</span><b id="spDown">—</b><small>ميقا</small></div><div id="spUpBox"><span>رفع</span><b id="spUp">—</b><small>ميقا</small></div><div id="spPingBox"><span>البنق</span><b id="spPing">—</b><small>ms</small></div></div>
         <button id="speedGo" class="wide">قيس السرعة</button>
         <p class="hint">ياخذ 10 ثواني تقريباً، والأفضل وأنت ما تلعب أونلاين.</p>
       </section>
@@ -1278,7 +1377,7 @@
         <button id="byeBtn" class="wide ghost" style="margin-top:8px">افصل الجوال عن هالبيسي</button>
       </div></details>
       <details class="grp" id="homeHint"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></i>حطها على الشاشة الرئيسية</summary><div class="in">
-        <p class="hint" style="margin-top:0">تنفتح مثل تطبيق كامل بدون شريط المتصفح. بالآيفون: زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية». بالأندرويد: القائمة ⋮ ← «إضافة إلى الشاشة الرئيسية».</p>
+        <p class="hint" style="margin-top:0">تنفتح مثل تطبيق كامل بدون شريط المتصفح. بالآيفون: زر المشاركة (المربع والسهم) ← «إضافة إلى الشاشة الرئيسية». بالأندرويد: القائمة ⋮ ← «إضافة إلى الشاشة الرئيسية».</p>
       </div></details>
     </div>
   </div>
@@ -1474,13 +1573,100 @@ async function unseal(key, m) {
 
 // ---- small things ----
 let toastTimer;
+// drawn marks instead of typed ones (the desktop's rule: a tick / warning is an icon, never ✓ / ⚠ / an emoji in the text)
+const TICK = '<svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+const WARN = '<svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>';
+const EMOJI = /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}]️?|️|‍/gu;
+// (a ✓ in the middle of a line was a pause: «انحط بحافظة البيسي ✓ الصقه…» → «…البيسي، الصقه…»)
+const plain = (t) => String(t ?? "").replace(/^\s*[✓✔]\s*|\s*[✓✔]\s*$/g, "").replace(/\s*[✓✔]\s*/g, "، ").replace(EMOJI, "").replace(/\s{2,}/g, " ").replace(/\s+([.،؟!])/g, "$1").trim();
 function toast(text, bad = false) {
   const t = $("toast");
-  t.textContent = text;
+  const ok = !bad && /[✓✔]/.test(String(text));
+  t.innerHTML = `${bad ? WARN : ok ? TICK : ""}<span>${esc(plain(text))}</span>`;
   t.className = "toast show" + (bad ? " bad" : "");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => (t.className = "toast" + (bad ? " bad" : "")), 2600);
 }
+
+// ---- what's open on top of the page (a sheet, a full-screen view, the scanner…) ----
+// Android's back gesture / button closes the top one instead of leaving the page (in the home-screen app it used to close
+// the whole app): each one opened adds a step to the history, back takes it off. Closing one by its ✕ takes its step off
+// too. A view may keep itself open (its close returns false: the camera while it's sending, a folder that goes up first).
+const layers = []; // [{ id, close(fromBack) }]
+let layerSeq = 0;
+let backSkip = 0;
+// (a step taken off just now goes back a moment later: one added meanwhile waits for it, else they'd mix up)
+const waitingPush = [];
+const pushStep = (id) => {
+  if (backSkip) return void waitingPush.push(id);
+  try {
+    history.pushState({ nkl: id }, "");
+  } catch {}
+};
+function openLayer(close) {
+  const id = ++layerSeq;
+  layers.push({ id, close });
+  pushStep(id);
+  return id;
+}
+function closeLayer(id) {
+  const i = layers.findIndex((l) => l.id === id);
+  if (i < 0) return;
+  layers.splice(i, 1);
+  const w = waitingPush.indexOf(id);
+  if (w >= 0) return void waitingPush.splice(w, 1); // (its step was never added)
+  if (history.state?.nkl === id) {
+    backSkip++;
+    history.back();
+    // (a browser that never answered the step back doesn't keep the next ones waiting)
+    setTimeout(() => {
+      if (!backSkip) return;
+      backSkip = 0;
+      waitingPush.splice(0).forEach((x) => layers.some((l) => l.id === x) && pushStep(x));
+    }, 1500);
+  }
+}
+addEventListener("popstate", () => {
+  if (backSkip) {
+    backSkip--;
+    if (!backSkip) waitingPush.splice(0).forEach((id) => layers.some((l) => l.id === id) && pushStep(id));
+    return;
+  }
+  const top = layers[layers.length - 1];
+  if (!top) return;
+  if (top.close(true) === false) return void pushStep(top.id);
+  const i = layers.indexOf(top);
+  if (i >= 0) layers.splice(i, 1);
+});
+// the page behind stays still while something is open (iPhone's Safari ignores overflow: hidden on the body)
+let locks = 0, lockedY = 0;
+function lockScroll(on) {
+  locks = Math.max(0, locks + (on ? 1 : -1));
+  const b = document.body.style;
+  if (on && locks === 1) {
+    lockedY = scrollY;
+    Object.assign(b, { position: "fixed", top: `-${lockedY}px`, left: "0", right: "0", overflow: "hidden" });
+  } else if (!on && locks === 0) {
+    Object.assign(b, { position: "", top: "", left: "", right: "", overflow: "" });
+    scrollTo(0, lockedY);
+  }
+}
+// a sheet / view element: shown, its step added; overlayDone hides it (fromBack: its step is gone already)
+function overlayOpen(el, close) {
+  el.classList.remove("hidden");
+  if (el._layer) return;
+  lockScroll(true);
+  el._layer = openLayer(close);
+}
+function overlayDone(el, fromBack = false) {
+  el.classList.add("hidden");
+  const id = el._layer;
+  if (!id) return;
+  el._layer = null;
+  lockScroll(false);
+  if (!fromBack) closeLayer(id);
+}
+const isOpen = (el) => Boolean(el._layer);
 const pcs = () => {
   try {
     const list = JSON.parse(localStorage.getItem(STORE) || "null");
@@ -1501,21 +1687,126 @@ const saved = () => {
   const list = pcs();
   return list.find((p) => p.id === localStorage.getItem(CUR)) || list[0] || null;
 };
-const forget = (id) => {
+// keepKey: unpaired from here while that PC is off — its key stays until the PC heard the «bye»
+const forget = (id, keepKey = false) => {
   savePcs(pcs().filter((p) => p.id !== id));
   if (localStorage.getItem(CUR) === id) localStorage.removeItem(CUR);
   try {
     localStorage.removeItem(LAST(id));
   } catch {}
+  if (!keepKey) dropKey(id);
 };
+// a PC's name for showing: «البيسي» when an older NUKE GG sent only Windows' raw computer name ("DESKTOP-7Q2X")
+const pcLabel = (p) => (p?.pc && p.pc !== p.host ? p.pc : "البيسي");
+
+// ---- the PCs' keys (SEC-9, 2026-10-13): kept in IndexedDB as keys the browser never hands out (non-extractable). A script
+// that ever got onto this site could use them only while this page is open — it can't read them out and take them away.
+// localStorage keeps only what's shown (names, ids). The old raw keys move in by themselves the first time (each one taken
+// out only once it's safely stored); a browser without IndexedDB keeps the old way, so no pairing is ever lost.
+const KEYS = new Map(); // id → { key: CryptoKey, ch: the relay room's name }
+let keysOk = false;
+let kdbP = null;
+const kdb = () =>
+  (kdbP ??= new Promise((res, rej) => {
+    const r = indexedDB.open("nk-keys", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("k");
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+    r.onblocked = () => rej(new Error("blocked"));
+  }).catch((e) => {
+    kdbP = null;
+    throw e;
+  }));
+const kreq = async (mode, fn) => {
+  const db = await kdb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("k", mode);
+    const r = fn(tx.objectStore("k"));
+    tx.oncomplete = () => res(r?.result);
+    tx.onerror = tx.onabort = () => rej(tx.error);
+  });
+};
+const keyFromRaw = async (raw) => ({ key: await importKey(raw), ch: await channelName(raw) });
+async function storeKey(id, v) {
+  await kreq("readwrite", (s) => s.put(v, id));
+  KEYS.set(id, v);
+}
+function dropKey(id) {
+  KEYS.delete(id);
+  if (keysOk) kreq("readwrite", (s) => s.delete(id)).catch(() => {});
+}
+// the saved fields of a newly paired PC: no raw key when it went into IndexedDB
+async function keepKey(id, rawB64) {
+  const v = await keyFromRaw(fromB64u(rawB64));
+  KEYS.set(id, v);
+  if (!keysOk) return { k: rawB64 };
+  try {
+    await storeKey(id, v);
+    return {};
+  } catch {
+    return { k: rawB64 };
+  }
+}
+async function keyFor(p) {
+  if (!p) return null;
+  if (KEYS.has(p.id)) return KEYS.get(p.id);
+  if (p.k) {
+    const v = await keyFromRaw(fromB64u(p.k));
+    KEYS.set(p.id, v);
+    return v;
+  }
+  return null;
+}
+async function keysLoad() {
+  try {
+    // (a store that never answers doesn't hold the page: 4 s at most)
+    await Promise.race([kdb(), new Promise((_, no) => setTimeout(() => no(new Error("slow")), 4000))]);
+    const ids = await kreq("readonly", (s) => s.getAllKeys());
+    const vals = await kreq("readonly", (s) => s.getAll());
+    (ids ?? []).forEach((id, i) => vals?.[i]?.key && vals[i].ch && KEYS.set(id, vals[i]));
+    keysOk = true;
+  } catch {
+    return; // no IndexedDB here (some private windows): the keys stay as they were
+  }
+  // the old way's raw keys: in, then out of localStorage
+  const list = pcs();
+  let moved = false;
+  for (const p of list) {
+    if (!p.k) continue;
+    try {
+      await storeKey(p.id, await keyFromRaw(fromB64u(p.k)));
+      delete p.k;
+      moved = true;
+    } catch {}
+  }
+  if (moved) savePcs(list);
+  const bl = byes();
+  let byeMoved = false;
+  for (const b of bl) {
+    if (!b.k || b.id) continue;
+    try {
+      const id = `bye:${crypto.randomUUID()}`;
+      await storeKey(id, await keyFromRaw(fromB64u(b.k)));
+      b.id = id;
+      delete b.k;
+      byeMoved = true;
+    } catch {}
+  }
+  if (byeMoved) localStorage.setItem(BYE, JSON.stringify(bl));
+  // keys nothing points at any more (a «bye» that ran out after 60 days): gone
+  const used = new Set([...pcs().map((p) => p.id), ...byes().map((b) => b.id).filter(Boolean)]);
+  for (const id of [...KEYS.keys()]) if (!used.has(id)) dropKey(id);
+}
 const phoneName = () => (/iPhone/i.test(navigator.userAgent) ? "iPhone" : isIos ? "iPad" : /Android/i.test(navigator.userAgent) ? "جوال Android" : "جوال");
 // alt: a second, quieter button ({ label, run }); scan: the label of the QR button (or false: none)
-function intro(title, text, spin = false, { alt = null, scan = "📷 صوّر الـ QR من هنا" } = {}) {
+function intro(title, text, spin = false, { alt = null, scan = "صوّر الـ QR من هنا", code = null } = {}) {
   $("app").classList.add("hidden");
   $("nav").classList.add("hidden");
   $("intro").classList.remove("hidden");
   $("introTitle").textContent = title;
   $("introText").textContent = text;
+  $("introCode").classList.toggle("hidden", !code);
+  $("introCode").querySelector("b").textContent = code ?? "";
   $("introSpin").classList.toggle("hidden", !spin);
   $("scanBtn").classList.toggle("hidden", spin || !scan); // waiting for the PC: nothing to scan
   if (scan) $("scanBtn").textContent = scan;
@@ -1529,7 +1820,9 @@ let introAltRun = null;
 $("introAlt").addEventListener("click", () => introAltRun?.());
 // an iPhone in Safari: the home-screen app keeps its own storage, so a pairing done here wouldn't reach it
 const IOS_TITLE = "أول شي: حطها على الشاشة الرئيسية";
-const IOS_FIRST = "أضف الصفحة للشاشة الرئيسية أول (زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية»)، وبعدها افتحها من هناك وامسح الكود من داخلها. كذا الربط يبقى، وتوصلك التنبيهات.";
+const IOS_FIRST = "أضف الصفحة للشاشة الرئيسية أول (زر المشاركة ← «إضافة إلى الشاشة الرئيسية»)، وبعدها افتحها من هناك وامسح الكود من داخلها. كذا الربط يبقى، وتوصلك التنبيهات.";
+// where pairing lives on the PC now (the «جوالك» section; Settings only points there)
+const PAIR_PATH = "افتح NUKE GG على البيسي ← «جوالك» ← «جوالك أنت» ← «اربط جوال»";
 
 // ---- what was seen last, per PC: shown at once while connecting (faded, «آخر شي شفناه») ----
 const LAST = (id) => `nk-last-${id}`;
@@ -1576,16 +1869,17 @@ const loadJsQR = () =>
     ? Promise.resolve(window.jsQR)
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
-        sc.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+        // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
+        sc.src = "jsqr.js";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
       });
-function stopScan() {
+function stopScan(fromBack = false) {
   scanOn = false;
   scanStream?.getTracks().forEach((t) => t.stop());
   scanStream = null;
-  $("scan").classList.add("hidden");
+  overlayDone($("scan"), fromBack);
 }
 async function startScan() {
   try {
@@ -1596,7 +1890,7 @@ async function startScan() {
   const v = $("scanVideo");
   v.srcObject = scanStream;
   await v.play().catch(() => {});
-  $("scan").classList.remove("hidden");
+  overlayOpen($("scan"), stopScan);
   scanOn = true;
   const det = "BarcodeDetector" in window ? new window.BarcodeDetector({ formats: ["qr_code"] }) : null;
   const jsqr = det ? null : await loadJsQR().catch(() => null);
@@ -1639,7 +1933,7 @@ async function startScan() {
   look();
 }
 $("scanBtn").addEventListener("click", startScan);
-$("scanClose").addEventListener("click", stopScan);
+$("scanClose").addEventListener("click", () => stopScan());
 const listen = (name, onMsg) =>
   new Promise((resolve) => {
     const c = sb.channel(name, { config: { broadcast: { self: false } } });
@@ -1652,9 +1946,22 @@ const hours = (sec) => (sec >= 3600 ? `${Math.round(sec / 360) / 10} س` : sec >
 const gb = (b) => `${(b / 1024 ** 3).toFixed(b > 100 * 1024 ** 3 ? 0 : 1)} جيجا`;
 
 // ---- pairing: the QR's one-time key ----
+// the 4 digits shown here and on the PC's «وافق» (SEC-10): SHA-256("nuke-pair" · the QR's key · this phone's own random pin)
+// — the PC works them out the same way from the hello it got, so the owner sees at once if another phone answered his QR
+async function pairDigits(rawKey, pin) {
+  const a = enc.encode("nuke-pair"), b = enc.encode(pin);
+  const all = new Uint8Array(a.length + rawKey.length + b.length);
+  all.set(a);
+  all.set(rawKey, a.length);
+  all.set(b, a.length + rawKey.length);
+  const h = new DataView(await crypto.subtle.digest("SHA-256", all));
+  return String(h.getUint32(0) % 10000).padStart(4, "0");
+}
 async function pairWith(rawKey, pc) {
   intro("نربط جوالك…", `مع ${pc || "البيسي"}`, true);
   const key = await importKey(rawKey);
+  const pin = b64u(crypto.getRandomValues(new Uint8Array(18)));
+  const code = await pairDigits(rawKey, pin);
   let done = false;
   const c = await listen(await channelName(rawKey), async (payload) => {
     const m = await unseal(key, payload);
@@ -1670,7 +1977,9 @@ async function pairWith(rawKey, pc) {
       // name; a PC without one, an older NUKE GG, by its name); a new one is added
       const id = crypto.randomUUID();
       const same = (p) => (m.pcId ? p.pcId === m.pcId : p.pc === m.pc);
-      savePcs([...pcs().filter((p) => !same(p)), { id, k: m.key, pc: m.pc, pcId: m.pcId || null, host: m.host || null, vapid: m.vapid }]);
+      const kept = await keepKey(id, m.key);
+      pcs().filter(same).forEach((p) => dropKey(p.id));
+      savePcs([...pcs().filter((p) => !same(p)), { id, ...kept, pc: m.pc, pcId: m.pcId || null, host: m.host || null, vapid: m.vapid }]);
       localStorage.setItem(CUR, id);
       stopRemote();
       history.replaceState(null, "", location.pathname);
@@ -1686,9 +1995,9 @@ async function pairWith(rawKey, pc) {
   });
   let phoneId = localStorage.getItem("nk-phone-id");
   if (!phoneId) localStorage.setItem("nk-phone-id", (phoneId = crypto.randomUUID()));
-  const hello = async () => !done && c.send({ type: "broadcast", event: "m", payload: await seal(key, { t: "hello", phoneId, name: phoneName() }) });
+  const hello = async () => !done && c.send({ type: "broadcast", event: "m", payload: await seal(key, { t: "hello", phoneId, name: phoneName(), pin }) });
   await hello();
-  intro("وافق من البيسي ✋", "طلع على شاشة البيسي سؤال: «جوال يبي يتحكم، توافق؟». اضغط «وافق».", true);
+  intro("وافق من البيسي", "طلع على شاشة البيسي سؤال «جوال يبي يتحكم». تأكد إن الرقم فيه نفس هذا، واضغط «وافق». إذا الرقم غير، اضغط «لا».", true, { code });
   const again = setInterval(() => (done ? clearInterval(again) : hello()), 3000);
   setTimeout(() => {
     if (!done) {
@@ -1711,6 +2020,7 @@ function stopRemote() {
   key = null;
   lastPong = 0;
   graceUntil = 0;
+  expectBy = 0;
   backAgain = false;
   pushInfo = null;
   prefs = {};
@@ -1729,12 +2039,21 @@ async function start() {
   const s = saved();
   if (!s)
     return iosSafari
-      ? intro(IOS_TITLE, `${IOS_FIRST}\nعلى البيسي: NUKE GG ← الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال».`, false, { scan: "📷 أو امسح الكود هنا بسفاري" })
-      : intro("NUKE Remote", "افتح NUKE GG على البيسي، وروح الإعدادات ← التطبيق ← «جوالك» ← «اربط جوال»، وبعدين اضغط الزر تحت وصوّر الـ QR.");
+      ? intro(IOS_TITLE, `${IOS_FIRST}\nعلى البيسي: NUKE GG ← «جوالك» ← «جوالك أنت» ← «اربط جوال».`, false, { scan: "أو امسح الكود هنا بسفاري" })
+      : intro("NUKE GG", `${PAIR_PATH}، وبعدين اضغط الزر تحت وصوّر الـ QR.`);
+  // its key (IndexedDB, or the old way): gone (the phone's storage was cleared) → paired again
+  const kk = await keyFor(s);
+  if (me !== run) return;
+  if (!kk) {
+    // the phone's storage couldn't be read this time: nothing is forgotten, the next open tries again
+    if (!keysOk) return intro("ما قدرنا نفتح الربط", "جوالك ما خلّى الصفحة تقرا مفتاح الربط هالمرة. سكّر الصفحة وافتحها مرة ثانية.", false, { scan: false });
+    forget(s.id);
+    return pcs().length ? start() : intro("انمسح الربط من جوالك", `${PAIR_PATH}، وصوّر الـ QR مرة ثانية.`);
+  }
   $("intro").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("nav").classList.remove("hidden");
-  $("pcName").textContent = s.pc || "البيسي";
+  $("pcName").textContent = pcLabel(s);
   paint();
   ["games", "stats", "heavy"].forEach((id) => ($(id).innerHTML = '<p class="muted">نجيب…</p>'));
   ["gpuBox", "drivesBox", "specsBox"].forEach((id) => $(id).classList.add("hidden"));
@@ -1768,21 +2087,23 @@ async function start() {
   limit = null;
   // what this PC showed last time: at once, faded, until it answers
   showLast(s.id);
-  const raw = fromB64u(s.k);
-  const k = await importKey(raw);
+  const k = kk.key;
   const handle = async (payload) => {
     if (me !== run) return;
     const m = await unseal(k, payload);
     if (!m) return;
+    // anything sealed from the PC: it's there (the "is it still there?" window closes)
+    const wasOn = connected();
+    expectBy = 0;
     if (m.t === "clock") {
       // this phone's clock is off: asked again right away, stamped by the PC's time
       if (learnClock(m.ts)) (lastPing = Date.now()), ping();
       return paint();
     }
     if (m.t === "pong") {
-      const first = Date.now() - lastPong > 150e3;
+      const first = !wasOn || Date.now() - lastPong > 150e3;
       lastPong = Date.now();
-      if (m.pc) $("pcName").textContent = m.pc;
+      if (m.pc) $("pcName").textContent = pcLabel({ pc: m.pc, host: m.host ?? s.host });
       // its name (for showing), its own id and the computer's name (two PCs can share the name)
       const cur = pcs().find((p) => p.id === s.id);
       if (cur && ((m.pc && m.pc !== cur.pc) || (m.pcId && m.pcId !== cur.pcId) || (m.host && m.host !== cur.host)))
@@ -1819,12 +2140,12 @@ async function start() {
       // unpaired on the PC (now, or while this phone was away): it's taken off here too
       forget(s.id);
       if (pcs().length) {
-        toast(`انفصل ${s.pc || "البيسي"} عن هالجوال`, true);
+        toast(`انفصل ${pcLabel(s)} عن هالجوال`, true);
         start();
-      } else intro("انفصل البيسي", "البيسي فصل هالجوال من عنده. تقدر تربطه مرة ثانية من إعدادات NUKE GG.");
+      } else intro("انفصل البيسي", `البيسي فصل هالجوال من عنده. تقدر تربطه مرة ثانية: ${PAIR_PATH}.`);
     }
   };
-  relayName = await channelName(raw);
+  relayName = kk.ch;
   const c = await listen(relayName, handle);
   if (me !== run) return sb.removeChannel(c); // switched to another PC meanwhile
   key = k;
@@ -1836,11 +2157,12 @@ async function start() {
   if (loops) return;
   loops = true;
   const tick = () => {
-    const really = Date.now() - lastPong < 150e3;
-    // on screen: every 3 s until connected, then every 60 s; in the background: once a minute until
-    // connected, then nothing (the PC isn't asked for nothing)
+    const really = connected();
+    // on screen: every 3 s until connected, then every 15 s (a PC that closed, slept or shut down shows within seconds,
+    // not after 150 — QA, 2026-10-13); in the background: once a minute until connected, then nothing (the PC isn't
+    // asked for nothing). Over the direct link these cost nothing; over the relay a few small messages a minute.
     const shown = document.visibilityState === "visible";
-    const every = shown ? (really ? 60e3 : 3e3) : really ? Infinity : 60e3;
+    const every = shown ? (really ? 15e3 : 3e3) : really ? Infinity : 60e3;
     if (Date.now() - lastPing >= every) {
       lastPing = Date.now();
       ping();
@@ -1858,6 +2180,7 @@ async function start() {
       if (Date.now() - hiddenAt > 10e3) closeRtc();
       backAgain = true;
       lastPing = 0;
+      expectBy = 0; // (a wait from before the page slept doesn't count: asked fresh now)
       tick();
     } else (hidOn = connected()), (hiddenAt = Date.now());
   });
@@ -1865,7 +2188,19 @@ async function start() {
   paintPush();
 }
 let loops = false, lastPing = 0, graceUntil = 0, hidOn = false, backAgain = false, hiddenAt = 0;
-const connected = () => Date.now() - lastPong < 150e3 || Date.now() < graceUntil;
+// expectBy: a ping went out and an answer is due by then; none came → «نعيد الاتصال…» at once, whatever lastPong says
+let expectBy = 0;
+const PONG_WAIT = 6000;
+const connected = () => (Date.now() - lastPong < 150e3 || Date.now() < graceUntil) && !(expectBy && Date.now() > expectBy);
+// "is the PC still there?": asked now, and if nothing comes back within a few seconds the header says so (a cmd that got no
+// answer, the direct link dying, ↻, back on screen)
+function suspect() {
+  if (!key) return;
+  expectBy ||= Date.now() + PONG_WAIT;
+  lastPing = Date.now();
+  ping();
+  setTimeout(paint, PONG_WAIT + 50);
+}
 // «اتصال مباشر» (2026-10-07, owner: "مباشر لكل شي"): once the PC answers, the page offers a WebRTC data channel; when it
 // opens, every message goes over it (no relay message, files up to 4 GB, much faster on the same Wi-Fi). The offer /
 // answer / ICE go sealed over the relay; what goes on the channel is sealed too. No direct link → the relay, as before.
@@ -1963,6 +2298,8 @@ function closeRtc() {
   try {
     r.pc.close();
   } catch {}
+  // an open link that died: the PC may be gone (closed, asleep, shut down) — asked over the relay at once
+  if (r.open && document.visibilityState === "visible") void Promise.resolve(rejoinRelay()).then(suspect);
   paint();
 }
 async function startRtc(me) {
@@ -2017,7 +2354,10 @@ setInterval(() => {
 setInterval(() => {
   if (!rtc && key && document.visibilityState === "visible" && Date.now() - lastPong < 150e3 && Date.now() - rtcTry > 60e3) startRtc(run);
 }, 5000);
-const ping = () => send({ t: "ping" });
+const ping = () => {
+  expectBy ||= Date.now() + PONG_WAIT;
+  return send({ t: "ping" });
+};
 function paint() {
   const on = connected();
   $("dot").className = "dot" + (on ? " on" : "");
@@ -2032,6 +2372,7 @@ function cmd(action, args, wait = 9000) {
     const timer = setTimeout(() => {
       pending.delete(id);
       if (wasDirect) closeRtc();
+      suspect(); // no answer: is the PC still there?
       resolve({ ok: false, error: "TIMEOUT" });
     }, wait);
     pending.set(id, (m) => {
@@ -2186,12 +2527,22 @@ function syncGroups() {
   if ($("grpPcsN")) $("grpPcsN").textContent = n ? `${n}` : "";
 }
 document.getElementById("tab-set").addEventListener("click", () => setTimeout(syncGroups, 400));
+// a setting's whole row flips its switch (the switch alone was 46×28: hard to hit), everywhere — the settings, the camera's
+// sheet, «وأنا جاي»'s steps, «راقب البيسي»; a row with other buttons in it is left to them
+document.addEventListener("click", (e) => {
+  const row = e.target.closest?.(".setrow");
+  if (!row || e.target.closest("button, a, input, select, textarea, label")) return;
+  const sws = row.querySelectorAll("button.sw");
+  if (sws.length !== 1 || row.querySelectorAll("button").length !== 1 || row.closest(".hidden")) return;
+  sws[0].click();
+});
 $("pcsOpen").addEventListener("click", () => $("pcBtn").click());
 
 // ---- tabs ----
 let tab = "games";
 document.querySelectorAll("nav [data-tab]").forEach((b) =>
   b.addEventListener("click", () => {
+    if (isOpen($("pcSheet"))) closePcs(); // («أجهزتك» doesn't stay over another tab)
     if (tab === b.dataset.tab) return;
     buzz(8);
     tab = b.dataset.tab;
@@ -2214,8 +2565,7 @@ $("refreshBtn").addEventListener("click", async () => {
   buzz(8);
   const b = $("refreshBtn");
   b.classList.add("busy");
-  lastPing = Date.now();
-  ping();
+  suspect(); // the PC asked again: no answer within a few seconds → «نعيد الاتصال…» (it used to keep saying «متصل»)
   const started = Date.now();
   try {
     await refresh();
@@ -2253,23 +2603,25 @@ function openPcs() {
   // two PCs with the same name: the computer's own name tells them apart
   const twin = (p) => list.filter((x) => (x.pc || "") === (p.pc || "")).length > 1;
   $("pcList").innerHTML = list
-    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(p.pc || "البيسي")}${twin(p) && p.host ? ` <small dir="ltr">${esc(p.host)}</small>` : ""}</span>${p.id === cur?.id ? "<em>الحين</em>" : ""}</button>`)
+    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(pcLabel(p))}${(twin(p) || pcLabel(p) !== p.pc) && p.host ? ` <small dir="ltr">${esc(p.host)}</small>` : ""}</span>${p.id === cur?.id ? "<em>الحين</em>" : ""}</button>`)
     .join("");
-  $("pcSheet").classList.remove("hidden");
+  overlayOpen($("pcSheet"), closePcs);
 }
+const closePcs = (fromBack = false) => overlayDone($("pcSheet"), fromBack);
 $("pcBtn").addEventListener("click", () => (buzz(8), openPcs()));
+$("pcClose").addEventListener("click", () => closePcs());
 $("pcSheet").addEventListener("click", (e) => {
-  if (e.target === $("pcSheet")) return $("pcSheet").classList.add("hidden");
+  if (e.target === $("pcSheet")) return closePcs();
   const b = e.target.closest("[data-pc]");
   if (!b) return;
-  $("pcSheet").classList.add("hidden");
+  closePcs();
   if (b.dataset.pc === saved()?.id) return;
   buzz();
   localStorage.setItem(CUR, b.dataset.pc);
   start();
 });
 $("pcAdd").addEventListener("click", () => {
-  $("pcSheet").classList.add("hidden");
+  closePcs();
   startScan();
 });
 
@@ -2463,15 +2815,16 @@ function paintAllApps() {
     : `<p class="muted">ما فيه برنامج بهالاسم على البيسي.</p>`;
   $("appsList").querySelectorAll("[data-icon]").forEach((el) => appsSeen.observe(el));
 }
+const closeAllApps = (fromBack = false) => overlayDone($("appsSheet"), fromBack);
 $("appsAllBtn").addEventListener("click", async () => {
   buzz(8);
-  $("appsSheet").classList.remove("hidden");
+  overlayOpen($("appsSheet"), closeAllApps);
   $("appsSearch").value = "";
   if (!allApps) {
     $("appsList").innerHTML = '<p class="muted">نجيب برامج البيسي…</p>';
     const r = await cmd("apps.all");
     if (!r.ok) {
-      $("appsSheet").classList.add("hidden");
+      closeAllApps();
       return r.error === "REMOTE_NOT_ALLOWED" ? toast("فتح أي برنامج مطفي من إعدادات البيسي", true) : fail(r);
     }
     allApps = r.data ?? [];
@@ -2479,9 +2832,9 @@ $("appsAllBtn").addEventListener("click", async () => {
   paintAllApps();
 });
 $("appsSearch").addEventListener("input", paintAllApps);
-$("appsClose").addEventListener("click", () => $("appsSheet").classList.add("hidden"));
+$("appsClose").addEventListener("click", () => closeAllApps());
 $("appsSheet").addEventListener("click", (e) => {
-  if (e.target === $("appsSheet")) return $("appsSheet").classList.add("hidden");
+  if (e.target === $("appsSheet")) return closeAllApps();
   const star = e.target.closest("[data-pin]");
   if (star) {
     buzz(8);
@@ -2526,8 +2879,9 @@ function showAppSheet(b, name) {
   $("asIcon").outerHTML = icon ? `<img id="asIcon" src="${esc(icon)}" alt="" />` : `<span id="asIcon" class="ph">${esc(name.charAt(0))}</span>`;
   $("asName").textContent = name;
   $("asState").textContent = bgIds.has(openKey(b)) ? "نافذته مسكّرة، بس شغّال بالخلفية" : "مفتوح على البيسي";
-  $("appSheet").classList.remove("hidden");
+  overlayOpen($("appSheet"), closeAppSheet);
 }
+const closeAppSheet = (fromBack = false) => overlayDone($("appSheet"), fromBack);
 async function openApp(f, name, b) {
   buzz();
   const done = working(b, "نفتحه…");
@@ -2544,21 +2898,21 @@ function tapApp(b, name) {
   if (openIds.has(openKey(b))) return (buzz(8), showAppSheet(b, name));
   openApp({ app: b.dataset.app, run: b.dataset.run }, name, b);
 }
-$("appSheet").addEventListener("click", (e) => e.target === $("appSheet") && $("appSheet").classList.add("hidden"));
+$("appSheet").addEventListener("click", (e) => e.target === $("appSheet") && closeAppSheet());
 $("asClose").addEventListener("click", async () => {
   const f = sheetFor;
   if (!f) return;
   const done = working($("asClose"), "نسكّره…");
   const ok = await closeFlow("apps.close", f.app ? { id: f.app, mine: true } : { id: f.run }, f.name);
   done();
-  if (ok) $("appSheet").classList.add("hidden");
+  if (ok) closeAppSheet();
   setTimeout(loadRunning, 1200);
 });
 $("asOpen").addEventListener("click", async () => {
   const f = sheetFor;
   if (!f) return;
   // the sheet stays (with the button working) until the PC answers
-  if (await openApp(f, f.name, $("asOpen"))) $("appSheet").classList.add("hidden");
+  if (await openApp(f, f.name, $("asOpen"))) closeAppSheet();
 });
 
 // ---- 📸 your games' screenshots: a small preview first, the whole picture on a tap ----
@@ -2618,12 +2972,13 @@ function paintShotGrid() {
   $("shotGrid").innerHTML = list.map(shotTile).join("");
   watchThumbs($("shotGrid"));
 }
+const closeShots = (fromBack = false) => overlayDone($("shotsSheet"), fromBack);
 $("shotsAll").addEventListener("click", () => {
   buzz(8);
-  $("shotsSheet").classList.remove("hidden");
+  overlayOpen($("shotsSheet"), closeShots);
   paintShotGrid();
 });
-$("shotsClose").addEventListener("click", () => $("shotsSheet").classList.add("hidden"));
+$("shotsClose").addEventListener("click", () => closeShots());
 $("shotGames").addEventListener("click", (e) => {
   const b = e.target.closest("[data-sg]");
   if (!b) return;
@@ -2642,14 +2997,12 @@ for (const box of ["shots", "shotGrid"])
   });
 function openShot(id) {
   viewing = id;
-  $("viewer").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  overlayOpen($("viewer"), closeShot);
   showShot(id);
 }
-function closeShot() {
+function closeShot(fromBack = false) {
   viewing = null;
-  $("viewer").classList.add("hidden");
-  document.body.style.overflow = "";
+  overlayDone($("viewer"), fromBack);
 }
 async function showShot(id) {
   const s = shotList.find((x) => x.id === id);
@@ -2700,7 +3053,7 @@ async function fetchFull(id) {
   }
   return pic;
 }
-$("vClose").addEventListener("click", closeShot);
+$("vClose").addEventListener("click", () => closeShot());
 $("vShare").addEventListener("click", async () => {
   const pic = fullPics.get(viewing);
   if (!pic) return;
@@ -2903,14 +3256,14 @@ function paintNow() {
   const bed = Boolean(limit?.bedtime && limit.closeAt && Date.now() < bedUntil());
   $("nowLimit").classList.toggle("hidden", !bed);
   if (!bed) return;
-  $("nowLimitText").textContent = Date.now() < limit.closeAt ? `🌙 تتسكّر الساعة ${clock(limit.closeAt)}` : "🌙 وقت النوم: بتتسكّر بعد شوي";
+  $("nowLimitText").textContent = Date.now() < limit.closeAt ? `تتسكّر الساعة ${clock(limit.closeAt)}` : "وقت النوم: بتتسكّر بعد شوي";
   $("nowSnooze").classList.toggle("hidden", !nearBed());
 }
 function gameButton(g) {
   if (g.installing) return `<div class="inst">${g.installing.kind === "update" ? "تتحدّث" : "تنزل"}${g.installing.progress != null ? ` ${pct(g.installing.progress * 100)}` : ""}</div>`;
   if (g.running) return `<button data-close="${esc(g.key)}">سكّرها</button>`;
   if (Date.now() - (starting.get(g.key) ?? 0) < 25e3) return `<button class="busy" aria-busy="true"><i class="spin sm"></i>تنفتح…</button>`;
-  return `<button data-play="${esc(g.key)}">▶ العب</button>`;
+  return `<button data-play="${esc(g.key)}"><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>العب</button>`;
 }
 function paintGames() {
   const q = $("gSearch").value.trim().toLowerCase();
@@ -2922,7 +3275,8 @@ function paintGames() {
     ? list
         .map(
           (g) =>
-            `<div class="g"><div class="pic">${g.image ? `<img src="${esc(g.image)}" alt="" loading="lazy" decoding="async" />` : ""}${g.running ? "<i>● شغّالة</i>" : ""}</div><div class="meta"><div class="n" dir="auto">${esc(g.name)}</div><div class="s">${g.total ? `لعبت ${hours(g.total)}` : "ما لعبتها للحين"}</div>${gameButton(g)}</div></div>`,
+            // (the play time only once there is some: «ما لعبتها للحين» on every card said nothing; no picture → its letters)
+            `<div class="g"><div class="pic">${g.image ? `<img src="${esc(g.image)}" alt="" loading="lazy" decoding="async" data-gone="1" data-ini="${esc(initials(g.name))}" />` : `<span class="ini" dir="ltr">${esc(initials(g.name))}</span>`}${g.running ? "<i>● شغّالة</i>" : ""}</div><div class="meta"><div class="n" dir="auto">${esc(g.name)}</div>${g.total ? `<div class="s">لعبت ${hours(g.total)}</div>` : ""}${gameButton(g)}</div></div>`,
         )
         .join("")
     : `<p class="muted">${games.length ? "ما فيه لعبة بهالاسم" : "ما لقينا ألعاب على البيسي"}</p>`;
@@ -2966,7 +3320,12 @@ $("nowClose").addEventListener("click", () => closeGame(runningKey, $("nowClose"
 // ---- 💻 PC ----
 // ---- 📊 «الحالة»: the PC's numbers with the last 10 minutes, the card, the programs using the most, drives, parts ----
 const size = (b) => (b >= 1024 ** 4 ? `${(b / 1024 ** 4).toFixed(1)} تيرا` : b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(b >= 100 * 1024 ** 3 ? 0 : 1)} جيجا` : `${Math.max(1, Math.round(b / 1024 ** 2))} ميجا`);
-const speed = (b) => (b == null ? "…" : b >= 1024 ** 2 ? `${(b / 1024 ** 2).toFixed(1)} ميجا/ث` : `${Math.round(b / 1024)} كيلو/ث`);
+// an internet speed: always «ميقا» (megabits a second, as the speed test and the camera say it); file sizes stay ميجا / جيجا
+const mbit = (bytesPerSec) => {
+  const m = (Number(bytesPerSec) * 8) / 1e6;
+  return `${ltr(m >= 10 ? Math.round(m) : m >= 0.1 ? m.toFixed(1) : m > 0 ? "0.1" : "0")} ميقا`;
+};
+const speed = (b) => (b == null ? "…" : mbit(b));
 const perc = (n) => `\u2066${n < 10 ? Number(n.toFixed(1)) : Math.round(n)}%\u2069`;
 const ltr = (t) => `\u2066${t}\u2069`;
 // a small line of the last 10 minutes: older on the left, now on the right (a chart reads that way here too)
@@ -3157,7 +3516,7 @@ function paintVol(v) {
   $("volBox").classList.remove("hidden");
   $("volBox").classList.toggle("muted", Boolean(v.muted));
   $("volNum").textContent = `${v.level}%`;
-  $("volNote").textContent = v.muted ? "مكتوم 🔇" : "";
+  $("volNote").textContent = v.muted ? "مكتوم" : "";
   if (!dragging) $("volRange").value = v.level;
   $("volRange").style.setProperty("--p", `${$("volRange").value}%`);
 }
@@ -3364,30 +3723,37 @@ for (const [id, k, said] of [
   $(id).addEventListener("click", () => setPrefs({ [k]: !$(id).classList.contains("on") }, (p) => (p[k] !== false ? said : "شلنا التنبيه"), $(id)));
 // «افصل» while the PC is off: this phone keeps saying bye (when the page opens, and every minute while
 // it's on screen) until that PC answers, so it stops sending notifications here
-const BYE = "nk-remote-bye"; // [{ k, at }]
+const BYE = "nk-remote-bye"; // [{ id, at }] — the key under that id in IndexedDB (the old way: { k, at })
 const byes = () => {
   try {
     const l = JSON.parse(localStorage.getItem(BYE) || "[]");
-    return Array.isArray(l) ? l.filter((b) => b?.k && Date.now() - (b.at || 0) < 60 * 86400e3) : [];
+    return Array.isArray(l) ? l.filter((b) => (b?.k || b?.id) && Date.now() - (b.at || 0) < 60 * 86400e3) : [];
   } catch {
     return [];
   }
 };
-const byeChans = new Map(); // key → { c, key, off }
-async function sayBye(k) {
+const byeId = (x) => x.id || x.k;
+const byeChans = new Map(); // id (or old raw key) → { c, key, off }
+async function sayBye(entry) {
+  const k = byeId(entry);
   let b = byeChans.get(k);
   if (!b) {
-    b = { c: null, key: null, off: skew };
+    const kk = entry.id ? KEYS.get(entry.id) : await keyFromRaw(fromB64u(entry.k));
+    if (!kk) {
+      // its key is gone (the phone's storage was cleared): nothing left to say it with
+      localStorage.setItem(BYE, JSON.stringify(byes().filter((x) => byeId(x) !== k)));
+      return;
+    }
+    b = { c: null, key: kk.key, off: skew };
     byeChans.set(k, b);
-    const raw = fromB64u(k);
-    b.key = await importKey(raw);
-    b.c = await listen(await channelName(raw), async (payload) => {
+    b.c = await listen(kk.ch, async (payload) => {
       const m = await unseal(b.key, payload);
       if (!m) return;
       if (m.t === "unpaired") {
-        // that PC took this phone off: done
-        localStorage.setItem(BYE, JSON.stringify(byes().filter((x) => x.k !== k)));
+        // that PC took this phone off: done (its key goes too)
+        localStorage.setItem(BYE, JSON.stringify(byes().filter((x) => byeId(x) !== k)));
         byeChans.delete(k);
+        if (entry.id) dropKey(entry.id);
         sb.removeChannel(b.c);
         return;
       }
@@ -3402,20 +3768,22 @@ async function sayBye(k) {
   if (b.c) await sendBye(b);
 }
 const sendBye = async (b) => b.c?.send({ type: "broadcast", event: "m", payload: await seal(b.key, { t: "bye" }, b.off) });
-const pendingByes = () => byes().forEach((b) => sayBye(b.k).catch(() => {}));
+const pendingByes = () => byes().forEach((b) => sayBye(b).catch(() => {}));
 $("byeBtn").addEventListener("click", async () => {
   if (!confirm("نفصل هالجوال عن البيسي؟")) return;
   const s = saved();
   if (!s) return;
-  localStorage.setItem(BYE, JSON.stringify([...byes().filter((x) => x.k !== s.k), { k: s.k, at: Date.now() }]));
-  forget(s.id);
+  // (its key stays — under its id, or the old raw one — only until that PC heard it)
+  const entry = s.k && !KEYS.has(s.id) ? { k: s.k, at: Date.now() } : { id: s.id, at: Date.now() };
+  localStorage.setItem(BYE, JSON.stringify([...byes().filter((x) => byeId(x) !== byeId(entry)), entry]));
+  forget(s.id, true);
   // its channel is let go first, then it's said on a fresh one (now if the PC is on, else when it's back)
   const left = stopRemote();
   if (pcs().length) {
-    toast(`فصلنا ${s.pc || "البيسي"}`);
+    toast(`فصلنا ${pcLabel(s)}`);
     start();
-  } else intro("انفصل الجوال", "تقدر تربطه مرة ثانية من إعدادات NUKE GG.");
-  left.then(() => sayBye(s.k)).catch(() => {});
+  } else intro("انفصل الجوال", `تقدر تربطه مرة ثانية: ${PAIR_PATH}.`);
+  left.then(() => sayBye(entry)).catch(() => {});
 });
 
 // ---- notifications (Web Push, sent by the PC itself) ----
@@ -3424,11 +3792,11 @@ function paintPush() {
   const btn = $("pushBtn");
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     btn.classList.add("hidden");
-    $("pushHint").textContent = isIos && !standalone ? "عشان توصلك التنبيهات على الآيفون: اضغط زر المشاركة ⬆️ ← «إضافة إلى الشاشة الرئيسية»، وافتحها من هناك." : "متصفحك ما يدعم التنبيهات.";
+    $("pushHint").textContent = isIos && !standalone ? "عشان توصلك التنبيهات على الآيفون: اضغط زر المشاركة ← «إضافة إلى الشاشة الرئيسية»، وافتحها من هناك." : "متصفحك ما يدعم التنبيهات.";
     return;
   }
   if (Notification.permission === "granted" && localStorage.getItem("nk-push")) {
-    btn.textContent = "التنبيهات شغّالة ✓";
+    btn.innerHTML = `${TICK}التنبيهات شغّالة`;
     btn.classList.add("ghost");
   }
 }
@@ -3516,6 +3884,18 @@ function leftTime(s) {
   return num(h, W.hour) + (m ? ` و${num(m, W.min)}` : "");
 }
 
+// a picture that didn't load hides instead of a broken mark (no inline handler: the page's CSP allows none)
+// (a game's cover: its letters instead)
+document.addEventListener(
+  "error",
+  (e) => {
+    const t = e.target;
+    if (!t?.matches?.("img[data-gone]")) return;
+    if (t.dataset.ini) t.outerHTML = `<span class="ini" dir="ltr">${esc(t.dataset.ini)}</span>`;
+    else t.style.visibility = "hidden";
+  },
+  true,
+);
 // ---- 🎮 what Steam is downloading ----
 const STEAM_SAID = { down: "ينزل", paused: "موقّف", queued: "بالانتظار", finishing: "يخلّص التثبيت" };
 let steamCount = 0, steamAt = 0;
@@ -3530,8 +3910,8 @@ async function loadSteam() {
   $("steamList").innerHTML = list
     .map((d) => {
       const p = d.progress == null ? null : Math.floor(d.progress * 100);
-      const bits = [p == null ? null : ltr(`${p}%`), STEAM_SAID[d.state] + (d.update ? " (تحديث)" : ""), d.speed ? `${ltr((d.speed / 1024 ** 2).toFixed(1))} ميجا/ث` : null, d.eta ? `باقي ${leftTime(d.eta)}` : d.left ? `باقي ${mbOf(d.left)}` : null].filter(Boolean);
-      return `<div class="sd ${d.state}"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${encodeURIComponent(d.appId)}/capsule_184x69.jpg" alt="" onerror="this.style.visibility='hidden'" /><div class="t"><b dir="auto">${esc(d.name)}</b><div class="bar"><div style="width:${p ?? 3}%"></div></div><small>${bits.join(" · ")}</small></div></div>`;
+      const bits = [p == null ? null : ltr(`${p}%`), STEAM_SAID[d.state] + (d.update ? " (تحديث)" : ""), d.speed ? mbit(d.speed) : null, d.eta ? `باقي ${leftTime(d.eta)}` : d.left ? `باقي ${mbOf(d.left)}` : null].filter(Boolean);
+      return `<div class="sd ${d.state}"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${encodeURIComponent(d.appId)}/capsule_184x69.jpg" alt="" data-gone="1" /><div class="t"><b dir="auto">${esc(d.name)}</b><div class="bar"><div style="width:${p ?? 3}%"></div></div><small>${bits.join(" · ")}</small></div></div>`;
     })
     .join("");
 }
@@ -3572,7 +3952,10 @@ function paintMic(m) {
   micMuted = Boolean(m.muted);
   $("micName").textContent = devName(m.name).main;
   $("micBtn").className = "mic" + (micMuted ? " off" : "");
-  $("micBtn").textContent = micMuted ? "🔇 مكتوم" : "🎙️ مفتوح";
+  const icon = micMuted
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M9 9v2a3 3 0 0 0 5.1 2.1M15 9.3V5a3 3 0 0 0-5.7-1.3M5 11a7 7 0 0 0 11.2 5.6M19 11a7 7 0 0 1-.6 2.8M12 18v4"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
+  $("micBtn").innerHTML = `${icon}<span>${micMuted ? "مكتوم" : "مفتوح"}</span>`;
 }
 async function loadSound() {
   const r = await cmd("audio.list");
@@ -3730,20 +4113,33 @@ $("msgGo").addEventListener("click", async () => {
   $("msgIn").value = "";
   paintMsg();
   $("msgState").className = "msgstate";
-  $("msgState").textContent = "✓ طلعت على شاشة البيسي… ننتظر الرد";
+  $("msgState").innerHTML = `${TICK}طلعت على شاشة البيسي… ننتظر الرد`;
 });
 function onReply(m) {
   if (m.mid && msgWaiting && m.mid !== msgWaiting) return;
   msgWaiting = null;
   $("msgState").className = m.text ? "msgstate reply" : "msgstate";
-  $("msgState").textContent = m.text ? `💬 ردّوا: ${m.text}` : "شافوا الرسالة وسكّروها بدون رد";
-  if (m.text) toast(`💬 ${m.text}`);
+  $("msgState").textContent = m.text ? `ردّوا: ${m.text}` : "شافوا الرسالة وسكّروها بدون رد";
+  if (m.text) toast(`ردّوا: ${m.text}`);
   buzz(30);
 }
 
 // ---- 📁 files from the PC ----
 const ROOT_NAME = { downloads: "التنزيلات", desktop: "سطح المكتب", documents: "المستندات" };
-const KIND_ICON = { dir: "📁", pic: "🖼️", vid: "🎬", audio: "🎵", pdf: "📕", doc: "📄", zip: "🗜️", app: "⚙️", file: "📄" };
+// each kind of file's line icon (the page's own, never an emoji)
+const KI = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const KI_DOC = KI('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>');
+const KIND_ICON = {
+  dir: KI('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),
+  pic: KI('<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>'),
+  vid: KI('<rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/>'),
+  audio: KI('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+  pdf: KI_DOC,
+  doc: KI_DOC,
+  zip: KI('<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 2v2M12 6v2M12 10v2M10 14h4v4h-4z"/>'),
+  app: KI('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+  file: KI_DOC,
+};
 const MIME = { pic: "image/jpeg", vid: "video/mp4", pdf: "application/pdf", audio: "audio/mpeg" };
 let fRoot = null, fPath = [], fItems = [];
 const fThumbs = new Map();
@@ -3753,13 +4149,12 @@ const fileWhen = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { day: "numeric"
 function openFiles(root) {
   fRoot = root;
   fPath = [];
-  $("filesSheet").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  // (back inside a folder goes up one first, like the → button)
+  overlayOpen($("filesSheet"), (fromBack) => (fromBack && fPath.length ? (fPath.pop(), loadFiles(), false) : closeFiles(fromBack)));
   loadFiles();
 }
-function closeFiles() {
-  $("filesSheet").classList.add("hidden");
-  document.body.style.overflow = "";
+function closeFiles(fromBack = false) {
+  overlayDone($("filesSheet"), fromBack);
 }
 async function loadFiles() {
   $("filesTitle").textContent = fPath.length ? fPath[fPath.length - 1] : ROOT_NAME[fRoot];
@@ -3777,7 +4172,7 @@ async function loadFiles() {
         const thumb = fThumbs.get(key);
         const sub = f.dir ? "مجلد" : `${mbOf(f.size)} · ${fileWhen(f.time)}${f.big ? " · أكبر من 4 جيجا" : ""}`;
         const ready = gotFiles.has(key) ? '<span class="save">احفظه</span>' : "";
-        return `<button class="frow${f.big ? " big" : ""}" data-f="${i}"><span class="ic"${thumb ? ` style="background-image:url('${thumb}')"` : ""}${!thumb && f.kind === "pic" ? ` data-fthumb="${i}"` : ""}>${thumb ? "" : KIND_ICON[f.dir ? "dir" : f.kind] || "📄"}</span><span class="t"><b dir="auto">${esc(f.name)}</b><small>${sub}</small></span>${ready}</button>`;
+        return `<button class="frow${f.big ? " big" : ""}" data-f="${i}"><span class="ic"${thumb ? ` style="background-image:url('${thumb}')"` : ""}${!thumb && f.kind === "pic" ? ` data-fthumb="${i}"` : ""}>${thumb ? "" : KIND_ICON[f.dir ? "dir" : f.kind] || KIND_ICON.file}</span><span class="t"><b dir="auto">${esc(f.name)}</b><small>${sub}</small></span>${ready}</button>`;
       })
       .join("") + (r.data.more ? `<p class="muted">وفيه ${r.data.more} غيرها… الأحدث فوق.</p>` : "");
   $("filesList").querySelectorAll("[data-fthumb]").forEach((el) => fThumbSeen.observe(el));
@@ -3927,7 +4322,7 @@ async function saveFile(file) {
 }
 document.querySelectorAll("[data-root]").forEach((b) => b.addEventListener("click", () => (buzz(8), openFiles(b.dataset.root))));
 $("filesBack").addEventListener("click", () => (buzz(8), fPath.length ? (fPath.pop(), loadFiles()) : closeFiles()));
-$("filesClose").addEventListener("click", closeFiles);
+$("filesClose").addEventListener("click", () => closeFiles());
 
 // ---- 🚀 the internet's speed ----
 let speedRun = false;
@@ -3958,7 +4353,7 @@ $("speedGo").addEventListener("click", async () => {
   speedRun = false;
   if (!r.ok) return fail(r);
   if (r.data?.phase === "failed") return toast("ما قدرنا نقيس. تأكد إن نت البيسي شغّال.", true);
-  toast(`تنزيل ${r.data.down} · رفع ${r.data.up} ميجابت`);
+  toast(`تنزيل ${r.data.down} · رفع ${r.data.up} ميقا`);
 });
 async function loadSpeed() {
   const r = await cmd("net.speedGet");
@@ -3975,16 +4370,20 @@ async function loadPriv() {
     const live = d.now.length > 0;
     const line = live ? `شغّال الحين مع: ${d.now.map(esc).join("، ")}` : "محد شاغله الحين";
     const last = !live && d.last ? `<small>آخر مرة: <span dir="auto">${esc(d.last.name)}</span> ${ago(d.last.at)}</small>` : "";
-    return `<div class="priv${live ? " live" : ""}"><span class="ic">${icon}</span><div class="t"><b>${what}</b><small dir="auto">${live ? "🔴 " : "✓ "}${line}</small>${last}</div></div>`;
+    return `<div class="priv${live ? " live" : ""}"><span class="ic">${icon}</span><div class="t"><b>${what}</b><small dir="auto">${live ? '<i class="live-dot"></i>' : ""}${line}</small>${last}</div></div>`;
   };
-  $("privBox").innerHTML = row("📷", "الكاميرا", r.data.camera) + row("🎙️", "المايك", r.data.mic);
+  const CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
+  const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
+  $("privBox").innerHTML = row(CAM, "الكاميرا", r.data.camera) + row(MIC, "المايك", r.data.mic);
 }
 
 // ================= buttons, voice, the PC watcher, the gaming dashboard (2026-10-07, owner's picks) =================
 
 // ---- ⚡ «أزرارك»: one button, several things on the PC ----
 const MODE_WORD = { off: "🌙 طفّ الشاشة", pc: "🖥️ شاشة البيسي بس", tv: "📺 الثانية / التلفزيون بس", same: "🖥️ نفس الصورة بالثنتين", wide: "🖥️ شاشة وحدة عريضة" };
-function stepWord(s) {
+// (the words without their emoji: the page's rule is line icons, never emoji)
+const stepWord = (s) => plain(stepWordRaw(s));
+function stepWordRaw(s) {
   switch (s.t) {
     case "out": return `🎧 الصوت يطلع من ${devName(s.name).main || "الجهاز اللي اخترته"}`;
     case "vol": return `🔊 الصوت ${ltr(`${s.level}%`)}`;
@@ -4008,11 +4407,30 @@ async function loadDeck() {
   deckTemplates = r.data.templates ?? [];
   paintDeck();
 }
+// a button's mark: kept on the PC as its emoji (the same on every phone and on older pages), drawn here as the page's own
+// line icon; one this page doesn't know stays as it is
+const SI = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const SCENE_ICON = {
+  "🎮": SI('<rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/>'),
+  "🎬": SI('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="m3 7 3-4h4l-3 4M10 3h4l-3 4M14 3h4l-3 4"/>'),
+  "😴": SI('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
+  "🤫": SI('<path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/>'),
+  "🎧": SI('<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>'),
+  "🔥": SI('<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-9-1 2-2 3-4 3 0-2-1-4-3-6 0 4-3 6-3 11 0 5 3 8 7 8z"/>'),
+  "💤": SI('<path d="M4 4h6l-6 7h6M14 12h6l-6 8h6"/>'),
+  "🎵": SI('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+  "📺": SI('<rect x="2" y="5" width="20" height="13" rx="2"/><path d="M8 21h8M8 2l4 3 4-3"/>'),
+  "⚡": SI('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'),
+  "🍿": SI('<path d="M5 9h14l-2 13H7zM9 9l1 13M15 9l-1 13"/><path d="M6 9a3 3 0 0 1 3-4 3 3 0 0 1 6 0 3 3 0 0 1 3 4"/>'),
+  "🏆": SI('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a4 4 0 0 1-3 4M7 5H4v2a4 4 0 0 0 3 4"/>'),
+};
+const sceneIcon = (emo) => SCENE_ICON[String(emo ?? "").replace(/️/g, "")] ?? esc(emo);
 function paintDeck() {
   $("deckEdit").classList.toggle("hidden", !deckList.length);
+  const plus = SI('<path d="M12 5v14M5 12h14"/>');
   $("deck").innerHTML = deckList.length
-    ? deckList.map((b) => `<button class="scene" data-scene="${esc(b.id)}"><i>${esc(b.emoji)}</i>${esc(b.name)}</button>`).join("") + '<button class="scene add" id="deckAdd"><i>＋</i>زر جديد</button>'
-    : '<button class="scene add" id="deckAdd" style="grid-column:1/-1;min-height:74px"><i>＋</i>سوّ أول زر: ضغطة وحدة تسوي كذا شي بالبيسي</button>';
+    ? deckList.map((b) => `<button class="scene" data-scene="${esc(b.id)}"><i>${sceneIcon(b.emoji)}</i>${esc(b.name)}</button>`).join("") + `<button class="scene add" id="deckAdd"><i>${plus}</i>زر جديد</button>`
+    : `<button class="scene add" id="deckAdd" style="grid-column:1/-1;min-height:74px"><i>${plus}</i>سوّ أول زر: ضغطة وحدة تسوي كذا شي بالبيسي</button>`;
 }
 $("deck").addEventListener("click", async (e) => {
   if (e.target.closest("#deckAdd")) return buzz(8), openDeck(null);
@@ -4030,11 +4448,12 @@ $("deck").addEventListener("click", async (e) => {
   toast(bad ? `«${sc?.name}» اشتغل، بس ${num(bad, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])} ما زبطت` : `«${sc?.name}» ✓`, Boolean(bad));
 });
 $("deckEdit").addEventListener("click", () => (buzz(8), openDeck("list")));
-$("deckClose").addEventListener("click", () => $("deckSheet").classList.add("hidden"));
+const closeDeck = (fromBack = false) => overlayDone($("deckSheet"), fromBack);
+$("deckClose").addEventListener("click", () => closeDeck());
 $("deckBack").addEventListener("click", () => (buzz(8), openDeck("list")));
-// the sheet: the list of buttons, or one button being made / changed
+// the sheet: the list of buttons, or one button being made / changed (back from a button goes to the list first)
 function openDeck(what) {
-  $("deckSheet").classList.remove("hidden");
+  overlayOpen($("deckSheet"), (fromBack) => (fromBack && !$("deckBack").classList.contains("hidden") ? (openDeck("list"), false) : closeDeck(fromBack)));
   if (what === "list") return paintDeckList();
   editing = what ? JSON.parse(JSON.stringify(what)) : null;
   if (!editing) return paintTemplates();
@@ -4044,12 +4463,12 @@ function paintDeckList() {
   editing = null;
   $("deckBack").classList.add("hidden");
   $("deckTitle").textContent = "أزرارك";
-  $("deckBody").innerHTML = `<div class="sclist">${deckList.map((b) => `<button class="pcrow" data-ed="${esc(b.id)}"><i>${esc(b.emoji)}</i><span>${esc(b.name)}</span><small>${num(b.steps.length, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])}</small></button>`).join("")}</div><button id="deckNew" class="wide" style="margin-top:6px">＋ زر جديد</button>`;
+  $("deckBody").innerHTML = `<div class="sclist">${deckList.map((b) => `<button class="pcrow" data-ed="${esc(b.id)}"><i>${sceneIcon(b.emoji)}</i><span>${esc(b.name)}</span><small>${num(b.steps.length, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])}</small></button>`).join("")}</div><button id="deckNew" class="wide" style="margin-top:6px">＋ زر جديد</button>`;
 }
 function paintTemplates() {
   $("deckBack").classList.toggle("hidden", !deckList.length);
   $("deckTitle").textContent = "زر جديد";
-  $("deckBody").innerHTML = `<p class="hint" style="margin-top:0">ابدأ من واحد جاهز وغيّر فيه، أو من الصفر.</p><div class="tpls">${deckTemplates.map((t, i) => `<button class="chip" data-tpl="${i}">${esc(t.emoji)} ${esc(t.name)}</button>`).join("")}<button class="chip" data-tpl="-1">✏️ من الصفر</button></div>`;
+  $("deckBody").innerHTML = `<p class="hint" style="margin-top:0">ابدأ من واحد جاهز وغيّر فيه، أو من الصفر.</p><div class="tpls">${deckTemplates.map((t, i) => `<button class="chip tpl" data-tpl="${i}">${sceneIcon(t.emoji)}${esc(t.name)}</button>`).join("")}<button class="chip" data-tpl="-1">من الصفر</button></div>`;
 }
 const EMOJIS = ["🎮", "🎬", "😴", "🤫", "🎧", "🔥", "💤", "🎵", "📺", "⚡", "🍿", "🏆"];
 let stepKind = "";
@@ -4058,11 +4477,11 @@ function paintEditor() {
   $("deckTitle").textContent = editing.id ? "عدّل الزر" : "زر جديد";
   $("deckBody").innerHTML = `
     <input id="edName" class="search" maxlength="30" dir="auto" placeholder="اسم الزر (مثلاً: وضع اللعب)" value="${esc(editing.name || "")}" />
-    <div class="emojis">${EMOJIS.map((e) => `<button data-emo="${e}" class="${e === editing.emoji ? "on" : ""}">${e}</button>`).join("")}</div>
+    <div class="emojis">${EMOJIS.map((e) => `<button data-emo="${e}" class="${e === editing.emoji ? "on" : ""}" aria-label="شكل الزر">${sceneIcon(e)}</button>`).join("")}</div>
     <p class="sub">لما تضغطه يسوي هذي بالترتيب:</p>
     <div class="steps">${editing.steps.length ? editing.steps.map((s, i) => `<div class="stp"><b>${i + 1}</b><span dir="auto">${esc(stepWord(s))}</span><button data-rm="${i}" aria-label="شيل">×</button></div>`).join("") : '<p class="muted">ما فيه خطوات للحين. أضف تحت.</p>'}</div>
     <div class="addstep">
-      <select id="stepKind" class="search"><option value="">＋ أضف خطوة…</option><option value="out">🎧 الصوت يطلع من…</option><option value="vol">🔊 مستوى الصوت</option><option value="mic">🎙️ المايك</option><option value="game">🎮 شغّل لعبة</option><option value="app">🚀 افتح برنامج</option><option value="closegames">✋ سكّر الألعاب المفتوحة</option><option value="screen">🖥️ الشاشات</option><option value="bright">☀️ السطوع</option><option value="off">⏻ طفّ البيسي بعد…</option><option value="sleep">💤 نوّم البيسي</option><option value="media">⏯️ شغّل / وقّف الأغنية</option></select>
+      <select id="stepKind" class="search"><option value="">+ أضف خطوة…</option><option value="out">الصوت يطلع من…</option><option value="vol">مستوى الصوت</option><option value="mic">المايك</option><option value="game">شغّل لعبة</option><option value="app">افتح برنامج</option><option value="closegames">سكّر الألعاب المفتوحة</option><option value="screen">الشاشات</option><option value="bright">السطوع</option><option value="off">طفّ البيسي بعد…</option><option value="sleep">نوّم البيسي</option><option value="media">شغّل / وقّف الأغنية</option></select>
       <div id="stepVal"></div>
       <button id="stepAdd" class="wide ghost hidden" style="color:#fff">أضف الخطوة</button>
     </div>
@@ -4084,7 +4503,7 @@ async function paintStepVal() {
     box.innerHTML = list.length ? sel(list.map((o) => [o.id, devName(o.name).main])) : '<p class="muted">ما لقينا أجهزة صوت.</p>';
   } else if (k === "vol" || k === "bright") box.innerHTML = sel([100, 80, 70, 60, 50, 40, 30, 20, 10].map((n) => [n, `${n}%`]));
   else if (k === "mic") box.innerHTML = sel([["1", "اكتمه"], ["0", "افتحه"]]);
-  else if (k === "screen") box.innerHTML = sel(Object.entries(MODE_WORD));
+  else if (k === "screen") box.innerHTML = sel(Object.entries(MODE_WORD).map(([v, t]) => [v, plain(t)]));
   else if (k === "off") box.innerHTML = sel([5, 10, 15, 30, 45, 60, 90, 120].map((n) => [n, `بعد ${num(n, W.min)}`]));
   else if (k === "game") {
     if (!games.length) await loadGames();
@@ -4165,7 +4584,7 @@ async function saveDeck(list, said, btn) {
   if (!r.ok) return fail(r);
   deckList = r.data?.list ?? list;
   paintDeck();
-  $("deckSheet").classList.add("hidden");
+  closeDeck();
   toast(said);
 }
 
@@ -4229,7 +4648,7 @@ async function talkSend() {
   const e = await cmd("voice.end", { vid: b.data.vid });
   if (!e.ok) return talkSay(""), fail(e);
   buzz(30);
-  talkSay("📢 طلع صوتك من البيسي. تبي ترسل ثاني؟ اضغط واستمر.");
+  talkSay("طلع صوتك من البيسي. تبي ترسل ثاني؟ اضغط واستمر.");
 }
 $("talkBtn").addEventListener("pointerdown", talkStart);
 for (const ev of ["pointerup", "pointercancel", "pointerleave"]) $("talkBtn").addEventListener(ev, talkStop);
@@ -4283,7 +4702,7 @@ function paintServers() {
     d.games
       .map((g) =>
         STEER[g.kind]
-          ? `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${g.blocked ? `✓ تدخلك القريب بس${g.blocked.after?.worst ? ` (أبعدها ${g.blocked.after.worst} ms)` : ""}` : g.kind === "ini" ? "نختار لها أقرب سيرفر بملف إعداداتها." : "نبلك السيرفرات البعيدة عشان تدخلك القريب. على البيسي يطلع سؤال من ويندوز."}${g.tip ? " " + esc(SRV_TIPS[g.tip] || "") : ""}</small></div><button class="chip" data-srv="${esc(g.id ?? g.appId)}" data-on="${g.blocked ? 1 : 0}">${g.blocked ? "رجّعها" : "القريب بس"}</button></div>`
+          ? `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${g.blocked ? `${TICK}تدخلك القريب بس${g.blocked.after?.worst ? ` (أبعدها ${g.blocked.after.worst} ms)` : ""}` : g.kind === "ini" ? "نختار لها أقرب سيرفر بملف إعداداتها." : "نبلك السيرفرات البعيدة عشان تدخلك القريب. على البيسي يطلع سؤال من ويندوز."}${g.tip ? " " + esc(SRV_TIPS[g.tip] || "") : ""}</small></div><button class="chip" data-srv="${esc(g.id ?? g.appId)}" data-on="${g.blocked ? 1 : 0}">${g.blocked ? "رجّعها" : "القريب بس"}</button></div>`
           : `<div class="setrow"><div><b dir="auto">${esc(g.name)}</b><small>${esc(SRV_TIPS[g.tip] || "")}</small></div></div>`,
       )
       .join("");
@@ -4343,7 +4762,7 @@ function paintFriends() {
     `<b style="display:block;font-size:13px;color:var(--dim)">${esc(v.game)}</b>` +
     `<div dir="ltr" style="font-size:28px;font-weight:800;letter-spacing:4px;text-align:center;color:var(--gold);margin:8px 0">${esc(v.shown)}</div>` +
     `<div class="linkrow"><button id="frShare">أرسله لربعك</button></div>` +
-    `<p style="margin:10px 0 0">${people.length ? people.map((m) => `${esc(m.name)}: ${m.ready ? "✓ جاهز" : `ناقصه ${m.missing}`}`).join("<br>") : "محد دخل للحين."}</p>`;
+    `<p style="margin:10px 0 0">${people.length ? people.map((m) => `${esc(m.name)}: ${m.ready ? `${TICK}جاهز` : `ناقصه ${m.missing}`}`).join("<br>") : "محد دخل للحين."}</p>`;
   $("frShare").addEventListener("click", async () => {
     const text = `تعال نلعب ${v.game} بنفس موداتي 🎮\nافتح NUKE GG ← «العب مع ربعك» واكتب الكود:\n${v.shown}`;
     try {
@@ -4385,11 +4804,11 @@ function paintErr(v, note) {
   const fixed = v.fixed || note?.good;
   let h = "";
   if (c) {
-    h += `<div class="lbl${fixed ? " ok" : ""}">${fixed ? "✓ " + esc(note?.text || "انحلّت") : "🎯 " + esc(v.found || "فهمنا الخطأ")}</div><h3>${esc(c.t)}</h3>${c.b ? `<p>${esc(c.b)}</p>` : ""}`;
+    h += `<div class="lbl${fixed ? " ok" : ""}">${fixed ? TICK + esc(plain(note?.text || "انحلّت")) : esc(v.found || "فهمنا الخطأ")}</div><h3>${esc(c.t)}</h3>${c.b ? `<p>${esc(c.b)}</p>` : ""}`;
     if (c.fix && !fixed) h += `<div class="linkrow"><button id="errFix">${esc(c.fix === "صلّحها" ? "صلّحها بالبيسي" : c.fix)}</button></div>` + (c.atPc ? `<p class="atpc">بيطلع على البيسي سؤال من ويندوز «تسمح؟»، لازم أحد يوافق هناك.</p>` : "");
     if (note && !note.good) h += `<p class="atpc">${esc(note.text)}</p>`;
   } else {
-    h += `<div class="lbl">🤔 ${esc(v.none?.t || "")}</div><p>${esc(v.none?.b || "")}</p>`;
+    h += `<div class="lbl">${esc(v.none?.t || "")}</div><p>${esc(v.none?.b || "")}</p>`;
     if (v.meaningAr) h += `<p class="mean">${esc(v.meaningAr)}</p>`;
   }
   if (v.others?.length) h += `<ul>${v.others.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
@@ -4508,23 +4927,24 @@ $("segWk").addEventListener("click", (e) => { const b = e.target.closest("button
 paintFunPrefs();
 
 let wkTimer = null;
+// funKeep: the open view's say on Android's back (the camera keeps itself while sending: false = stays open)
+let funKeep = null;
 function openFun(title, html) {
   $("funTitle").textContent = title;
   $("funBody").innerHTML = html;
-  $("funx").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  overlayOpen($("funx"), (fromBack) => (fromBack && funKeep?.() === false ? false : closeFun(fromBack)));
 }
-function closeFun() {
+function closeFun(fromBack = false) {
   clearTimeout(wkTimer);
   clearInterval(soonTimer);
   if (comeClick) $("funBody").removeEventListener("click", comeClick);
   comeClick = null;
+  funKeep = null;
   camCleanup?.();
-  $("funx").classList.add("hidden");
+  overlayDone($("funx"), fromBack);
   $("funBody").innerHTML = "";
-  document.body.style.overflow = "";
 }
-$("funClose").addEventListener("click", closeFun);
+$("funClose").addEventListener("click", () => closeFun());
 
 function playRx() {
   const mode = funPrefs().rx;
@@ -4538,8 +4958,8 @@ function showRx(mode, ms, fastest) {
   paintFunPrefs();
   let name = "";
   try { name = localStorage.getItem("nk-fun-name") || ""; } catch {}
-  $("funBody").innerHTML = `<div class="rxres"><b class="dn">${ms} ms</b><span class="rank">${NKRx.rank(ms)}</span>` +
-    (isNew ? '<span class="new">رقمك الجديد 🏆</span>' : `<p class="sub">أحسن رقم لك <span class="dn">${old} ms</span></p>`) +
+  $("funBody").innerHTML = `<div class="rxres"><b class="dn">${ms} ms</b><span class="rank">${NKRx.rank(ms, mode)}</span>` +
+    (isNew ? '<span class="new">رقمك الجديد</span>' : `<p class="sub">أحسن رقم لك <span class="dn">${old} ms</span></p>`) +
     (fastest ? `<p class="sub">أسرع ضغطة <span class="dn">${fastest} ms</span></p>` : "") +
     `<div class="namebox"><small>اسمك اللي يشوفه ربعك</small><input id="rxName" class="search" maxlength="20" dir="auto" placeholder="اكتب اسمك" value="${esc(name)}" /></div>` +
     '<div class="linkrow"><button id="rxShare">تحدّى ربعك</button><button id="rxAgain" class="ghost">مرة ثانية</button></div></div>';
@@ -4572,6 +4992,11 @@ async function openWeek() {
   const r = await cmd("games.week");
   if ($("funx").classList.contains("hidden")) return;
   if (!r.ok || !r.data) return ($("funBody").innerHTML = '<p class="muted">ما قدرنا نجيب أسبوعك. لو NUKE GG بالبيسي قديم، حدّثه وجرّب مرة ثانية.</p>');
+  // a week with no play: one line and nothing to share (three slides ending on «شاركها» said nothing)
+  if (!(r.data.total > 0))
+    return ($("funBody").innerHTML = '<div class="wkempty"><b>ما لعبت هالأسبوع للحين</b><p class="hint">العب شوي، ونعرض لك أسبوعك هنا: ساعاتك، لعبتك الأولى، وأيامك ورا بعض.</p></div>');
+  // the picture is drawn now, so «شاركها» shares at the first tap (an iPhone only shares straight from a tap)
+  prepWeekPic(r.data);
   (funPrefs().wk === "track" ? weekTrack : weekStory)(r.data);
 }
 $("wkOpen").addEventListener("click", openWeek);
@@ -4582,13 +5007,11 @@ function weekStory(w) {
   const t1 = w.top[0];
   const change = w.change == null ? "" : w.change >= 0 ? `أكثر من الأسبوع اللي قبل بـ <span class="dn">${w.change}%</span>` : `أقل من الأسبوع اللي قبل بـ <span class="dn">${-w.change}%</span>`;
   const slides = [
-    () => w.total > 0
-      ? `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(239,59,45,.35),transparent 70%)"><small>أسبوعك بالألعاب</small><span class="big dn">${wkHrs(w.total)}</span><small>ساعة لعب</small><small style="color:#7cff5a">${change}</small></div>`
-      : '<div class="sl"><small>هالأسبوع</small><span class="big">😴</span><small>ما لعبت ولا ساعة… الأسبوع الجاي؟</small></div>',
+    () => `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(239,59,45,.35),transparent 70%)"><small>أسبوعك بالألعاب</small><span class="big dn">${wkHrs(w.total)}</span><small>ساعة لعب</small><small style="color:#7cff5a">${change}</small></div>`,
     () => t1
       ? `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,138,31,.3),transparent 70%)"><small>لعبتك الأولى</small><span class="cover" style="${t1.image ? `background-image:url('${esc(t1.image)}')` : ""}">${t1.image ? "" : esc(initials(t1.name))}</span><span class="gname" dir="auto">${esc(t1.name)}</span><small><span class="dn">${wkHrs(t1.seconds)}</span> ساعة</small></div>`
       : null,
-    () => `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,201,60,.25),transparent 70%)"><small>لعبت ورا بعض</small><span class="big dn">${w.streak}</span><small>${w.streak === 1 ? "يوم" : "أيام"} 🔥</small>` +
+    () => `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,201,60,.25),transparent 70%)"><small>لعبت ورا بعض</small><span class="big dn">${w.streak}</span><small>${w.streak === 1 ? "يوم" : "أيام"}</small>` +
       (best?.seconds ? `<small>أكثر يوم: ${dayName(best.day)} <span class="dn">${wkHrs(best.seconds)}</span> ساعة</small>` : "") +
       `<div class="daybars">${w.days.map((d) => `<div><i style="height:${Math.max(3, Math.round((d.seconds / max) * 70))}px;opacity:${d.seconds ? 1 : 0.25}"></i>${dayName(d.day).slice(0, 2)}</div>`).join("")}</div></div>`,
     () => `<div class="sl"><small>جاهز تشاركها؟</small><b style="font-size:20px">صورة فيها أسبوعك كامل</b><div class="linkrow" style="margin-top:12px;width:100%"><button id="wkShare">شاركها</button><button id="wkAgain" class="ghost">من البداية</button></div></div>`,
@@ -4624,9 +5047,44 @@ function weekTrack(w) {
   $("wkShare").addEventListener("click", () => shareWeek(w));
 }
 
-// the share picture: drawn here (no game pictures: other sites' pictures can't be drawn into it)
-async function shareWeek(w) {
+// the share picture: drawn as soon as the week opens and kept, so «شاركها» calls the share sheet straight from the tap
+// (an iPhone's Safari refuses a share that comes after waiting: the old way drew first, then shared — nothing happened)
+let weekPic = null; // { w, file, ready }
+function prepWeekPic(w) {
+  const pic = { w, file: null };
+  pic.ready = drawWeekPic(w)
+    .then((f) => (pic.file = f))
+    .catch(() => null);
+  weekPic = pic;
+}
+function saveBlobFile(file) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file);
+  a.download = file.name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+}
+function shareWeek(w) {
   buzz();
+  if (weekPic?.w !== w) prepWeekPic(w);
+  const file = weekPic.file;
+  if (!file) {
+    // still drawing (a second at most): said, and offered again when it's ready
+    toast("لحظة، نجهّز الصورة…");
+    weekPic.ready.then((f) => toast(f ? "جاهزة ✓ اضغط «شاركها» مرة ثانية" : "ما قدرنا نسوي الصورة", !f));
+    return;
+  }
+  if (navigator.canShare?.({ files: [file] })) {
+    // (no await before this: the tap's permission is still there)
+    navigator.share({ files: [file], text: "أسبوعي بالألعاب" }).catch((e) => {
+      if (e?.name !== "AbortError") (saveBlobFile(file), toast("نزّلنا الصورة بجوالك ✓"));
+    });
+    return;
+  }
+  saveBlobFile(file);
+  toast("نزّلنا الصورة بجوالك ✓");
+}
+async function drawWeekPic(w) {
   const c = document.createElement("canvas");
   c.width = 1080; c.height = 1350;
   const g = c.getContext("2d");
@@ -4655,15 +5113,10 @@ async function shareWeek(w) {
     g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.7)"; g.font = "700 42px Rajdhani, sans-serif"; g.fillText(`${wkHrs(t.seconds)}h`, 130, y - 10); g.textAlign = "right";
   });
   g.textAlign = "center"; g.fillStyle = "#ffc93c"; g.font = "700 34px 'Noto Kufi Arabic', sans-serif";
-  g.fillText(`${w.streak} ${w.streak === 1 ? "يوم" : "أيام"} ورا بعض 🔥 · NUKE GG`, 540, 1290);
-  c.toBlob(async (blob) => {
-    if (!blob) return toast("ما قدرنا نسوي الصورة", true);
-    const file = new File([blob], "my-week.png", { type: "image/png" });
-    try {
-      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text: "أسبوعي بالألعاب" });
-      else { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "my-week.png"; a.click(); }
-    } catch {}
-  }, "image/png");
+  g.fillText(`${w.streak} ${w.streak === 1 ? "يوم" : "أيام"} ورا بعض · NUKE GG`, 540, 1290);
+  const blob = await new Promise((res) => c.toBlob(res, "image/png"));
+  if (!blob) throw new Error("no picture");
+  return new File([blob], "my-week.png", { type: "image/png" });
 }
 
 // ---- «تنتظرها»: a countdown to a game you wait for (owner's pick, 2026-10-12: «عدّاد كبير») ----
@@ -4713,14 +5166,19 @@ function soonDate(claims) {
   const [y, m, d] = pick.time.replace(/^\+/, "").slice(0, 10).split("-").map(Number);
   return { date: `${y}-${String(m || 1).padStart(2, "0")}-${String(d || 1).padStart(2, "0")}`, prec: pick.precision };
 }
+// (no internet / Wikidata down throws: "we couldn't look" is said apart from "no game by that name")
 async function soonSearch(q) {
   const ids = [];
+  let asked = 0, failed = 0;
   for (const [lang, s] of soonQueries(q)) {
-    const r = await wd({ action: "wbsearchentities", type: "item", limit: "8", language: lang, uselang: lang, search: s }).catch(() => null);
+    asked++;
+    const r = await wd({ action: "wbsearchentities", type: "item", limit: "8", language: lang, uselang: lang, search: s }).catch(() => (failed++, null));
     for (const x of r?.search ?? []) if (!ids.includes(x.id)) ids.push(x.id);
   }
+  if (asked && failed === asked) throw new Error("offline");
   if (!ids.length) return [];
   const r = await wd({ action: "wbgetentities", ids: ids.slice(0, 20).join("|"), props: "labels|claims|sitelinks", sitefilter: "enwiki|arwiki", languages: "en|ar" }).catch(() => null);
+  if (!r) throw new Error("offline");
   const games = [];
   for (const id of ids) {
     const e = r?.entities?.[id];
@@ -4778,6 +5236,13 @@ function soonWhen(g) {
   const txt = g.prec >= 11 ? `${d} ${MONTHS_AR[m - 1]} ${y}` : g.prec === 10 ? `${MONTHS_AR[m - 1]} ${y}` : String(y);
   return past ? `نزلت ${txt}` : txt;
 }
+// out already: its day has come (an exact day), or a whole year / month that's over
+function soonOut(g) {
+  if (!g.date) return false;
+  const [y, m, d] = g.date.split("-").map(Number);
+  const end = g.prec >= 11 ? new Date(y, m - 1, d) : g.prec === 10 ? new Date(y, m, 1) : new Date(y + 1, 0, 1);
+  return end <= new Date();
+}
 function soonLeft(g) {
   if (!g.date) return null;
   const [y, m, d] = g.date.split("-").map(Number);
@@ -4790,7 +5255,7 @@ function paintSoon() {
   $("soonEmpty").classList.toggle("hidden", list.length > 0);
   $("soonList").innerHTML = list.length ? '<h3 class="soonh">تنتظرها</h3>' + list.map((g) => {
     const l = soonLeft(g);
-    const days = !l ? '<b>قريب</b><small>ما انعلن</small>' : l.ms <= 0 ? '<b>نزلت</b><small>🎆</small>' : `<b class="dn">${l.d}</b><small>${g.prec >= 11 ? "يوم" : "يوم تقريباً"}</small>`;
+    const days = !l ? '<b>قريب</b><small>ما انعلن</small>' : l.ms <= 0 ? '<b>نزلت</b><small>اليوم</small>' : `<b class="dn">${l.d}</b><small>${g.prec >= 11 ? "يوم" : "يوم تقريباً"}</small>`;
     return `<div class="soon-row"><button type="button" class="soon-open" data-id="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><span class="d">${days}</span></button><button type="button" class="soon-x" data-del="${esc(g.id)}" aria-label="شيلها">×</button></div>`;
   }).join("") : "";
   if (list.some((g) => !g.img)) soonFill();
@@ -4803,12 +5268,19 @@ $("soonQ").addEventListener("input", () => {
   soonQT = setTimeout(async () => {
     const my = ++soonSeq;
     $("soonHits").innerHTML = '<p class="muted">ندوّر…</p>';
-    const hits = await soonSearch(q).catch(() => []);
+    const hits = await soonSearch(q).catch(() => null);
     if (my !== soonSeq) return;
+    if (!hits) return ($("soonHits").innerHTML = '<p class="muted">ما قدرنا ندوّر الحين. تأكد من النت وجرّب مرة ثانية.</p>');
     const have = new Set(soonSaved().map((g) => g.id));
+    // a game that's already out is shown (so the player knows it's out) but not offered: its countdown would only say «نزلت!»
     $("soonHits").innerHTML = hits.length
-      ? hits.map((g) => `<button type="button" class="soon-hit" data-add="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><em>${have.has(g.id) ? "✓" : "+"}</em></button>`).join("")
-      : '<p class="muted">ما لقينا لعبة بهالاسم. جرّب اسمها بالإنقليزي.</p>';
+      ? hits
+          .map((g) => {
+            const out = soonOut(g);
+            return `<button type="button" class="soon-hit" ${out ? "disabled" : `data-add="${esc(g.id)}"`}>${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><em>${out ? "نزلت" : have.has(g.id) ? TICK : "+"}</em></button>`;
+          })
+          .join("")
+      : `<p class="muted">ما لقينا لعبة بهالاسم.${/[؀-ۿ]/.test(q) ? " جرّب اسمها بالإنقليزي." : ""}</p>`;
     $("soonHits").__hits = hits;
   }, 450);
 });
@@ -4850,7 +5322,7 @@ function openSoon(id) {
     if (!box) return clearInterval(soonTimer);
     if (!l) return (box.innerHTML = '<p class="soon-tba">أول ما ينعلن موعدها يبدأ العدّ</p>');
     if (l.ms <= 0) {
-      box.innerHTML = '<p class="soon-out">نزلت! 🎆</p>';
+      box.innerHTML = '<p class="soon-out">نزلت!</p>';
       if (!cheered) { cheered = true; soonConfetti(); buzz([30, 60, 30]); }
       return clearInterval(soonTimer);
     }
@@ -4904,12 +5376,12 @@ function paintComing() {
   $("comeSteps").classList.toggle("hidden", !show);
   if (show)
     $("comeSteps").innerHTML = r.steps
-      .map((s) => `<div class="cst ${s.state}"><i>${s.state === "ok" ? "✓" : s.state === "fail" ? "!" : ""}</i><span class="tx"><b dir="auto">${esc(s.label)}</b>${s.note ? `<small dir="auto">${esc(s.note)}</small>` : ""}${s.state === "run" && s.pct != null ? `<span class="bar2"><i style="width:${Math.max(3, Math.min(100, s.pct))}%"></i></span>` : ""}</span></div>`)
+      .map((s) => `<div class="cst ${s.state}"><i>${s.state === "ok" ? TICK : s.state === "fail" ? "!" : ""}</i><span class="tx"><b dir="auto">${esc(s.label)}</b>${s.note ? `<small dir="auto">${esc(s.note)}</small>` : ""}${s.state === "run" && s.pct != null ? `<span class="bar2"><i style="width:${Math.max(3, Math.min(100, s.pct))}%"></i></span>` : ""}</span></div>`)
       .join("");
   const rd = $("comeReady");
   rd.classList.toggle("hidden", !(show && r.done && !r.stopped));
   if (show && r.done && !r.stopped) {
-    rd.textContent = r.ok ? "✓ البيسي جاهز، تعال العب" : "البيسي جاهز، بس فيه خطوة ما ضبطت";
+    rd.innerHTML = r.ok ? `${TICK}البيسي جاهز، تعال العب` : "البيسي جاهز، بس فيه خطوة ما ضبطت";
     rd.classList.toggle("bad", !r.ok);
   }
 }
@@ -4969,12 +5441,29 @@ $("comeEdit").addEventListener("click", () => {
   let progs = null;
   let outs = null;
   let games = null;
+  // the game pick: the ones played last first, six of them, then «كل ألعابك…» with a search (a big library was a wall)
+  let allGames = false;
+  let gameQ = "";
   const sw = (id, on, title, sub) => `<div class="setrow"><div><b>${title}</b><small>${sub}</small></div><button class="sw${on ? " on" : ""}" data-sw="${id}" aria-label="${title}"></button></div>`;
+  const gameChipsHtml = () => {
+    if (!games) return '<p class="muted">نجيب ألعابك…</p>';
+    const q = gameQ.trim().toLowerCase();
+    const pool = games.map((g, i) => ({ g, i })).filter(({ g }) => !q || g.name.toLowerCase().includes(q));
+    const top = allGames || q ? pool : pool.slice(0, 6);
+    // the picked one always shows, even when it isn't in the first six
+    if (c.game && !top.some(({ g }) => g.key === c.game.key)) top.unshift(...pool.filter(({ g }) => g.key === c.game.key));
+    return (
+      [`<button class="chip${c.game ? "" : " on"}" data-game="">بدون</button>`, ...top.map(({ g, i }) => `<button class="chip${c.game?.key === g.key ? " on" : ""}" data-game="${i}" dir="auto">${esc(g.name)}</button>`)].join("") +
+      (!allGames && !q && games.length > 6 ? `<button class="chip more-games" data-allgames="1">كل ألعابك (${games.length})…</button>` : "") +
+      (q && !pool.length ? '<p class="muted">ما فيه لعبة بهالاسم.</p>' : "")
+    );
+  };
   const draw = () => {
-    const closeChips = c.close.map((p, i) => `<button class="chip x" data-unclose="${i}" dir="auto">${esc(p.name)}</button>`).join("");
+    const closeChips = c.close.map((p, i) => `<button class="chip rm" data-unclose="${i}" dir="auto">${esc(p.name)}</button>`).join("");
     const addChips = progs ? progs.filter((p) => !c.close.some((x) => x.image === p.image)).map((p, i) => `<button class="chip" data-addclose="${i}" dir="auto">${esc(p.name)}</button>`).join("") || '<p class="muted">ما فيه برامج ثانية شغّالة الحين.</p>' : "";
     const outChips = outs ? [`<button class="chip${c.out ? "" : " on"}" data-out="">لا تغيّر</button>`, ...outs.map((o, i) => `<button class="chip${c.out?.id === o.id ? " on" : ""}" data-out="${i}" dir="auto">${esc(devName(o.name).main)}</button>`)].join("") : '<p class="muted">نجيب أجهزة الصوت…</p>';
-    const gameChips = games ? [`<button class="chip${c.game ? "" : " on"}" data-game="">بدون</button>`, ...games.map((g, i) => `<button class="chip${c.game?.key === g.key ? " on" : ""}" data-game="${i}" dir="auto">${esc(g.name)}</button>`)].join("") : '<p class="muted">نجيب ألعابك…</p>';
+    const gameChips = gameChipsHtml();
+    const gameSearch = allGames && games?.length > 6 ? `<input class="search" id="comeGameQ" dir="auto" autocomplete="off" placeholder="دوّر لعبة…" value="${esc(gameQ)}" />` : "";
     $("funBody").innerHTML = `<div class="comeset">
       ${sw("steam", c.steam, "افتح ستيم وحدّث ألعابي", "ننتظر لين يخلص التحديث، بعدها نكمّل الخطوات.")}
       <h3>سكّر هالبرامج</h3>
@@ -4983,11 +5472,17 @@ $("comeEdit").addEventListener("click", () => {
       <h3>الصوت يطلع من</h3>
       <div class="opts">${outChips}</div>
       <h3>لعبتك</h3>
-      <div class="opts">${gameChips}</div>
+      ${gameSearch}
+      <div class="opts" id="comeGames">${gameChips}</div>
       ${c.game ? sw("launch", c.launch, `افتح ${esc(c.game.name)} لما يجهز`, "بآخر خطوة، والبيسي يكون جاهز.") : ""}
       ${sw("notify", c.notify, "نبّهني لما يجهز", "يوصلك تنبيه على جوالك.")}
       <button class="wide" data-savecome="1">احفظ</button>
     </div>`;
+    // typing in the game search repaints the chips only (the box keeps its focus)
+    $("comeGameQ")?.addEventListener("input", (e) => {
+      gameQ = e.target.value;
+      $("comeGames").innerHTML = gameChipsHtml();
+    });
   };
   openFun("وأنا جاي: الخطوات", "");
   draw();
@@ -4996,6 +5491,11 @@ $("comeEdit").addEventListener("click", () => {
     const t = e.target.closest("button");
     if (!t || !body.contains(t)) return;
     buzz(6);
+    if (t.dataset.allgames) {
+      allGames = true;
+      draw();
+      return $("comeGameQ")?.focus();
+    }
     if (t.dataset.sw) {
       c[t.dataset.sw] = !c[t.dataset.sw];
       return draw();
@@ -5050,7 +5550,8 @@ $("comeEdit").addEventListener("click", () => {
     if ($("funBody").querySelector(".comeset")) draw();
   });
   void cmd("games.list").then((r) => {
-    games = r.ok ? (r.data?.games ?? []).filter((g) => !g.installing) : [];
+    // played last first (never played: after, in the PC's order)
+    games = r.ok ? (r.data?.games ?? []).filter((g) => !g.installing).sort((a, b) => (b.last || 0) - (a.last || 0)) : [];
     if ($("funBody").querySelector(".comeset")) draw();
   });
 });
@@ -5368,7 +5869,8 @@ $("camOpen").addEventListener("click", () => {
     if (!iph || !(iph.need || iph.installing || iph.error === "store")) return "";
     if (iph.installing) return '<div class="cam-line"><span>نجهّز تعريف الآيفون…</span><em>بالبيسي</em></div>';
     if (iph.error === "store") return '<div class="cam-line"><span>كمّل من المتجر اللي انفتح بالبيسي</span></div>';
-    return '<div class="cam-line"><span>آيفونك متصل، يبيله تعريف آبل</span><button class="chip on" data-iph="1">جهّزه</button></div>';
+    // (it's the PC's own state: any phone streaming sees it, so it never says "your iPhone" to an Android)
+    return '<div class="cam-line"><span>فيه آيفون متصل بسلك البيسي، يبيله تعريف آبل</span><button class="chip on" data-iph="1">جهّزه</button></div>';
   };
   function paneHtml() {
     const c = caps();
@@ -5378,7 +5880,8 @@ $("camOpen").addEventListener("click", () => {
       const f = (v) => `<button class="chip${P.fps === v ? " on" : ""}" data-set="fps" data-v="${v}"><bdi class="num">${v}</bdi> بالثانية</button>`;
       const tuned = P.fx.b || P.fx.c || P.fx.w || P.fx.s || P.fx.auto;
       const n60 = sixtyNote();
-      return `${ls}<h3>الجودة</h3><div class="opts">${q("720")}${q("1080")}<i class="sep"></i>${f(30)}${f(60)}</div>
+      // (size and speed on two labelled lines: on a narrow phone the old single row wrapped into what read like one 3-way choice)
+      return `${ls}<h3>الجودة</h3><div class="cam-q"><span>الدقة</span><div class="opts">${q("720")}${q("1080")}</div></div><div class="cam-q"><span>السرعة</span><div class="opts">${f(30)}${f(60)}</div></div>
         ${n60 ? `<div class="cam-line"><span>${n60}</span>${prioChip()}</div>` : ""}
         <h3>الخلفية</h3>${chips("bg", [["none", "بدون"], ["blur", "طمس"], ["img", "صورة"]], true)}
         ${P.fx.bg === "img" ? `<div class="cam-bgs">${[["lava", "حمم نيوك"], ["room", "غرفة"], ["night", "ليل"]].map(([v, t]) => `<button class="cam-bgt bg-${v}${P.fx.img === v ? " on" : ""}" data-fx="img" data-v="${v}"><span>${t}</span></button>`).join("")}<label class="cam-bgt bg-custom${P.fx.img === "custom" ? " on" : ""}"><input type="file" accept="image/*" id="camBgFile" hidden><span>من جوالك</span></label></div>` : ""}
@@ -6444,34 +6947,16 @@ $("camOpen").addEventListener("click", () => {
   body.addEventListener("touchstart", onTouchStart, { passive: true });
   body.addEventListener("touchmove", onTouchMove, { passive: false });
   body.addEventListener("touchend", onTouchEnd);
-  // Android's back gesture / button: the open tab or the hidden buttons go first; while sending it never stops the stream
-  // by surprise (only «وقّف البث» / ✕ do that); otherwise it closes the camera view instead of leaving the page
-  let ownHist = false;
-  try {
-    history.pushState({ nkcam: 1 }, "");
-    ownHist = true;
-  } catch {}
-  const onPop = () => {
-    if (!camCleanup) return;
-    if (tab || clean || live || back) {
-      if (tab) (tab = null), paintTabs();
-      else if (clean) setClean(false);
-      else toast("البث شغّال: وقّفه من «وقّف البث»");
-      try {
-        history.pushState({ nkcam: 1 }, "");
-      } catch {}
-      return;
-    }
-    ownHist = false;
-    closeFun();
+  // Android's back gesture / button (the page's one back helper, openFun): the open tab or the hidden buttons go first; while
+  // sending it never stops the stream by surprise (only «وقّف البث» / ✕ do that); otherwise it closes the camera view
+  funKeep = () => {
+    if (!(tab || clean || live || back)) return true;
+    if (tab) (tab = null), paintTabs();
+    else if (clean) setClean(false);
+    else toast("البث شغّال: وقّفه من «وقّف البث»");
+    return false;
   };
-  window.addEventListener("popstate", onPop);
   camCleanup = () => {
-    window.removeEventListener("popstate", onPop);
-    if (ownHist && history.state?.nkcam) {
-      ownHist = false;
-      history.back();
-    }
     body.removeEventListener("toggle", onToggle, true);
     body.removeEventListener("click", onClick);
     body.removeEventListener("input", onInput);
@@ -6501,7 +6986,7 @@ const GAUGES = [
   ["cpu", "المعالج", "%", 100, 70, 90],
   ["ram", "الرام", "%", 100, 85, 92],
   ["ping", "البنق", "ms", 150, 60, 100],
-  ["down", "النت", "Mb", 100, 1e9, 1e9],
+  ["down", "النت", " ميقا", 100, 1e9, 1e9],
 ];
 let dashTimer = null, wake = null, dashOpenRing = null, dashHeavy = null, dashHeavyAt = 0;
 const dashPings = [];
@@ -6548,7 +7033,7 @@ async function dashTick() {
   setGauge("cpu", s.cpu, top, top ? `ياكله أكثر شي: ${top}` : "");
   setGauge("ram", ramPct, s.ram ? dnum(`${dgb(s.ram.used)}/${Math.round(s.ram.total / 1073741824)}GB`) : "", s.ram ? `فاضي ${dnum(dgb(s.ram.total - s.ram.used) + " GB")}` : "");
   setGauge("ping", s.net?.ping, s.net?.ping != null ? steady : "", "يقيس للنت نفسه، مو لسيرفر اللعبة");
-  setGauge("down", down, up != null ? `↑ ${dnum(up.toFixed(1))}` : "", down != null ? `نازل ${dnum(down.toFixed(1) + " Mb/s")} · طالع ${dnum((up ?? 0).toFixed(1) + " Mb/s")}` : "");
+  setGauge("down", down, up != null ? `↑ ${dnum(up.toFixed(1))}` : "", down != null ? `نازل ${dnum(down.toFixed(1))} ميقا · طالع ${dnum((up ?? 0).toFixed(1))} ميقا` : "");
   const g = games.find((x) => x.key === runningKey);
   $("dGame").textContent = g ? g.name : "ما فيه لعبة شغّالة";
   const secs = g && runningSince ? Math.max(0, (Date.now() - runningSince) / 1000) : 0;
@@ -6572,8 +7057,7 @@ $("dGrid").addEventListener("click", (e) => {
 $("dashOpen").addEventListener("click", async () => {
   buzz();
   paintDashFrame();
-  $("dash").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  overlayOpen($("dash"), closeDash);
   // the phone's screen stays on while it's open (where the phone allows it)
   try {
     wake = await navigator.wakeLock?.request("screen");
@@ -6582,15 +7066,23 @@ $("dashOpen").addEventListener("click", async () => {
   dashTick();
   dashTimer = setInterval(() => document.visibilityState === "visible" && dashTick(), 2000);
 });
-$("dashClose").addEventListener("click", () => {
+function closeDash(fromBack = false) {
   clearInterval(dashTimer);
   wake?.release?.().catch(() => {});
   wake = null;
-  $("dash").classList.add("hidden");
-  document.body.style.overflow = "";
+  overlayDone($("dash"), fromBack);
+}
+$("dashClose").addEventListener("click", () => closeDash());
+// the screen-on lock ends whenever the phone leaves the page: asked again on the way back while the board is open
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState !== "visible" || !isOpen($("dash"))) return;
+  try {
+    wake = await navigator.wakeLock?.request("screen");
+  } catch {}
 });
 
 // ---- start ----
+await keysLoad();
 const hash = new URLSearchParams(location.hash.slice(1));
 const q = new URLSearchParams(location.search);
 const shared = q.get("url") || q.get("text") || q.get("title");
