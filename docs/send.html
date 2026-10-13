@@ -2,13 +2,24 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
+<!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-5hjihQ5fK12INWY4p5Rz5LS9o7oLsHtUR/2LAniKnjg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <link rel="icon" href="remote-icon.png" />
-<title>أرسل للبيسي · NUKE</title>
+<title>أرسل للبيسي · NUKE GG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin />
+<!-- the NUKE look (2026-10-13): the same font as the phone page and the app; "print" until it loaded (no inline handler) -->
+<link id="nkFont" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" media="print" crossorigin />
+<script>
+(() => {
+  const l = document.getElementById("nkFont");
+  const on = () => (l.media = "all");
+  l.addEventListener("load", on);
+  if (l.sheet) on();
+})();
+</script>
 <!--
   «استقبل من جوال أي أحد» — the page a phone's camera opens from the QR on someone's PC (electron/features/quicksend.cjs).
   No app, no pairing, no account: the QR carries a one-time key; everything about the session is sealed with it over
@@ -88,12 +99,66 @@
   .err { text-align: center; padding: 30px 18px; }
   .err b { display: block; font-size: 18px; margin-bottom: 8px; }
   @media (prefers-reduced-motion: reduce) { .confetti { display: none; } * { animation: none !important; } }
+
+  /* ===== the NUKE look (QA, 2026-10-13: a friend's first sight of NUKE GG wore flat red buttons and plain cards): the phone
+     page's blocks — a red / dark stone plate with a raised edge that sinks when pressed, deep stone text boxes, lava progress,
+     cards with one thin warm line. The textures are the app's own (scripts/remote-page.mjs fills them in). ===== */
+  :root { --tex-red: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23c92b21%22/%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23e0352a%22/%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23d63126%22/%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f2493a%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23b8261d%22/%3E%3C/svg%3E"); --tex-dark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23241d1e%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232a2223%22/%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%232d2425%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231f1819%22/%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23262021%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23302728%22/%3E%3C/svg%3E"); --tex-lava: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%225%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%226%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%222%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%227%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%224%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ef3b2d%22/%3E%3Crect%20x%3D%225%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffa53c%22/%3E%3Crect%20x%3D%226%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff8a1f%22/%3E%3Crect%20x%3D%225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ffc93c%22/%3E%3Crect%20x%3D%226%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23f25a20%22/%3E%3Crect%20x%3D%227%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23ff7a1a%22/%3E%3C/svg%3E"); --warm: #2e2324; --f-num: "Rajdhani", "Noto Kufi Arabic", sans-serif; }
+  html, body { font-family: "Noto Kufi Arabic", system-ui, sans-serif; }
+  .card { border: 0; border-radius: 18px; box-shadow: inset 0 0 0 1.5px var(--warm); }
+  header h1 { font-weight: 900; }
+  /* the two big buttons: blocks (red = photos, dark stone = files) */
+  .pick { position: relative; isolation: isolate; border: 0; border-radius: 16px; background: #000; text-shadow: 2px 2px 0 rgb(0 0 0 / .55); transition: translate .08s; }
+  .pick::before { content: ""; position: absolute; inset: 2px; z-index: -1; border-radius: 14px; image-rendering: pixelated;
+    background: linear-gradient(rgb(23 18 19 / .5), rgb(23 18 19 / .5)), var(--tex-dark) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(120 100 101 / .5), inset -3px -3px 0 #0d0909; }
+  .pick.main { background: #000; border: 0; box-shadow: 0 12px 30px -14px rgba(239,59,45,.9); }
+  .pick.main::before { background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(255 138 124 / .6), inset -3px -3px 0 #6e1010; }
+  .pick:active { transform: none; translate: 0 3px; }
+  .pick:active::before { box-shadow: inset 3px 3px 0 #0d0909, inset -3px -3px 0 rgb(120 100 101 / .4); }
+  .pick.main:active::before { box-shadow: inset 3px 3px 0 #6e1010, inset -3px -3px 0 rgb(255 138 124 / .45); }
+  .pick svg { filter: drop-shadow(2px 2px 0 rgb(0 0 0 / .45)); }
+  /* the name: a deep stone well, gold while typing */
+  input.name { border: 0; border-radius: 14px; image-rendering: pixelated; color: #e9dfdf; font-weight: 600;
+    background: linear-gradient(rgb(14 10 10 / .62), rgb(14 10 10 / .5)), var(--tex-dark) 0 0 / 24px 24px;
+    box-shadow: inset 0 0 0 1.5px #000, inset 0 7px 10px -3px rgb(0 0 0 / .9), 0 1px 0 rgb(255 255 255 / .07); }
+  input.name:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--gold), inset 0 7px 10px -3px rgb(0 0 0 / .9), 0 0 18px -8px var(--flame); }
+  input.name::placeholder { color: #6e6061; font-weight: 700; }
+  .av { font-family: var(--f-num); box-shadow: inset 0 0 0 2px rgb(0 0 0 / .35), 0 6px 18px -6px currentColor; }
+  /* the colours: 30 px dots with a 44 px place to tap */
+  .colors { gap: 6px; }
+  .colors button { position: relative; width: 30px; height: 30px; margin: 7px; }
+  .colors button::after { content: ""; position: absolute; inset: -7px; }
+  /* progress: blocks filling with lava */
+  .bar { height: 10px; border-radius: 0; background: repeating-linear-gradient(90deg, #2a2223 0 12px, transparent 12px 15px); }
+  .bar > div { border-radius: 0; image-rendering: pixelated; background: var(--tex-lava) 0 0 / 15px 15px;
+    -webkit-mask: repeating-linear-gradient(90deg, #000 0 12px, transparent 12px 15px); mask: repeating-linear-gradient(90deg, #000 0 12px, transparent 12px 15px); }
+  .bar.stuck > div { background: var(--tex-dark) 0 0 / 15px 15px; opacity: 1; }
+  .sum span, .rx .pct, .it .ring { font-family: var(--f-num); font-weight: 700; }
+  /* the tiles and rows */
+  .it { border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--warm); }
+  .it .x, .rx .x2 { position: relative; width: 32px; height: 32px; border-radius: 10px; background: #000; color: #fff; isolation: isolate; }
+  .it .x::before, .rx .x2::before { content: ""; position: absolute; inset: 1.5px; z-index: -1; border-radius: 9px; image-rendering: pixelated;
+    background: var(--tex-dark) 0 0 / 16px 16px; box-shadow: inset 0 2px 0 rgb(255 255 255 / .12); }
+  .it .x::after, .rx .x2::after { content: ""; position: absolute; inset: -6px; }
+  .rx .x2 { width: 40px; height: 40px; border-radius: 12px; }
+  .rx { border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--warm); background: #171112; }
+  .rx .save { position: relative; isolation: isolate; min-height: 40px; border-radius: 12px; background: #000; text-shadow: 2px 2px 0 rgb(0 0 0 / .55); }
+  .rx .save::before { content: ""; position: absolute; inset: 2px; z-index: -1; border-radius: 10px; image-rendering: pixelated;
+    background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 2px 2px 0 rgb(255 138 124 / .6), inset -2px -2px 0 #6e1010; }
+  .rx .save:active { translate: 0 2px; }
+  .it .ok svg { width: 13px; height: 13px; }
+  .leave { border-radius: 12px; background: #171112; }
+  /* «وصلت كلها»: a drawn tick in a green block */
+  .done-card .big-ok { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 16px; image-rendering: pixelated;
+    color: #bfffc8; background: #1f6b2a; box-shadow: inset 0 0 0 2px #000, inset 0 3px 0 rgb(255 255 255 / .2), 0 0 26px -6px #34d399; }
+  .done-card .big-ok svg { width: 34px; height: 34px; }
+  .done-card b { display: block; font-size: 17px; font-weight: 900; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <img src="remote-icon.png" alt="" />
+    <img src="remote-logo.webp" alt="" />
     <div>
       <h1 id="title">ترسل للبيسي</h1>
       <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
@@ -136,7 +201,7 @@
     </div>
 
     <div id="doneCard" class="card done-card hidden">
-      <div class="big-ok">✅</div>
+      <div class="big-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
       <b id="doneText">وصلت كلها</b>
       <p class="hint">تقدر ترسل غيرها من فوق.</p>
     </div>
@@ -187,24 +252,40 @@ try {
 } catch {}
 const pcLabel = q.get("n") || "البيسي";
 $("title").textContent = `ترسل لـ ${pcLabel}`;
-document.title = `أرسل لـ ${pcLabel} · NUKE`;
+document.title = `أرسل لـ ${pcLabel} · NUKE GG`;
 if (!raw || raw.length !== 32) {
   $("bad").classList.remove("hidden");
   throw new Error("no key");
 }
 const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["encrypt", "decrypt"]);
 const chanName = "nk-" + [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 40);
-async function seal(obj) {
+// My own key with the PC (security review SEC-7): everyone who sees the QR has its key, so after the PC's welcome
+// this page and the PC share a key of their own (ECDH P-256 → HKDF-SHA-256, salt = the QR's key): no one else who
+// scanned the code can read my files or act as me. A PC from before this answers without its public key: the QR's
+// key, as before.
+let myKey = null;
+async function sealWith(k, obj) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify({ ...obj, ts: Date.now() }))));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, enc.encode(JSON.stringify({ ...obj, ts: Date.now() }))));
   return { iv: b64u(iv), ct: b64u(ct) };
 }
-async function unseal(m) {
+const seal = (obj) => sealWith(obj?.t === "hello" ? key : (myKey ?? key), obj);
+async function openWith(k, m) {
   try {
-    return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64u(m.iv) }, key, fromB64u(m.ct))));
+    return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: fromB64u(m.iv) }, k, fromB64u(m.ct))));
   } catch {
     return null;
   }
+}
+async function unseal(m) {
+  if (myKey) {
+    const mine = await openWith(myKey, m);
+    if (mine) return mine;
+    // on the QR's key, once we have our own: only the PC's welcome / "who" (anything else could be another sender)
+    const any = await openWith(key, m);
+    return any && (any.t === "welcome" || any.t === "who") ? any : null;
+  }
+  return openWith(key, m);
 }
 
 // ---- who I am (kept on this phone; the same id for this code, so a page opened again is the same sender) ----
@@ -215,9 +296,35 @@ const store = (k, v) => {
   } catch {}
   return null;
 };
+// my key pair for this code (kept with my id: a page opened again is the same sender with the same key)
+let myPair = null;
+let myPub = null;
+async function loadPair() {
+  const P256 = { name: "ECDH", namedCurve: "P-256" };
+  try {
+    const jwk = JSON.parse(store(`nk-send-kp:${chanName}`) || "null");
+    if (jwk?.d && jwk.x && jwk.y) {
+      myPair = await crypto.subtle.importKey("jwk", jwk, P256, false, ["deriveBits"]);
+      myPub = b64u(new Uint8Array([4, ...fromB64u(jwk.x), ...fromB64u(jwk.y)]));
+      return true;
+    }
+  } catch {}
+  try {
+    const kp = await crypto.subtle.generateKey(P256, true, ["deriveBits"]);
+    const jwk = await crypto.subtle.exportKey("jwk", kp.privateKey);
+    myPair = kp.privateKey;
+    myPub = b64u(new Uint8Array(await crypto.subtle.exportKey("raw", kp.publicKey)));
+    store(`nk-send-kp:${chanName}`, JSON.stringify(jwk));
+  } catch {
+    myPair = null; // no ECDH here: the QR's key only
+  }
+  return false;
+}
+// (a new key pair goes with a new id: the PC knows an id only with the key it first came with)
+const hadPair = await loadPair();
 const ME = (() => {
   let id = store(`nk-send-id:${chanName}`);
-  if (!id || !/^[0-9a-f-]{8,40}$/.test(id)) store(`nk-send-id:${chanName}`, (id = crypto.randomUUID().slice(0, 12)));
+  if (!hadPair || !id || !/^[0-9a-f-]{8,40}$/.test(id)) store(`nk-send-id:${chanName}`, (id = crypto.randomUUID().slice(0, 12)));
   let saved = {};
   try {
     saved = JSON.parse(store("nk-send-me") || "{}");
@@ -232,18 +339,23 @@ function paintMe() {
   $("colors").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => ((ME.color = b.dataset.c), saveMe())));
 }
 function saveMe() {
+  clearTimeout(nameT);
+  nameT = null;
   store("nk-send-me", JSON.stringify({ name: ME.name, color: ME.color }));
   paintMe();
   if (welcomed) void sayHello();
 }
 $("name").value = ME.name;
-let nameT;
+let nameT = null;
 $("name").addEventListener("input", () => {
   ME.name = $("name").value.slice(0, 24);
   paintMe();
   clearTimeout(nameT);
   nameT = setTimeout(saveMe, 600);
 });
+// a name typed just before picking: said to the PC now (files picked within the 600 ms used to land in «جوال», not
+// in the sender's own folder)
+const flushName = () => nameT && saveMe();
 paintMe();
 
 // ---- small waits: "a:<fid>" (an ack), "w:<fid>" (the PC's answer about a file), "link" (a link came back) ----
@@ -299,6 +411,7 @@ function relay() {
     }
     if (p?.from !== "pc" || (p.to && p.to !== ME.id)) return;
     const m = await unseal(p.s);
+    if (m?.t === "welcome" && m.pk && !(await bindPc(m.pk))) return;
     if (m) onPc(m, "relay");
   };
   sock.onclose = () => {
@@ -321,7 +434,29 @@ async function say(msg) {
     return false;
   }
 }
-const sayHello = () => say({ t: "hello", id: ME.id, name: ME.name, color: ME.color, fresh });
+const sayHello = () => say({ t: "hello", id: ME.id, name: ME.name, color: ME.color, fresh, ...(myPub ? { pk: myPub } : {}) });
+// the PC's public key from its welcome → our own key. The first one seen for this code is kept: a "welcome" with
+// another key later is someone else pretending to be the PC.
+let pcPub = null;
+async function bindPc(pk) {
+  if (!myPair) return true;
+  const pinned = store(`nk-send-pc:${chanName}`);
+  if (pinned && pinned !== pk) return false;
+  if (pcPub === pk && myKey) return true;
+  try {
+    const pub = await crypto.subtle.importKey("raw", fromB64u(pk), { name: "ECDH", namedCurve: "P-256" }, false, []);
+    const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: pub }, myPair, 256);
+    const hk = await crypto.subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
+    myKey = await crypto.subtle.deriveKey({ name: "HKDF", hash: "SHA-256", salt: raw, info: enc.encode(`nk-qs-guest:${ME.id}`) }, hk, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    pcPub = pk;
+    store(`nk-send-pc:${chanName}`, pk);
+    for (const t of Object.keys(preSealed)) delete preSealed[t]; // sealed again with our own key
+    void reseal();
+    return true;
+  } catch {
+    return false;
+  }
+}
 const dcOpen = () => dc?.readyState === "open";
 function send(msg) {
   if (dcOpen()) {
@@ -502,7 +637,7 @@ function tile(x) {
     img.onerror = () => (URL.revokeObjectURL(img.src), img.replaceWith(x.name.slice(0, 40)));
     el.append(img);
   } else el.append(x.name.slice(0, 40));
-  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok">✓</div><button class="x" aria-label="ألغِ هالملف">✕</button>`);
+  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div><button class="x" aria-label="ألغِ هالملف">✕</button>`);
   el.querySelector(".x").addEventListener("click", (e) => (e.stopPropagation(), cancelUp(x)));
   $("list").append(el);
   return el;
@@ -780,7 +915,7 @@ function render() {
   }
   $("bar").style.width = `${Math.floor((have / Math.max(1, total)) * 100)}%`;
   $("barBox").classList.toggle("stuck", stuck || linkDown);
-  $("sumText").textContent = waiting && !sending.length ? "ننتظر صاحب البيسي يقبل…" : sending.length ? `${counted.length} ${counted.length === 1 ? "ملف" : "ملفات"} · ${mb(total)}` : counted.length ? "خلصنا ✓" : "ما انرسل شي";
+  $("sumText").textContent = waiting && !sending.length ? "ننتظر صاحب البيسي يقبل…" : sending.length ? `${counted.length} ${counted.length === 1 ? "ملف" : "ملفات"} · ${mb(total)}` : counted.length ? "خلصنا" : "ما انرسل شي";
   $("speed").textContent = sending.length && !stuck && rate > 1024 ? `${mb(rate)}/s` : sending.length ? pct(have, total) : "";
   const line = sending.length && linkDown ? "انقطع الاتصال… أول ما يرجع نكمل من مكانه" : bigWait ? "الملف كبير ويحتاج اتصال مباشر. ننتظره…" : stuck ? "علّق… نحاول نكمل من نفس المكان" : note;
   $("note").textContent = line;
@@ -822,8 +957,9 @@ function confetti() {
   box.innerHTML = Array.from({ length: 36 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${COLORS[i % COLORS.length]};animation-delay:${Math.random() * 0.4}s;transform:rotate(${Math.random() * 180}deg)"></i>`).join("");
   setTimeout(() => (box.innerHTML = ""), 2600);
 }
-$("pickPhotos").addEventListener("click", () => $("inPhotos").click());
-$("pickFiles").addEventListener("click", () => $("inFiles").click());
+$("pickPhotos").addEventListener("click", () => (flushName(), $("inPhotos").click()));
+$("pickFiles").addEventListener("click", () => (flushName(), $("inFiles").click()));
+$("name").addEventListener("blur", () => flushName());
 for (const id of ["inPhotos", "inFiles"])
   $(id).addEventListener("change", (e) => {
     const list = [...(e.target.files || [])];
