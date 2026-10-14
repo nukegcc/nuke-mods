@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-qy5riUrV5sMEL/HCZ2gmQAVqk9r0XGBphWNNhZNZumE=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-KpZBqmTsTAb8o9WFvfrBOKkTH/aBx71j4zUTr9BZ1nA=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2747,6 +2747,21 @@ const queue = [];
 let sendingFiles = false;
 let sendStopped = false;
 let sendSpeed = null; // { t, bytes, mbps } for the speed shown while sending
+let sendWay = null; // the way the direct link goes now (camWay: "lan" the same Wi-Fi, "net" out through the internet)
+// which way the direct link travels: the home Wi-Fi straight, or out to the internet and back (much slower)
+async function linkWay() {
+  try {
+    const st = await rtc.pc.getStats();
+    const by = new Map();
+    st.forEach((r) => by.set(r.id, r));
+    let pair = null;
+    st.forEach((r) => r.type === "transport" && r.selectedCandidatePairId && (pair = by.get(r.selectedCandidatePairId)));
+    if (!pair) st.forEach((r) => r.type === "candidate-pair" && r.nominated && r.state === "succeeded" && (pair = r));
+    return pair ? camWay(by.get(pair.localCandidateId), by.get(pair.remoteCandidateId)) : null;
+  } catch {
+    return null;
+  }
+}
 function paintSending(name, pct, done = null) {
   $("sending").classList.remove("hidden");
   $("sendName").textContent = name;
@@ -2761,7 +2776,7 @@ function paintSending(name, pct, done = null) {
     else if (now - sendSpeed.t > 700 && done > sendSpeed.bytes) sendSpeed = { t: now, bytes: done, mbps: (done - sendSpeed.bytes) / 1048576 / ((now - sendSpeed.t) / 1000) };
     if (sendSpeed.mbps) speed = `${sendSpeed.mbps.toFixed(1)} ميقا بالثانية`;
   }
-  $("sendMore").textContent = [speed, left].filter(Boolean).join(" · ");
+  $("sendMore").textContent = [speed, sendWay ? KIND_SHORT[sendWay] : "", left].filter(Boolean).join(" · ");
 }
 $("sendStop").addEventListener("click", () => {
   buzz(10);
@@ -2816,6 +2831,7 @@ async function sendFile(file) {
     return true;
   }
   sendSpeed = null;
+  sendWay = null;
   paintSending(file.name, 0);
   if (direct()) {
     const rb = await cmd("file.begin", { name: file.name, size: file.size, raw: true });
@@ -2823,6 +2839,7 @@ async function sendFile(file) {
     // a PC from before this way answers without a tag: the old way below
     if (rb.data?.tag != null) {
       const { fid, part: piece, tag } = rb.data;
+      sendWay = await linkWay();
       const parts = Math.max(1, Math.ceil(file.size / piece));
       let sent = 0;
       const shown = (n, waiting) => {
@@ -6178,6 +6195,9 @@ function camWay(lc, rc) {
   if (lc?.candidateType === "relay" || rc.candidateType === "relay") return "relay";
   const ip = String(rc.address || rc.ip || "");
   const mine = String(lc?.address || lc?.ip || "");
+  // IPv6 has no address sharing: the same first half (/64) is the same home network, whatever the candidate's type says
+  // (a home with IPv6 showed «عن طريق النت» for a link that never left the house: owner, 2026-10-14)
+  if (ip.includes(":") && camV6(ip) && camV6(ip) === camV6(mine)) return "lan";
   if (!/^(host|prflx)$/.test(rc.candidateType || "") || !/^(host|prflx)$/.test(lc?.candidateType || "host")) return "net";
   if (CAM_TETHER.test(ip) || CAM_TETHER.test(mine)) return "usb";
   if (!ip || /\.local$/i.test(ip) || CAM_PRIVATE.test(ip) || /^(f[cd]|fe[89ab])/i.test(ip)) return "lan";
