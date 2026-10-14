@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-Hq2tOe+c22ShCfCPSbzmW+MInVJao+GTUfuoEavllao=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-00uBm1NVZJRdhIgzGMagAqvCYf70KyB9ddza2CQUwtQ=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -795,6 +795,8 @@
   /* the category row as a grid of tiles (owner's pick «شبكة مربعات», 2026-10-12): every section seen at once, an icon
      over its full name; a tile sinks under the finger, the picked one pops red and throws a few pixel bits (catBits) */
   .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: visible; margin-inline: 0; padding: 0 0 12px; }
+  /* four tiles sit in one row (three and one left alone looked broken) */
+  .cats:has(> button:nth-child(4):last-child) { grid-template-columns: repeat(4, 1fr); }
   .cats button { flex-shrink: initial; white-space: normal; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 64px; padding: 10px 4px 9px; font-size: 12.5px; line-height: 1.25; border-radius: 13px; transition: transform .1s, color .15s; touch-action: manipulation; }
   .cats button svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
   .cats button::before { box-shadow: inset 0 2px 0 rgb(255 255 255 / .12), inset 0 -2px 0 rgb(0 0 0 / .5); }
@@ -1045,7 +1047,70 @@
     .cats { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
     .cats button { min-height: 44px; flex-direction: row; gap: 6px; padding: 6px 4px; font-size: 12px; }
     .cats button svg { width: 17px; height: 17px; }
-  }</style>
+  }  /* «فاتورة الكهرباء»: a thermal-printer receipt that prints out of a slot once (owner's pick, 2026-10-14: "make the bill fun") */
+  .billtop { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 4px 10px; font-size: 12.5px; color: var(--dim); }
+  .billtop b { color: var(--gold); font-weight: 700; }
+  .slot { position: relative; padding-top: 10px; }
+  .slot::before { content: ""; position: absolute; inset: 0 -4px auto; height: 14px; border-radius: 8px; background: #050303; box-shadow: inset 0 3px 6px rgba(0,0,0,.9), 0 1px 0 rgba(255,255,255,.06); z-index: 2; }
+  .paperclip { overflow: hidden; position: relative; z-index: 1; margin: 0 6px; }
+  .paper { --ink: #22150f; --ink2: #6f5d52; --rule: #cdbfae; position: relative; background: #f7f2e8 repeating-linear-gradient(0deg, transparent 0 3px, rgba(120,90,60,.035) 3px 4px); color: var(--ink); padding: 18px 16px 26px; font-size: 13px; line-height: 1.7;
+    -webkit-mask: radial-gradient(circle 6px at 50% 100%, #0000 97%, #000) 0 0 / 16px 100% repeat-x; mask: radial-gradient(circle 6px at 50% 100%, #0000 97%, #000) 0 0 / 16px 100% repeat-x; }
+  .paper.print { animation: printout 1.5s steps(18, end) both; }
+  @keyframes printout { from { transform: translateY(-100%); } to { transform: none; } }
+  .paper .ph { display: flex; align-items: center; gap: 10px; }
+  .paper .ph img { width: 38px; height: 38px; object-fit: contain; filter: grayscale(1) brightness(.25); }
+  .paper .ph b { display: block; font-size: 17px; font-weight: 900; line-height: 1.4; }
+  .paper .ph small { color: var(--ink2); font-size: 12px; }
+  .paper .meta { display: grid; grid-template-columns: auto 1fr; gap: 0 12px; margin: 12px 0 2px; font-size: 12px; }
+  .paper .meta span { color: var(--ink2); }
+  .paper .meta b { font-weight: 700; text-align: left; overflow-wrap: anywhere; }
+  .paper hr { border: 0; border-top: 1.5px dashed var(--rule); margin: 12px 0; }
+  .paper hr.dbl { border-top: 3px double var(--ink); }
+  .bl { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 0; }
+  .bl + .bl { border-top: 1px dotted var(--rule); }
+  .bl .pic { width: 34px; height: 34px; border-radius: 9px; background: #e3d9c9 center / cover; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: var(--ink2); overflow: hidden; }
+  .bl .pic svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .bl .nm { font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+  .bl .sub { display: block; font-size: 11.5px; color: var(--ink2); font-weight: 400; }
+  .bl .c { font-family: Rajdhani, system-ui, sans-serif; font-weight: 700; font-size: 17px; white-space: nowrap; }
+  .bl.away .pic { background: #f3d4cc; color: #b3261b; }
+  .bl.away .nm { color: #b3261b; }
+  .tot { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+  .tot .k { font-weight: 900; font-size: 15px; }
+  .tot .k small { display: block; font-weight: 400; font-size: 11.5px; color: var(--ink2); }
+  .tot .v { text-align: left; line-height: 1; }
+  .tot .v b { font-family: Rajdhani, system-ui, sans-serif; font-size: 46px; font-weight: 700; }
+  .tot .v span { font-size: 14px; font-weight: 700; margin-inline-start: 4px; }
+  .stamp { display: inline-block; margin: 12px 4px 0; transform: rotate(-6deg); border: 3px solid currentColor; border-radius: 10px; padding: 2px 10px; font-weight: 900; font-size: 13px; line-height: 1.6; text-align: center; opacity: .82; pointer-events: none; mix-blend-mode: multiply; }
+  .stamp small { display: block; font-size: 10px; font-weight: 700; }
+  .stamp.down { color: #1f8a4c; } .stamp.up { color: #c0281d; } .stamp.new { color: #a8740a; }
+  .paper.print .stamp { animation: stampin .35s 1.6s cubic-bezier(.2,1.6,.4,1) both; }
+  @keyframes stampin { from { transform: rotate(-6deg) scale(2.4); opacity: 0; } to { transform: rotate(-6deg) scale(1); opacity: .82; } }
+  .guess { margin-top: 8px; font-size: 12px; color: var(--ink2); }
+  .label { display: grid; gap: 3px; margin-top: 4px; }
+  .label .r { display: flex; align-items: center; gap: 8px; }
+  .label .bar { height: 15px; display: flex; align-items: center; justify-content: flex-start; padding: 0 6px; color: #fff; font: 700 11px/1 Rajdhani, system-ui, sans-serif; clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); }
+  .label .me { font-weight: 900; font-size: 12px; background: var(--ink); color: #f7f2e8; padding: 0 8px; border-radius: 4px; line-height: 1.6; }
+  .label + p { margin: 6px 0 0; font-size: 12px; color: var(--ink2); }
+  .fun { display: grid; gap: 4px; margin-top: 4px; font-size: 12.5px; }
+  .fun div { display: flex; justify-content: space-between; gap: 8px; }
+  .fun b { font-family: Rajdhani, system-ui, sans-serif; font-size: 15px; }
+  .code { height: 34px; margin: 14px auto 2px; width: 70%; }
+  .paper .bye { text-align: center; font-size: 11px; color: var(--ink2); }
+  .billbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .billbtns .wide { min-height: 48px; font-size: 14px; }
+  #billPrice { margin-top: 10px; display: grid; gap: 8px; }
+  #billPrice .chips { display: grid; grid-template-columns: 1fr; }
+  #billPrice .chips .chip { display: grid; text-align: start; gap: 0; white-space: normal; min-width: 0; line-height: 1.6; }
+  #billPrice .chips .chip small { font-weight: 400; font-size: 11px; color: var(--dim); }
+  #billPrice .chip.on { border-color: var(--gold); color: var(--gold); }
+  #billPrice .own { display: flex; gap: 8px; align-items: center; min-width: 0; }
+  #billPrice .own .hint { flex-shrink: 0; margin: 0; font-size: 12px; }
+  #billPrice .own .chip { flex-shrink: 0; }
+  #billPrice input { flex: 1; min-width: 0; height: 44px; border-radius: 14px; border: 1px solid var(--line); background: #0c0909; color: #fff; padding: 0 12px; font: inherit; font-size: 16px; }
+  .billempty { color: var(--ink2); text-align: center; padding: 12px 4px; }
+  .paper .nb { font-family: Rajdhani, system-ui, sans-serif; direction: ltr; unicode-bidi: isolate; }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -1297,7 +1362,7 @@
     <!-- 📊 the PC's state -->
     <div id="tab-stat" class="tab">
       <div class="tabhead"><img src="ban-stat.jpg" alt="" /><div><b>الحالة</b><small>كل شي عن جهازك</small></div></div>
-      <div class="cats" role="tablist"><button role="tab" data-cat="now" data-empty="">الحين</button><button role="tab" data-cat="net" data-empty="">النت</button><button role="tab" data-cat="device" data-empty="">الجهاز</button></div>
+      <div class="cats" role="tablist"><button role="tab" data-cat="now" data-empty="">الحين</button><button role="tab" data-cat="bill" data-empty="">الكهرباء</button><button role="tab" data-cat="net" data-empty="">النت</button><button role="tab" data-cat="device" data-empty="">الجهاز</button></div>
       <p class="catempty hidden"></p>
       <button data-cat="now" id="dashOpen" class="dashbtn"><i class="hmi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg></i><span><b>لوحة اللعب</b><small>حط جوالك جنبك وأنت تلعب، ويعرض حرارة الكرت والمعالج والرام والبنق مباشرة.</small></span></button>
       <section data-cat="now">
@@ -1311,6 +1376,13 @@
       <section data-cat="now">
         <h2><span>وش ماكل الجهاز؟</span><span class="seg"><button data-sort="cpu" class="on">المعالج</button><button data-sort="mem">الرام</button></span></h2>
         <div id="heavy"><p class="muted">نشوف البرامج…</p></div>
+      </section>
+      <section data-cat="bill" id="billBox" class="hidden">
+        <div class="billtop"><span id="billToday"></span><span class="seg" id="billMonths"></span></div>
+        <div class="slot"><div class="paperclip"><div class="paper" id="billPaper"></div></div></div>
+        <div class="billbtns"><button class="wide" id="billShare">شارك الفاتورة</button><button class="wide ghost" id="billPriceBtn">سعر الكهرباء</button></div>
+        <div id="billPrice" class="hidden"><div class="chips" id="billPresets"></div><div class="own"><input id="billOwn" inputmode="decimal" placeholder="سعرك" aria-label="سعر الكيلوواط" /><span id="billOwnUnit" class="hint"></span><button class="chip" id="billOwnSave">احفظ</button></div><button class="wide ghost" id="billReset">رجّع سعر بلدك</button></div>
+        <p class="hint" id="billNote"></p>
       </section>
       <section data-cat="net" id="srvBox">
         <h2><span>أقرب سيرفر</span><button id="srvGo" class="more">قيس</button></h2>
@@ -1842,6 +1914,7 @@ function showLast(id) {
   if (l.status?.v) paintStatus(l.status.v, l.status.at);
   if (l.drives?.v) paintDrives(l.drives.v, l.drives.at);
   if (l.specs?.v) paintSpecs(l.specs.v);
+  if (l.bill?.v) paintBill(l.bill.v, true);
   if (l.power?.v?.end > Date.now()) showPower(l.power.v, { stale: true });
 }
 
@@ -2458,6 +2531,7 @@ const CAT_ICONS = {
   sound: '<path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
   power: '<path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/>',
   now: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  bill: '<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M13 6l-3 5h4l-3 5"/>',
   net: '<path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16.2a5 5 0 0 1 7 0M12 20h.01"/>',
   device: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
 };
@@ -2546,7 +2620,7 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
 function refresh() {
   if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam(), loadFriends()]);
   if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard()]);
-  if (tab === "stat") return Promise.all([loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
+  if (tab === "stat") return Promise.all([loadBill(), loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
   return Promise.resolve();
 }
@@ -3482,6 +3556,284 @@ function paintSpecs(s) {
     row("الويندوز", s.windows) +
     row("اسم البيسي", s.pcName);
 }
+// ---- «فاتورة الكهرباء» (owner's pick, 2026-10-14): the month's electricity as a printed bill ----
+const MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+const SMALL = { "هللة": ["هللة وحدة", "هللتين", "هللات", "هللة"], "فلس": ["فلس واحد", "فلسين", "فلوس", "فلس"], "بيسة": ["بيسة وحدة", "بيستين", "بيسات", "بيسة"], "درهم": ["درهم واحد", "درهمين", "دراهم", "درهم"] };
+// money the way it's said: under one riyal in halalas («25 هللة»), else «4.10 ريال»
+function money(v, p, html = false) {
+  if (!p) return "—";
+  if (v < 1) {
+    const n = Math.round(v * p.per);
+    if (n < 1) return `أقل من ${SMALL[p.small]?.[0].split(" ")[0] ?? p.small}`;
+    const forms = SMALL[p.small] ?? [p.small, p.small, p.small, p.small];
+    const t = num(n, forms);
+    return html ? t.replace(/^(\d+)/, '<b class="nb">$1</b>') : t;
+  }
+  const t = v.toFixed(2);
+  return html ? `<b class="nb">${t}</b><span>${esc(p.name)}</span>` : `${t} ${p.name}`;
+}
+const kwhOf = (wh) => (wh >= 10000 ? Math.round(wh / 1000) : (wh / 1000).toFixed(1));
+const monthName = (m) => `${MONTHS[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
+const BILL_ICON = {
+  use: '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  away: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>',
+};
+const GRADES = [["A", "#1f8a4c"], ["B", "#4ea34a"], ["C", "#a3b934"], ["D", "#f1c40f"], ["E", "#f39c12"], ["F", "#e8641b"], ["G", "#c0281d"]];
+let bill = null;
+let billMonth = null;
+let billPrinted = new Set(); // a month prints out of the slot once per open of the page
+// a barcode from the month and the PC's name (the same bill always gets the same stripes)
+function stripes(seed) {
+  let h = 2166136261;
+  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  const parts = [];
+  let x = 0;
+  while (x < 100) {
+    h = Math.imul(h ^ (h >>> 13), 0x5bd1e995);
+    const w = 0.6 + ((h >>> 0) % 5) * 0.55;
+    const gap = 0.6 + ((h >>> 8) % 4) * 0.5;
+    parts.push(`#22150f ${x.toFixed(2)}% ${(x + w).toFixed(2)}%`, `transparent ${(x + w).toFixed(2)}% ${(x + w + gap).toFixed(2)}%`);
+    x += w + gap;
+  }
+  return `linear-gradient(90deg, ${parts.join(", ")})`;
+}
+function billLine(l, p) {
+  const hrs = l.min >= 60 ? num(Math.round(l.min / 60), W.hour) : num(Math.max(1, Math.round(l.min)), W.min);
+  const sub = `${hrs} · ${kwhOf(l.wh)} كيلوواط`;
+  if (l.kind === "game") {
+    const pic = l.image ? `<span class="pic" style="background-image:url('${esc(l.image)}')"></span>` : `<span class="pic" dir="ltr">${esc(initials(l.name))}</span>`;
+    return `<div class="bl">${pic}<span class="nm"><bdi>${esc(l.name)}</bdi><span class="sub">${sub}</span></span><span class="c">${money(l.cost, p)}</span></div>`;
+  }
+  const away = l.kind === "away";
+  const nm = away ? "شغّال وأنت مو عنده" : "استخدام عادي";
+  const extra = away ? "خلّه ينام لو بتطلع، ويوفّر هالمبلغ" : "نت، يوتيوب، ديسكورد…";
+  return `<div class="bl${away ? " away" : ""}"><span class="pic"><svg viewBox="0 0 24 24">${BILL_ICON[l.kind]}</svg></span><span class="nm">${nm}<span class="sub">${sub}، ${extra}</span></span><span class="c">${money(l.cost, p)}</span></div>`;
+}
+function paintBill(b, stale = false) {
+  if (!b) return;
+  bill = b;
+  const p = b.price;
+  $("billBox").classList.remove("hidden");
+  $("billToday").innerHTML = b.today ? `اليوم: <b>${money(b.today.cost, p)}</b>` : "";
+  const months = (b.months ?? []).slice(0, 3);
+  $("billMonths").innerHTML = months.length > 1 ? months.map((m, i) => `<button data-m="${m}" class="${m === b.month ? "on" : ""}">${i === 0 && b.current !== false && m === months[0] ? "هالشهر" : MONTHS[Number(m.slice(5, 7)) - 1]}</button>`).join("") : "";
+  const paper = $("billPaper");
+  paper.classList.toggle("stale", stale);
+  if (!b.days) {
+    paper.innerHTML = `<div class="ph"><img src="remote-icon.png" alt="" /><div><b>فاتورة كهرباء بيسيك</b><small>${monthName(b.month)}</small></div></div><hr /><p class="billempty">الفاتورة تبدأ تنطبع أول ما يشتغل البيسي والتطبيق مفتوح. ارجع بعد ساعة وتلقى أول الأرقام.</p>`;
+  } else {
+    const first = b.first ? Number(b.first.slice(8, 10)) : 1;
+    const period = b.current ? `من ${first} ${MONTHS[Number(b.month.slice(5, 7)) - 1]} لليوم` : `${num(b.days, W.day)} فيها أرقام`;
+    let stamp = `<span class="stamp new">أول فاتورة<small>نيوك</small></span>`;
+    if (b.before && b.before.cost > 0) {
+      // the month before, day for day (a month still running against the same number of days)
+      const was = b.current ? (b.before.cost / b.before.days) * b.days : b.before.cost;
+      const ch = Math.round((100 * (b.cost - was)) / was);
+      stamp = Math.abs(ch) < 3 ? `<span class="stamp new">نفس الشهر الماضي</span>` : ch < 0 ? `<span class="stamp down">أقل بـ<span class="nb">${-ch}%</span><small>من الشهر الماضي</small></span>` : `<span class="stamp up">أكثر بـ<span class="nb">${ch}%</span><small>من الشهر الماضي</small></span>`;
+    }
+    const gi = GRADES.findIndex(([g]) => g === b.grade);
+    const label = GRADES.map(([g, c], i) => `<div class="r"><span class="bar" style="width:${34 + i * 9}%;background:${c}">${g}</span>${i === gi ? '<span class="me">بيسيك</span>' : ""}</div>`).join("");
+    const gradeSay = b.awayShare < 1 ? "ما راح شي وهو شغّال وأنت مو عنده. ممتاز." : `<span class="nb">${b.awayShare}%</span> من الكهرباء راحت وهو شغّال وأنت مو عنده.`;
+    const fun = [];
+    if (b.perGameHour != null) fun.push(`<div><span>كل ساعة لعب تكلّفك</span><b>${money(b.perGameHour, p)}</b></div>`);
+    const charges = Math.round(b.wh / 17); // a phone's full charge ≈ 17 Wh from the wall
+    if (charges >= 2) fun.push(`<div><span>نفس كهرباء شحن جوالك</span><b>${num(charges, ["مرة", "مرتين", "مرات", "مرة"])}</b></div>`);
+    const bulbDays = Math.round(b.wh / 240); // a 10 W lamp left on all day
+    if (bulbDays >= 2) fun.push(`<div><span>أو لمبة غرفتك شغّالة</span><b>${num(bulbDays, W.day)}</b></div>`);
+    paper.innerHTML =
+      `<div class="ph"><img src="remote-icon.png" alt="" /><div><b>فاتورة كهرباء بيسيك</b><small>${monthName(b.month)}${b.demo ? " · أرقام تجربة" : ""}</small></div></div>` +
+      `<div class="meta"><span>رقم العداد</span><b dir="ltr">${esc(b.pc ?? "")}</b><span>الفترة</span><b>${period}</b><span>شغّال</span><b>${num(b.hours, W.hour)}، لعبت منها ${num(Math.round(b.gameHours), W.hour)}</b></div>` +
+      `<hr />` +
+      b.lines.map((l) => billLine(l, p)).join("") +
+      `<hr class="dbl" />` +
+      `<div class="tot"><span class="k">المجموع<small><span class="nb">${kwhOf(b.wh)}</span> كيلوواط</small></span><span class="v">${money(b.cost, p, true)}</span></div>${stamp}` +
+      (b.guess != null ? `<p class="guess">لو كمّلت كذا، آخر الشهر تقريباً ${money(b.guess, p)}</p>` : "") +
+      `<hr /><div class="label">${label}</div><p>${gradeSay}</p>` +
+      (fun.length ? `<hr /><div class="fun">${fun.join("")}</div>` : "") +
+      `<div class="code" style="background:${stripes(b.month + (b.pc ?? ""))}"></div><p class="bye">شكراً لأنك تلعب مع نيوك</p>`;
+  }
+  if (!stale && !billPrinted.has(b.month) && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    billPrinted.add(b.month);
+    paper.classList.remove("print");
+    void paper.offsetWidth;
+    paper.classList.add("print");
+  }
+  const per = p ? Math.round(p.kwh * p.per * 100) / 100 : null;
+  $("billNote").textContent =
+    (b.measured ? "كرت الشاشة مقاس من الكرت نفسه، والمعالج وباقي الجهاز تقدير، والشاشة مو محسوبة." : "كل الأرقام تقدير من استخدام الجهاز، والشاشة مو محسوبة.") +
+    (per != null ? ` السعر ${per} ${p.small} للكيلوواط.` : "");
+  paintPrice();
+}
+const PRICE_SAY = { SA: { 0.18: "البيت يصرف أقل من 6000 كيلوواط بالشهر", 0.3: "البيت يصرف أكثر (الصيف والمكيفات)" } };
+function paintPrice() {
+  const p = bill?.price;
+  if (!p) return;
+  const said = PRICE_SAY[p.country] ?? {};
+  $("billPresets").innerHTML = (p.presets ?? [])
+    .map((v) => `<button class="chip${Math.abs(v - p.kwh) < 1e-6 ? " on" : ""}" data-kwh="${v}"><span>${Math.round(v * p.per * 100) / 100} ${esc(p.small)} للكيلوواط</span>${said[v] ? `<small>${said[v]}</small>` : ""}</button>`)
+    .join("");
+  $("billOwnUnit").textContent = `${p.small} للكيلوواط`;
+}
+async function loadBill() {
+  const r = await cmd("energy.bill", billMonth ? { month: billMonth } : {});
+  if (!r.ok || !r.data) return;
+  paintBill(r.data);
+  if (!billMonth) keep("bill", r.data);
+}
+$("billMonths").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-m]");
+  if (!b) return;
+  buzz(6);
+  billMonth = b.dataset.m === (bill?.months ?? [])[0] ? null : b.dataset.m;
+  loadBill();
+});
+$("billPriceBtn").addEventListener("click", () => {
+  buzz(6);
+  $("billPrice").classList.toggle("hidden");
+});
+async function setPrice(kwh, b) {
+  const done = b ? working(b, "") : () => {};
+  const r = await cmd("energy.price", { kwh });
+  done();
+  if (!r.ok) return fail(r);
+  toast("غيّرنا سعر الكهرباء ✓");
+  $("billPrice").classList.add("hidden");
+  loadBill();
+}
+$("billPresets").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-kwh]");
+  if (b) setPrice(Number(b.dataset.kwh), b);
+});
+$("billOwnSave").addEventListener("click", (e) => {
+  const v = Number(String($("billOwn").value).replace(",", "."));
+  if (!bill?.price || !(v > 0)) return toast("اكتب السعر رقم، مثلاً 18", true);
+  setPrice(v / bill.price.per, e.currentTarget);
+});
+$("billReset").addEventListener("click", (e) => setPrice(null, e.currentTarget));
+// «شارك الفاتورة»: the bill drawn as a picture (the games' pictures left out: other sites' pictures can't go into one)
+async function billPicture(b) {
+  await document.fonts?.ready;
+  const p = b.price;
+  const Wd = 1080, pad = 70;
+  const rows = b.lines.slice(0, 7);
+  const H = 930 + rows.length * 96 + (b.perGameHour != null ? 60 : 0);
+  const c = document.createElement("canvas");
+  c.width = Wd;
+  c.height = H;
+  const g = c.getContext("2d");
+  g.fillStyle = "#0e0a0a";
+  g.fillRect(0, 0, Wd, H);
+  g.fillStyle = "#f7f2e8";
+  g.beginPath();
+  g.roundRect?.(40, 40, Wd - 80, H - 80, 18) ?? g.rect(40, 40, Wd - 80, H - 80);
+  g.fill();
+  g.direction = "rtl";
+  g.textAlign = "right";
+  const R = Wd - pad - 20, L = pad + 20;
+  const font = (w, s) => (g.font = `${w} ${s}px "Noto Kufi Arabic", "IBM Plex Sans Arabic", system-ui, sans-serif`);
+  // the logo, dark like a printed stamp (the page's own picture: it can go into the picture)
+  const logo = await new Promise((r) => {
+    const im = new Image();
+    im.onload = () => r(im);
+    im.onerror = () => r(null);
+    im.src = "remote-icon.png";
+  });
+  if (logo) {
+    g.save();
+    g.filter = "grayscale(1) brightness(.25)";
+    g.drawImage(logo, L, 90, 110, 110);
+    g.restore();
+  }
+  g.fillStyle = "#22150f";
+  font(900, 52);
+  g.fillText("فاتورة كهرباء بيسيك", R, 150);
+  g.fillStyle = "#6f5d52";
+  font(400, 32);
+  g.fillText(monthName(b.month), R, 205);
+  let y = 300;
+  g.strokeStyle = "#cdbfae";
+  g.setLineDash([10, 8]);
+  g.lineWidth = 3;
+  g.beginPath(); g.moveTo(L, y - 50); g.lineTo(R, y - 50); g.stroke();
+  for (const l of rows) {
+    const nm = l.kind === "game" ? l.name : l.kind === "away" ? "شغّال وأنت مو عنده" : "استخدام عادي";
+    g.textAlign = "right";
+    g.fillStyle = l.kind === "away" ? "#b3261b" : "#22150f";
+    font(700, 36);
+    g.fillText(nm.length > 26 ? nm.slice(0, 25) + "…" : nm, R, y);
+    g.fillStyle = "#6f5d52";
+    font(400, 26);
+    g.fillText(`${l.min >= 60 ? num(Math.round(l.min / 60), W.hour) : num(Math.max(1, Math.round(l.min)), W.min)} · ${kwhOf(l.wh)} كيلوواط`, R, y + 38);
+    g.textAlign = "left";
+    g.fillStyle = "#22150f";
+    font(700, 36);
+    g.fillText(money(l.cost, p), L, y + 10);
+    y += 96;
+  }
+  g.setLineDash([]);
+  g.strokeStyle = "#22150f";
+  g.lineWidth = 3;
+  g.beginPath(); g.moveTo(L, y - 30); g.lineTo(R, y - 30); g.moveTo(L, y - 22); g.lineTo(R, y - 22); g.stroke();
+  g.textAlign = "right";
+  font(900, 44);
+  g.fillText("المجموع", R, y + 60);
+  g.textAlign = "left";
+  font(900, 80);
+  g.fillText(money(b.cost, p), L, y + 70);
+  y += 150;
+  if (b.perGameHour != null) {
+    g.textAlign = "right";
+    g.fillStyle = "#6f5d52";
+    font(400, 30);
+    g.fillText(`كل ساعة لعب تكلّفك ${money(b.perGameHour, p)}`, R, y);
+    y += 60;
+  }
+  GRADES.forEach(([gr, col], i) => {
+    const w = 260 + i * 60, top = y + i * 34;
+    g.fillStyle = col;
+    g.beginPath(); g.moveTo(R, top); g.lineTo(R - w + 16, top); g.lineTo(R - w, top + 14); g.lineTo(R - w + 16, top + 28); g.lineTo(R, top + 28); g.closePath(); g.fill();
+    g.fillStyle = "#fff";
+    g.textAlign = "right";
+    font(700, 22);
+    g.fillText(gr, R - 12, top + 22);
+    if (gr === b.grade) {
+      g.fillStyle = "#22150f";
+      g.textAlign = "right";
+      font(900, 26);
+      g.fillText("◀ بيسيك", R - w - 20, top + 23);
+    }
+  });
+  g.fillStyle = "#6f5d52";
+  g.textAlign = "center";
+  font(400, 26);
+  g.fillText("NUKE GG · فاتورة تقريبية من تطبيق نيوك", Wd / 2, H - 80);
+  return new Promise((r) => c.toBlob(r, "image/png"));
+}
+$("billShare").addEventListener("click", async (e) => {
+  if (!bill?.days) return toast("ما فيه فاتورة للحين", true);
+  buzz();
+  const done = working(e.currentTarget, "نجهّزها…");
+  try {
+    const blob = await billPicture(bill);
+    const file = new File([blob], `فاتورة-${bill.month}.png`, { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+      } catch {}
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = file.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast("نزّلنا الفاتورة بجوالك ✓");
+  } catch {
+    toast("ما قدرنا نسوي صورة الفاتورة", true);
+  } finally {
+    done();
+  }
+});
 document.querySelectorAll("[data-a]").forEach((b) =>
   b.addEventListener("click", async () => {
     const a = b.dataset.a;
