@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-00uBm1NVZJRdhIgzGMagAqvCYf70KyB9ddza2CQUwtQ=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-jqwhCTxUlVcEyMaHtKClQ5ZUl1cpa6vjS8ZpSETyHEg=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -225,6 +225,13 @@
   .send3 .b { min-height: 74px; font-size: 13px; }
   .clip { margin-top: 10px; background: var(--card2); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
   .clip p { margin: 0 0 10px; max-height: 130px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; line-height: 1.6; -webkit-user-select: text; user-select: text; }
+  /* «آخر اللي نسخته»: the older copies under the box, a tap puts one in it */
+  .cliplist { display: grid; gap: 6px; margin-top: 12px; }
+  .cliplist > small { color: var(--dim); font-size: 12px; margin: 0 2px; }
+  .cliplist button { display: grid; gap: 2px; text-align: start; padding: 9px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); min-width: 0; }
+  .cliplist button.on { border-color: var(--gold); }
+  .cliplist button span { font-size: 13px; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+  .cliplist button em { font-style: normal; font-size: 11px; color: var(--dim); }
   .clip a { display: grid; place-items: center; min-height: 46px; border-radius: 14px; padding: 0 16px; background: var(--card); border: 1px solid var(--line); color: #fff; font-weight: 700; font-size: 14px; text-decoration: none; }
   .sending { margin-top: 10px; }
   .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -1272,7 +1279,7 @@
         <input id="photoIn" type="file" accept="image/*,video/*" multiple hidden />
         <input id="fileIn" type="file" multiple hidden />
         <div id="sending" class="sending hidden"><div class="dl"><div class="n"><span id="sendName" dir="auto"></span><em id="sendPct"></em></div><div class="bar"><div id="sendBar" style="width:0%"></div></div></div></div>
-        <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div></div>
+        <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div><div id="clipMore" class="cliplist hidden"></div></div>
         <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام ينحط بحافظته (الصقه بـ Ctrl+V). الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
       </section>
       <section data-cat="send">
@@ -1292,6 +1299,9 @@
           <button class="b" data-root="downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>التنزيلات</button>
           <button class="b" data-root="desktop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>سطح المكتب</button>
           <button class="b" data-root="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>المستندات</button>
+          <button class="b" data-root="pictures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>الصور</button>
+          <button class="b" data-root="videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>الفيديوهات</button>
+          <button class="b" id="fFind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>دوّر بالاسم</button>
         </div>
         <p class="hint">تختار أي ملف ويوصل جوالك. مع «متصل مباشرة ⚡» يوصل لين 4 جيجا (الآيفون لين 1 جيجا)، وبدونه لين 100 ميجا.</p>
       </section>
@@ -1459,6 +1469,7 @@
 
 <div id="filesSheet" class="sheet tall hidden"><div class="in">
   <div class="sheethead"><button id="filesBack" class="back" aria-label="رجوع">→</button><h3 id="filesTitle" style="flex:1">الملفات</h3><button id="filesClose" class="x" aria-label="سكّر">×</button></div>
+  <div id="filesFind" class="hidden" style="margin:0 0 10px"><input id="filesQ" class="search" type="search" enterkeyhint="search" placeholder="اكتب جزء من اسم الملف…" dir="auto" autocomplete="off" /></div>
   <div id="filesCrumbs" class="crumbs"></div>
   <div id="filesList" class="alist"><p class="muted">نجيب الملفات…</p></div>
 </div></div>
@@ -2790,11 +2801,30 @@ $("getClip").addEventListener("click", async () => {
   done();
   if (!r.ok) return fail(r);
   const t = r.data?.text ?? "";
-  if (!t.trim()) return toast("ما فيه كلام منسوخ على البيسي", true);
+  // «آخر اللي نسخته»: the newest in the box, the 4 before it under it (a tap puts one in the box)
+  clipAll = [...(t.trim() ? [{ text: t, at: null }] : []), ...(r.data?.recent ?? [])];
+  if (!clipAll.length) return toast("ما فيه كلام منسوخ على البيسي", true);
   $("clipBox").classList.remove("hidden");
+  showClip(0);
+});
+let clipAll = [];
+function showClip(i) {
+  const t = clipAll[i]?.text ?? "";
   $("clipText").textContent = t;
   $("clipOpen").classList.toggle("hidden", !isLink(t));
   if (isLink(t)) $("clipOpen").href = t.trim();
+  const more = clipAll.length > 1;
+  $("clipMore").classList.toggle("hidden", !more);
+  if (more)
+    $("clipMore").innerHTML =
+      "<small>آخر اللي نسخته بالبيسي، اختر واحد:</small>" +
+      clipAll.map((c, k) => `<button data-clip="${k}" class="${k === i ? "on" : ""}"><span dir="auto">${esc(c.text.slice(0, 300))}</span><em>${k === 0 && c.at == null ? "الحين" : c.at ? ago(c.at) : ""}</em></button>`).join("");
+}
+$("clipMore").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-clip]");
+  if (!b) return;
+  buzz(6);
+  showClip(Number(b.dataset.clip));
 });
 $("clipCopy").addEventListener("click", async () => {
   try {
@@ -4467,7 +4497,7 @@ function onReply(m) {
 }
 
 // ---- 📁 files from the PC ----
-const ROOT_NAME = { downloads: "التنزيلات", desktop: "سطح المكتب", documents: "المستندات" };
+const ROOT_NAME = { downloads: "التنزيلات", desktop: "سطح المكتب", documents: "المستندات", pictures: "الصور", videos: "الفيديوهات" };
 // each kind of file's line icon (the page's own, never an emoji)
 const KI = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const KI_DOC = KI('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>');
@@ -4484,21 +4514,85 @@ const KIND_ICON = {
 };
 const MIME = { pic: "image/jpeg", vid: "video/mp4", pdf: "application/pdf", audio: "audio/mpeg" };
 let fRoot = null, fPath = [], fItems = [];
+// «دوّر بالاسم» (owner's pick, 2026-10-14): fFind = the words looked for (null = a folder is open); a hit carries its own
+// folder ({ root, at }), so taking it or opening it works from the results too
+let fFind = null, fFindTimer = null, fFindSeq = 0;
+let fFrom = null; // a folder opened from the results: the words to go back to
+// back: up one folder; at a folder's top, back to the results it was opened from; else nothing (the sheet closes)
+function filesUp() {
+  if (fPath.length) {
+    fPath.pop();
+    loadFiles();
+    return true;
+  }
+  if (fFrom != null) {
+    fFind = fFrom;
+    fFrom = null;
+    fRoot = null;
+    $("filesQ").value = fFind;
+    loadFiles();
+    return true;
+  }
+  return false;
+}
+const fRootOf = (f) => f.root ?? fRoot;
+const fPathOf = (f) => [...(f.at ?? fPath), f.name];
 const fThumbs = new Map();
 const gotFiles = new Map(); // key → File
-const fKey = (name) => `${fRoot}/${[...fPath, name].join("/")}`;
+const fKeyOf = (f) => `${fRootOf(f)}/${fPathOf(f).join("/")}`;
 const fileWhen = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(t);
 function openFiles(root) {
   fRoot = root;
   fPath = [];
+  fFind = null;
+  fFrom = null;
+  $("filesFind").classList.add("hidden");
   // (back inside a folder goes up one first, like the → button)
-  overlayOpen($("filesSheet"), (fromBack) => (fromBack && fPath.length ? (fPath.pop(), loadFiles(), false) : closeFiles(fromBack)));
+  overlayOpen($("filesSheet"), (fromBack) => (fromBack && filesUp() ? false : closeFiles(fromBack)));
   loadFiles();
 }
 function closeFiles(fromBack = false) {
   overlayDone($("filesSheet"), fromBack);
 }
+// the search: the sheet opens with a box; results come as you type (a short pause first)
+function openFind() {
+  fRoot = null;
+  fPath = [];
+  fFind = "";
+  fFrom = null;
+  fItems = [];
+  overlayOpen($("filesSheet"), (fromBack) => (fromBack && filesUp() ? false : closeFiles(fromBack)));
+  $("filesFind").classList.remove("hidden");
+  $("filesQ").value = "";
+  loadFiles();
+  setTimeout(() => $("filesQ").focus(), 250);
+}
+async function findFiles() {
+  const q = fFind;
+  const seq = ++fFindSeq;
+  if (q.replace(/\s/g, "").length < 2) return ($("filesList").innerHTML = '<p class="muted">اكتب حرفين أو أكثر من اسم الملف، ونلقاه بالتنزيلات وسطح المكتب والمستندات والصور والفيديوهات.</p>');
+  $("filesList").innerHTML = '<p class="muted">ندوّر…</p>';
+  const r = await cmd("files.search", { q }, 20000);
+  if (seq !== fFindSeq || fFind !== q) return;
+  if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || ERR.REMOTE_FAILED)}</p>`);
+  fItems = r.data.items ?? [];
+  if (!fItems.length) return ($("filesList").innerHTML = `<p class="muted">ما لقينا ملف اسمه فيه «${esc(q)}». جرّب كلمة ثانية من الاسم.</p>`);
+  paintFileRows(r.data.more ? '<p class="muted">فيه أكثر… اكتب كلمة زيادة من الاسم.</p>' : "");
+}
+$("fFind").addEventListener("click", () => (buzz(8), openFind()));
+$("filesQ").addEventListener("input", () => {
+  clearTimeout(fFindTimer);
+  fFind = $("filesQ").value.trim();
+  fFindTimer = setTimeout(findFiles, 350);
+});
 async function loadFiles() {
+  if (fFind != null) {
+    $("filesTitle").textContent = "دوّر بالاسم";
+    $("filesCrumbs").classList.add("hidden");
+    $("filesFind").classList.remove("hidden");
+    return findFiles();
+  }
+  $("filesFind").classList.add("hidden");
   $("filesTitle").textContent = fPath.length ? fPath[fPath.length - 1] : ROOT_NAME[fRoot];
   $("filesCrumbs").classList.toggle("hidden", !fPath.length);
   $("filesCrumbs").innerHTML = [ROOT_NAME[fRoot], ...fPath].map((p, i, a) => (i === a.length - 1 ? `<b dir="auto">${esc(p)}</b>` : `<span dir="auto">${esc(p)}</span>`)).join(" ‹ ");
@@ -4507,16 +4601,21 @@ async function loadFiles() {
   if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || ERR.REMOTE_FAILED)}</p>`);
   fItems = r.data.items ?? [];
   if (!fItems.length) return ($("filesList").innerHTML = '<p class="muted">المجلد فاضي.</p>');
+  paintFileRows(r.data.more ? `<p class="muted">وفيه ${r.data.more} غيرها… الأحدث فوق.</p>` : "");
+}
+function paintFileRows(tail) {
   $("filesList").innerHTML =
     fItems
       .map((f, i) => {
-        const key = fKey(f.name);
+        const key = fKeyOf(f);
         const thumb = fThumbs.get(key);
-        const sub = f.dir ? "مجلد" : `${mbOf(f.size)} · ${fileWhen(f.time)}${f.big ? " · أكبر من 4 جيجا" : ""}`;
+        // a search hit says where it is («الصور ‹ العيد»)
+        const where = f.root ? `${[ROOT_NAME[f.root], ...f.at].map(esc).join(" ‹ ")} · ` : "";
+        const sub = f.dir ? `${where}مجلد` : `${where}${mbOf(f.size)} · ${fileWhen(f.time)}${f.big ? " · أكبر من 4 جيجا" : ""}`;
         const ready = gotFiles.has(key) ? '<span class="save">احفظه</span>' : "";
         return `<button class="frow${f.big ? " big" : ""}" data-f="${i}"><span class="ic"${thumb ? ` style="background-image:url('${thumb}')"` : ""}${!thumb && f.kind === "pic" ? ` data-fthumb="${i}"` : ""}>${thumb ? "" : KIND_ICON[f.dir ? "dir" : f.kind] || KIND_ICON.file}</span><span class="t"><b dir="auto">${esc(f.name)}</b><small>${sub}</small></span>${ready}</button>`;
       })
-      .join("") + (r.data.more ? `<p class="muted">وفيه ${r.data.more} غيرها… الأحدث فوق.</p>` : "");
+      .join("") + tail;
   $("filesList").querySelectorAll("[data-fthumb]").forEach((el) => fThumbSeen.observe(el));
 }
 const fThumbSeen = new IntersectionObserver((es) =>
@@ -4525,8 +4624,8 @@ const fThumbSeen = new IntersectionObserver((es) =>
     fThumbSeen.unobserve(e.target);
     const f = fItems[Number(e.target.dataset.fthumb)];
     if (!f) return;
-    const key = fKey(f.name);
-    const r = await cmd("files.thumb", { root: fRoot, path: [...fPath, f.name].join("/") });
+    const key = fKeyOf(f);
+    const r = await cmd("files.thumb", { root: fRootOf(f), path: fPathOf(f).join("/") });
     if (!r.ok || !r.data?.data) return;
     fThumbs.set(key, `data:image/jpeg;base64,${r.data.data}`);
     e.target.style.backgroundImage = `url('${fThumbs.get(key)}')`;
@@ -4540,6 +4639,14 @@ $("filesList").addEventListener("click", async (e) => {
   if (!f) return;
   buzz(8);
   if (f.dir) {
+    // a folder from the results opens where it is (back returns to the results)
+    if (f.root) {
+      fFrom = fFind;
+      fRoot = f.root;
+      fPath = [...f.at, f.name];
+      fFind = null;
+      return loadFiles();
+    }
     fPath.push(f.name);
     return loadFiles();
   }
@@ -4547,7 +4654,7 @@ $("filesList").addEventListener("click", async (e) => {
     if (!direct() && f.size <= 4 * 1024 * MB) return toast(`الملف ${sizeWord(f.size)}. الكبيرة تحتاج «متصل مباشرة ⚡» فوق: يصير أغلب الوقت بروحه، وأسرع شي على نفس واي فاي البيسي`, true);
     return toast(`الملف أكبر من ${sizeWord(takeLimit())}، ما يمديه يوصل الجوال`, true);
   }
-  const key = fKey(f.name);
+  const key = fKeyOf(f);
   if (gotFiles.has(key)) return saveFile(gotFiles.get(key));
   if (b.dataset.busy) return;
   b.dataset.busy = "1";
@@ -4595,7 +4702,7 @@ async function streamSink(name, size, type) {
   };
 }
 async function takeFile(f, onProgress) {
-  const b = await cmd("files.begin", { root: fRoot, path: [...fPath, f.name].join("/") });
+  const b = await cmd("files.begin", { root: fRootOf(f), path: fPathOf(f).join("/") });
   if (!b.ok || !b.data) return fail(b), null;
   const { fid, name, kind } = b.data;
   const raw = direct();
@@ -4663,7 +4770,7 @@ async function saveFile(file) {
   setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
 }
 document.querySelectorAll("[data-root]").forEach((b) => b.addEventListener("click", () => (buzz(8), openFiles(b.dataset.root))));
-$("filesBack").addEventListener("click", () => (buzz(8), fPath.length ? (fPath.pop(), loadFiles()) : closeFiles()));
+$("filesBack").addEventListener("click", () => (buzz(8), filesUp() || closeFiles()));
 $("filesClose").addEventListener("click", () => closeFiles());
 
 // ---- 🚀 the internet's speed ----
@@ -5906,8 +6013,9 @@ $("comeEdit").addEventListener("click", () => {
 // made again, only the small parts that change are painted — nothing blurs over the live picture, the page's other
 // lookups rest while the camera is open, and «وضع خفيف» stops drawing the picture on the phone altogether.
 // The picture starts at 720p30 (~2.5 Mbit, H.264 first) like the popular phone-webcam apps, and steps up to the player's
-// pick (1080 / 60, much more speed) only once the link proves itself on the same Wi-Fi or a cable; over the internet it
-// stays 720 and lets the link slow it smoothly (balanced: a few pictures fewer and a little softer, never a freeze).
+// pick (1080 / 60, much more speed) only once the link proves itself on the same Wi-Fi or a cable; over the internet (a
+// phone's data) 1080 picked = 1080 at 30 too once the link shows it can carry ~5 Mbit (owner, 2026-10-14: "على بيانات الهاتف
+// اعلى دقه 720 ليش؟ خليها 1080"), the 60 stays for home; the link slows it smoothly (balanced: never a freeze).
 // Through NUKE's server: 720 at ≤ 2.5 Mbit (the data plan and the server's allowance).
 // The PC is the control panel too («جوالك» ← «كاميرا بثك»): what it changes reaches this page within seconds.
 // The settings stay on this phone (nk-cam).
@@ -6022,6 +6130,8 @@ $("camOpen").addEventListener("click", () => {
   const caps = () => vTrack()?.getCapabilities?.() ?? {};
   const kindNow = () => pcKind || stats?.kind || null;
   const near = () => ["lan", "usb"].includes(kindNow());
+  // the step up: nearby (the player's pick), or straight over the internet when 1080 was picked (1080 at 30)
+  const upOk = () => near() || (kindNow() === "net" && P.q === "1080");
   const chips = (key, list, fx) => `<div class="opts">${list.map(([v, t]) => `<button class="chip${String(fx ? P.fx[key] : P[key]) === String(v) ? " on" : ""}" data-${fx ? "fx" : "set"}="${key}" data-v="${esc(v)}">${t}</button>`).join("")}</div>`;
   const sw = (key, title, sub, on, attr = "tog") => `<div class="setrow"><div><b>${title}</b>${sub ? `<small>${sub}</small>` : ""}</div><button class="sw${on ? " on" : ""}" data-${attr}="${key}" aria-label="${title}"></button></div>`;
   const slider = (k, title, min) => `<label class="cam-sl"><span>${title}</span><input type="range" min="${min}" max="1" step="0.05" value="${P.fx[k]}" data-sl="${k}" aria-label="${title}"></label>`;
@@ -6286,7 +6396,7 @@ $("camOpen").addEventListener("click", () => {
   };
 
   // the size / speed the camera gives now: 720p30 until the link proves itself nearby, then the player's pick
-  const target = () => (level === "high" ? { q: P.q, fps: P.fps } : { q: "720", fps: 30 });
+  const target = () => (level === "high" ? { q: P.q, fps: near() ? P.fps : 30 } : { q: "720", fps: 30 });
   const sizeOf = (q) => (q === "1080" ? [1920, 1080] : [1280, 720]);
   async function listLenses() {
     try {
@@ -6424,12 +6534,13 @@ $("camOpen").addEventListener("click", () => {
     const p = vSender.getParameters();
     if (!p.encodings?.length) p.encodings = [{}];
     const t = target();
-    const high = level === "high" && near();
+    const high = level === "high" && upOk();
     const q = camGives?.fps === 60 ? camGives.q : t.q;
-    const max = high ? (q === "1080" ? (t.fps === 60 ? 16e6 : 12e6) : t.fps === 60 ? 8e6 : 6e6) : 2.5e6;
+    // over the internet: 1080 at 30 within ~5 Mbit (a data plan); nearby the full speed
+    const max = high ? (!near() ? 5e6 : q === "1080" ? (t.fps === 60 ? 16e6 : 12e6) : t.fps === 60 ? 8e6 : 6e6) : 2.5e6;
     p.encodings[0].maxBitrate = max;
     p.encodings[0].maxFramerate = high ? t.fps : 30;
-    // a camera that still gives 1080 (or only can): sent as 720 until the link is near
+    // a camera that still gives 1080 (or only can): sent as 720 until the link proved itself
     const s = vTrack()?.getSettings?.() ?? {};
     const short = Math.min(s.width || 0, s.height || 0);
     p.encodings[0].scaleResolutionDownBy = !high && short > 720 ? short / 720 : 1;
@@ -6485,9 +6596,12 @@ $("camOpen").addEventListener("click", () => {
       stats = { kind, kbps, w: o?.frameWidth || 0, h: o?.frameHeight || 0, fps };
       // the step: up once the link is nearby for 6 s with a quick round trip; down if it can't carry it
       const rtt = pair?.currentRoundTripTime;
-      if (near()) {
-        if (level === "base" && Date.now() > highBlockedUntil && (rtt == null || rtt < 0.08)) {
-          if (++good >= 2) void setLevel("high");
+      if (upOk()) {
+        // over the internet: a round trip under 0.25 s and room for ~4 Mbit going out (when the browser says) for 9 s
+        const room = pair?.availableOutgoingBitrate;
+        const ready = near() ? rtt == null || rtt < 0.08 : (rtt == null || rtt < 0.25) && (room == null || room >= 4e6);
+        if (level === "base" && Date.now() > highBlockedUntil && ready) {
+          if (++good >= (near() ? 2 : 3)) void setLevel("high");
         } else if (level === "high") {
           const t = target();
           if (o?.qualityLimitationReason === "bandwidth" && fps < (camGives?.fps ?? t.fps) * 0.6) {
@@ -6605,6 +6719,7 @@ $("camOpen").addEventListener("click", () => {
     camGives = null;
     lastOut = null;
     pcKind = null;
+    stats = null; // (the way from the last link isn't this one's: home Wi-Fi said for a moment on 5G)
     // back to 720p30 for the start (the step up comes once the link proved itself) — only when the camera is above it:
     // asking again for the same size made some phones restart the camera on every reconnect
     try {
@@ -6614,8 +6729,11 @@ $("camOpen").addEventListener("click", () => {
     paintStat();
     paintGo();
     try {
-      const ir = await cmd("cam.ice", {}, 8000);
-      if (ir.ok && ir.data) ice = ir.data;
+      // the PC's connection details: asked once, then kept 10 minutes (a reconnect saves a round trip)
+      if (!ice.at || Date.now() - ice.at > 10 * 60e3) {
+        const ir = await cmd("cam.ice", {}, 8000);
+        if (ir.ok && ir.data) ice = { ...ir.data, at: Date.now() };
+      }
       pc = new RTCPeerConnection({ iceServers: [...RTC_ICE, ...(ice.ice || [])] });
       const vt = pc.addTransceiver(vTrack(), { direction: "sendonly", streams: [stream], sendEncodings: [{ maxBitrate: 2.5e6, maxFramerate: 30 }] });
       vSender = vt.sender;
@@ -6628,8 +6746,9 @@ $("camOpen").addEventListener("click", () => {
       // the sound's place is there from the start, so the microphone can be switched on later without a new link
       aSender = pc.addTransceiver(aTrack() ?? "audio", { direction: "sendonly", streams: [stream] }).sender;
       const mine = pc;
-      // a phone network often goes quiet for a few seconds and comes back by itself: only a link that stays gone 12 s
-      // (or fails) is started again — tearing it down at once made it freeze and reconnect over and over
+      // a phone network often goes quiet for a few seconds and comes back by itself: only a link that stays gone 7 s
+      // (or fails) is started again — tearing it down at once made it freeze and reconnect over and over (it was 12 s:
+      // owner, 2026-10-14, "اعاده الاتصال حق الكام تطول")
       let quietTimer = null;
       pc.onconnectionstatechange = () => {
         if (pc !== mine) return;
@@ -6637,7 +6756,7 @@ $("camOpen").addEventListener("click", () => {
         if (s === "failed" || s === "closed") return lostLink();
         shaky = s === "disconnected";
         clearTimeout(quietTimer);
-        if (shaky) quietTimer = setTimeout(() => pc === mine && mine.connectionState === "disconnected" && lostLink(), 12000);
+        if (shaky) quietTimer = setTimeout(() => pc === mine && mine.connectionState === "disconnected" && lostLink(), 7000);
         paintStat();
       };
       const gathered = iceEnough(pc, [...RTC_ICE, ...(ice.ice || [])]);
@@ -6662,6 +6781,7 @@ $("camOpen").addEventListener("click", () => {
       } catch {}
       clearInterval(lookTimer);
       lookTimer = setInterval(look, 3000);
+      setTimeout(look, 400);
       setTimeout(look, 1200);
     } catch (err) {
       try {
@@ -6683,6 +6803,8 @@ $("camOpen").addEventListener("click", () => {
     live = false;
     back = true;
     shaky = false;
+    stats = null;
+    pcKind = null;
     clearInterval(lookTimer);
     try {
       pc?.close();
@@ -6695,7 +6817,8 @@ $("camOpen").addEventListener("click", () => {
   function scheduleBack() {
     clearTimeout(backTimer);
     if (!want) return;
-    const wait = [1, 2, 4, 8, 15][Math.min(backTry++, 4)] * 1000;
+    // the first try at once (it used to wait a second), then a little longer each time
+    const wait = [0.15, 1, 2, 4, 8, 15][Math.min(backTry++, 5)] * 1000;
     backTimer = setTimeout(async () => {
       if (!want || document.hidden) return;
       // the camera may have stopped while the page was away (an iPhone stops it): opened again first
@@ -6715,6 +6838,16 @@ $("camOpen").addEventListener("click", () => {
   const onVisible = () => {
     if (document.hidden || !want) return;
     void keepAwake();
+    // back on the page with the link still up but the camera stopped (an iPhone stops it in the background): only the
+    // camera opens again, on the same link (it used to start the whole link over: a long «نرجّعه…»)
+    if (live && pc && pc.connectionState === "connected" && vTrack()?.readyState !== "live") {
+      openCam()
+        .then(() => (paintPreview(), draw()))
+        .catch(() => lostLink());
+      return;
+    }
+    // a link that went quiet while the page slept: started again now, not after the quiet wait
+    if (live && pc && ["disconnected", "failed"].includes(pc.connectionState)) return lostLink();
     if (!live || vTrack()?.readyState !== "live") {
       if (live) lostLink();
       else {
@@ -6726,6 +6859,12 @@ $("camOpen").addEventListener("click", () => {
     }
   };
   document.addEventListener("visibilitychange", onVisible);
+  // the phone moved between Wi-Fi and its data: a link that isn't through starts again at once
+  const onNet = () => {
+    if (live && pc && pc.connectionState !== "connected" && !document.hidden) lostLink();
+  };
+  addEventListener("online", onNet);
+  navigator.connection?.addEventListener?.("change", onNet);
   function stopLive(tell = true) {
     want = false;
     back = false;
@@ -7307,6 +7446,8 @@ $("camOpen").addEventListener("click", () => {
     body.removeEventListener("touchmove", onTouchMove);
     body.removeEventListener("touchend", onTouchEnd);
     document.removeEventListener("visibilitychange", onVisible);
+    removeEventListener("online", onNet);
+    navigator.connection?.removeEventListener?.("change", onNet);
     if (live || back) stopLive();
     stream?.getTracks().forEach((t) => t.stop());
     stream = null;
