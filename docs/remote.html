@@ -3,11 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-upNoR1QS4cDbwzd+LCeJH8gE3MlRDLpdf4HQQIWIbAk=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-3c0CgjKAUZz618U7LaohHjuUh21ROS7Lo9dWNq0pZcQ=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<!-- "black", not "black-translucent" (owner's photo, 2026-10-22: the bottom bar high on launch again): with a translucent status bar an
+     iPhone home-screen app starts with its window short by the status bar's height (nav floats ~1 bar up, the strip under it can't
+     be drawn into — see --iosgap below). A black status bar keeps the window below it from the start: no gap, same dark look. -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="NUKE GG" />
 <link rel="manifest" href="remote.webmanifest" />
 <link rel="icon" href="remote-icon.png" />
@@ -2464,6 +2467,7 @@ const ERR = {
   REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.",
   REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE GG على البيسي.",
   REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
+  CODE_NEEDED: "هذا يحتاج كود. فتحنا لك شاشة الكود على البيسي، اكتبه هناك.",
   REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا.",
   REMOTE_BUSY: "فيه ملفات قاعدة تنرسل. انتظرها تخلص.",
   GAME_ALREADY_RUNNING: "اللعبة شغّالة أصلاً على البيسي.",
@@ -2492,7 +2496,7 @@ const ERR = {
   RUNTIME_FAILED: "مثبّت مايكروسوفت ما كمّل. أعد تشغيل البيسي وجرّب.",
 };
 // (only test copies of the app send a "detail")
-const fail = (r) => toast((ERR[r.error] || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
+const fail = (r) => toast((ERR[r.error] || r.text || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
 
 // ---- categories on top of a tab (one shows at a time; the pick is remembered per tab) ----
 const CAT_KEY = "nk-remote-cat";
