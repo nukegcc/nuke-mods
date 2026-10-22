@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-5hjihQ5fK12INWY4p5Rz5LS9o7oLsHtUR/2LAniKnjg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-xzMZUabdBNd4piO7Z434WGK3tJSfnup+/GDzWle7GHw='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <link rel="icon" href="remote-icon.png" />
@@ -50,9 +50,6 @@
   .me { display: flex; align-items: center; gap: 12px; }
   .av { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 20px; color: #0e0a0a; flex-shrink: 0; box-shadow: 0 6px 18px -6px currentColor; }
   input.name { flex: 1; min-width: 0; min-height: 48px; border-radius: 14px; border: 1px solid var(--line); background: var(--card2); color: #fff; font: inherit; font-size: 16px; padding: 0 14px; }
-  .colors { display: flex; gap: 10px; margin-top: 12px; justify-content: center; }
-  .colors button { width: 30px; height: 30px; border-radius: 50%; outline: 3px solid transparent; outline-offset: 2px; transition: outline-color .15s; }
-  .colors button.on { outline-color: #fff; }
   .big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .pick { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 120px; border-radius: 22px; background: var(--card2); border: 1px solid var(--line); font-weight: 700; font-size: 15px; transition: transform .12s; }
   .pick:active { transform: scale(.96); }
@@ -65,6 +62,8 @@
   .bar { height: 8px; border-radius: 8px; background: rgba(255,255,255,.08); overflow: hidden; margin-bottom: 10px; }
   .bar > div { height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, var(--gold), var(--red)); transition: width .2s; }
   .bar.stuck > div { background: var(--gold); opacity: .6; }
+  #status .bolt { width: 13px; height: 13px; margin-inline-start: 4px; vertical-align: -2px; fill: var(--gold); }
+  .x svg, .x2 svg { width: 14px; height: 14px; display: block; margin: auto; }
   .note { font-size: 13px; line-height: 1.6; margin: -2px 2px 10px; color: var(--gold); font-weight: 600; }
   .leave { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.65; color: var(--dim); background: rgba(255,255,255,.035); border-radius: 14px; padding: 9px 11px; margin: 0 0 12px; }
   .leave b { color: #fff; font-weight: 600; }
@@ -124,10 +123,6 @@
   input.name:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--gold), inset 0 7px 10px -3px rgb(0 0 0 / .9), 0 0 18px -8px var(--flame); }
   input.name::placeholder { color: #6e6061; font-weight: 700; }
   .av { font-family: var(--f-num); box-shadow: inset 0 0 0 2px rgb(0 0 0 / .35), 0 6px 18px -6px currentColor; }
-  /* the colours: 30 px dots with a 44 px place to tap */
-  .colors { gap: 6px; }
-  .colors button { position: relative; width: 30px; height: 30px; margin: 7px; }
-  .colors button::after { content: ""; position: absolute; inset: -7px; }
   /* progress: blocks filling with lava */
   .bar { height: 10px; border-radius: 0; background: repeating-linear-gradient(90deg, #2a2223 0 12px, transparent 12px 15px); }
   .bar > div { border-radius: 0; image-rendering: pixelated; background: var(--tex-lava) 0 0 / 15px 15px;
@@ -173,7 +168,6 @@
         <div id="av" class="av">؟</div>
         <input id="name" class="name" maxlength="24" placeholder="اسمك (يطلع عنده)" autocomplete="nickname" />
       </div>
-      <div id="colors" class="colors"></div>
     </div>
 
     <div class="card">
@@ -220,6 +214,7 @@ const $ = (id) => document.getElementById(id);
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// your bubble's colour on the PC: picked for you, once, and kept (owner's yes, 2026-10-22: no colour dots to pick from)
 const COLORS = ["#ef3b2d", "#ff8a1f", "#ffc93c", "#34d399", "#38bdf8", "#a78bfa", "#f472b6"];
 const ICE = [{ urls: ["stun:stun.cloudflare.com:3478", "stun:stun.l.google.com:19302"] }];
 const PIECE = 192 * 1024; // a data channel message tops out at 256 KB (with the 12-byte header)
@@ -229,8 +224,18 @@ const RELAY_WINDOW = 8 * RELAY_PIECE;
 const AHEAD = 48 * 1024 ** 2; // bytes sent beyond what the PC said it has
 const STALL_MS = 8000;
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-// sizes stay left to right inside Arabic lines ("300 MB", never "MB 300")
-const mb = (n) => `⁦${n >= 1024 ** 3 ? `${(n / 1024 ** 3).toFixed(1)} GB` : `${Math.max(0.1, n / 1024 ** 2).toFixed(n < 10 * 1024 ** 2 ? 1 : 0)} MB`}⁩`;
+// sizes in Arabic words like the main page («300 ميجا», «1.2 جيجا»; the number kept left to right)
+const mb = (n) => (n >= 1024 ** 3 ? `⁦${(n / 1024 ** 3).toFixed(1)}⁩ جيجا` : `⁦${Math.max(0.1, n / 1024 ** 2).toFixed(n < 10 * 1024 ** 2 ? 1 : 0)}⁩ ميجا`);
+// Arabic counting (the main page's num()): 1 → «ملف واحد», 2 → «ملفين», 3–10 → «5 ملفات», 11 and up → «15 ملف»
+function num(n, [one, two, few, many]) {
+  n = Math.round(Number(n) || 0);
+  if (n === 1) return one;
+  if (n === 2) return two;
+  const r = n % 100;
+  return `${n} ${n >= 3 && r >= 3 && r <= 10 ? few : many}`;
+}
+const FILES = ["ملف واحد", "ملفين", "ملفات", "ملف"];
+const BOLT = '<svg class="bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>';
 const pct = (a, b) => `⁦${Math.floor((a / Math.max(1, b)) * 100)}%⁩`;
 
 // ---- the key from the QR (never sent anywhere: only its hash names the relay room) ----
@@ -251,8 +256,8 @@ try {
   raw = q.get("k") ? fromB64u(q.get("k")) : null;
 } catch {}
 const pcLabel = q.get("n") || "البيسي";
-$("title").textContent = `ترسل لـ ${pcLabel}`;
-document.title = `أرسل لـ ${pcLabel} · NUKE GG`;
+$("title").textContent = `ترسل إلى ${pcLabel}`;
+document.title = `أرسل إلى ${pcLabel} · NUKE GG`;
 if (!raw || raw.length !== 32) {
   $("bad").classList.remove("hidden");
   throw new Error("no key");
@@ -335,8 +340,6 @@ function paintMe() {
   $("av").style.background = ME.color;
   $("av").style.color = "#0e0a0a";
   $("av").textContent = ([...ME.name.trim()][0] || "؟").toUpperCase();
-  $("colors").innerHTML = COLORS.map((c) => `<button aria-label="لون" data-c="${c}" style="background:${c}" class="${c === ME.color ? "on" : ""}"></button>`).join("");
-  $("colors").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => ((ME.color = b.dataset.c), saveMe())));
 }
 function saveMe() {
   clearTimeout(nameT);
@@ -476,7 +479,8 @@ function status() {
   const relayOn = ws?.readyState === 1;
   const on = welcomed && (relayOn || dcOpen());
   $("dot").className = "dot" + (on ? " on" : welcomed ? " warn" : "");
-  $("status").textContent = ended ? "انتهى" : !welcomed ? "نتصل… (لازم «استقبل من جوال» يكون مفتوح بالبيسي)" : dcOpen() ? "متصل مباشرة ⚡" : relayOn ? "متصل" : "نرجع نتصل…";
+  // (fixed words only: the drawn bolt after «متصل مباشرة», never the emoji)
+  $("status").innerHTML = ended ? "انتهى" : !welcomed ? "نتصل… (لازم «استقبل من جوال» يكون مفتوح بالبيسي)" : dcOpen() ? `متصل مباشرة${BOLT}` : relayOn ? "متصل" : "نرجع نتصل…";
 }
 async function direct() {
   if (!window.RTCPeerConnection || !welcomed || ended || dcOpen()) return;
@@ -564,7 +568,7 @@ function onPc(m, via) {
     welcomed = true;
     fresh = false;
     if (!preSealed.bye) void reseal();
-    $("title").textContent = `ترسل لـ ${m.pc || pcLabel}`;
+    $("title").textContent = `ترسل إلى ${m.pc || pcLabel}`;
     $("main").classList.remove("hidden");
     status();
     void direct();
@@ -637,7 +641,7 @@ function tile(x) {
     img.onerror = () => (URL.revokeObjectURL(img.src), img.replaceWith(x.name.slice(0, 40)));
     el.append(img);
   } else el.append(x.name.slice(0, 40));
-  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div><button class="x" aria-label="ألغِ هالملف">✕</button>`);
+  el.insertAdjacentHTML("beforeend", `<div class="ring">0%</div><div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div><button class="x" aria-label="ألغِ هالملف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`);
   el.querySelector(".x").addEventListener("click", (e) => (e.stopPropagation(), cancelUp(x)));
   $("list").append(el);
   return el;
@@ -915,8 +919,8 @@ function render() {
   }
   $("bar").style.width = `${Math.floor((have / Math.max(1, total)) * 100)}%`;
   $("barBox").classList.toggle("stuck", stuck || linkDown);
-  $("sumText").textContent = waiting && !sending.length ? "ننتظر صاحب البيسي يقبل…" : sending.length ? `${counted.length} ${counted.length === 1 ? "ملف" : "ملفات"} · ${mb(total)}` : counted.length ? "خلصنا" : "ما انرسل شي";
-  $("speed").textContent = sending.length && !stuck && rate > 1024 ? `${mb(rate)}/s` : sending.length ? pct(have, total) : "";
+  $("sumText").textContent = waiting && !sending.length ? "ننتظر صاحب البيسي يقبل…" : sending.length ? `${num(counted.length, FILES)} · ${mb(total)}` : counted.length ? "خلصنا" : "ما انرسل شي";
+  $("speed").textContent = sending.length && !stuck && rate > 1024 ? `${(rate / 1024 ** 2).toFixed(1)} ميجا بالثانية` : sending.length ? pct(have, total) : "";
   const line = sending.length && linkDown ? "انقطع الاتصال… أول ما يرجع نكمل من مكانه" : bigWait ? "الملف كبير ويحتاج اتصال مباشر. ننتظره…" : stuck ? "علّق… نحاول نكمل من نفس المكان" : note;
   $("note").textContent = line;
   $("note").classList.toggle("hidden", !line);
@@ -945,7 +949,7 @@ function showDone() {
   const finished = items.length && !items.some(live) && done.length;
   if (finished && !celebrated) {
     celebrated = true;
-    $("doneText").textContent = done.length === 1 ? "وصل الملف" : `وصلت ${done.length} ملفات`;
+    $("doneText").textContent = done.length === 1 ? "وصل الملف" : done.length === 2 ? "وصل الملفين" : `وصلت ${num(done.length, FILES)}`;
     setTimeout(() => $("doneCard").classList.remove("hidden"), 400);
     confetti();
     navigator.vibrate?.(40);
@@ -980,7 +984,7 @@ function dropLeft(fk, fid) {
 }
 function paintLeft() {
   $("leftCard").classList.toggle("hidden", !left.length);
-  $("leftList").innerHTML = left.map((f) => `<div class="rx" data-fid="${Number(f.fid)}"><span class="n">${esc(f.name)}<small>${pct(f.got, f.size)} من ${mb(f.size)}</small></span><button class="x2" aria-label="احذفه">✕</button></div>`).join("");
+  $("leftList").innerHTML = left.map((f) => `<div class="rx" data-fid="${Number(f.fid)}"><span class="n">${esc(f.name)}<small>${pct(f.got, f.size)} من ${mb(f.size)}</small></span><button class="x2" aria-label="احذفه"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`).join("");
   $("leftList").querySelectorAll(".rx").forEach((row) =>
     row.querySelector("button").addEventListener("click", () => {
       const fid = Number(row.dataset.fid);
@@ -1002,7 +1006,7 @@ function incoming(m) {
     $("rxCard").classList.remove("hidden");
     const el = document.createElement("div");
     el.className = "rx";
-    el.innerHTML = `<span class="n"><span class="nm"></span><small></small></span><span class="pct">0%</span><button class="x2" aria-label="ألغِه">✕</button>`;
+    el.innerHTML = `<span class="n"><span class="nm"></span><small></small></span><span class="pct">0%</span><button class="x2" aria-label="ألغِه"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`;
     el.querySelector(".nm").textContent = String(m.name ?? "ملف").slice(0, 120);
     $("rx").prepend(el);
     r = { fid, name: String(m.name ?? "file"), size: Math.max(0, Number(m.size) || 0), type: String(m.type || "application/octet-stream"), got: 0, blobs: [], parts: [], partBytes: 0, el, state: "get", last: Date.now(), ackGot: 0, ackAt: 0 };
