@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-3c0CgjKAUZz618U7LaohHjuUh21ROS7Lo9dWNq0pZcQ=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-gmm7kKKRwvm0cBpax6IAOUEOA9x2cahKwz26NCUJfX8=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js" defer></script>
+<script src="rx-game.js?v=988f56c9d8" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -43,8 +43,13 @@
   header h1 { margin: 0; font-size: 19px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   header p { margin: 2px 0 0; font-size: 12.5px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); flex-shrink: 0; }
-  .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+  /* connected: three soft pulses as it connects, then still (nothing moves while you do nothing) */
+  .dot.on { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s 3; }
   @keyframes pulse { 50% { box-shadow: 0 0 2px var(--green); } }
+  /* the PC isn't answering / the phone has no internet: the header line turns gold (owner's pick B, 2026-10-22) */
+  .dot.off { background: var(--gold); box-shadow: 0 0 8px rgba(255,201,60,.6); }
+  #status.gold { color: var(--gold); font-weight: 700; }
+  #status .bolt { width: 13px; height: 13px; margin-inline-start: 4px; vertical-align: -2px; fill: var(--gold); }
   section { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 14px; margin-bottom: 12px; }
   section h2 { margin: 2px 4px 12px; font-size: 13px; color: var(--dim); font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
   .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
@@ -56,6 +61,8 @@
   .b.busy { opacity: .85; pointer-events: none; }
   .wide { width: 100%; min-height: 52px; border-radius: 18px; background: var(--red); font-weight: 700; font-size: 15px; box-shadow: 0 10px 30px -10px rgba(239,59,45,.8); }
   .wide.ghost { background: transparent; box-shadow: none; color: var(--dim); border: 1px solid var(--line); }
+  /* a calm stone button that isn't the screen's one red press (the camera before it has a picture, «اختار برامجك»…) */
+  .wide.calm { color: #fff; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { padding: 10px 14px; border-radius: 14px; background: var(--card2); border: 1px solid var(--line); font-weight: 700; font-size: 14px; }
   .chip:active { transform: scale(.95); }
@@ -179,7 +186,7 @@
   header .refresh svg { width: 20px; height: 20px; }
   header .refresh.busy svg { animation: s .8s linear infinite; }
   header .refresh.busy { pointer-events: none; opacity: .85; }
-  header h1 .chev { display: inline-block; font-size: 13px; color: var(--dim); margin-inline-start: 6px; vertical-align: 2px; }
+  header h1 .chev { display: inline-block; width: 14px; height: 14px; color: var(--dim); margin-inline-start: 6px; vertical-align: 0; }
   .sheet { position: fixed; inset: 0 0 var(--iosgap, 0px); z-index: 40; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; animation: fade .15s; }
   .sheet .in { width: 100%; max-width: 480px; background: var(--card); border: 1px solid var(--line); border-bottom: 0; border-radius: 26px 26px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
   .sheet h3 { margin: 0 4px 12px; font-size: 15px; }
@@ -221,6 +228,9 @@
   .errres ul { margin: 8px 0 0; padding-inline-start: 18px; font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.8; }
   .errres pre { white-space: pre-wrap; direction: ltr; text-align: left; font: 12px/1.6 ui-monospace, Consolas, monospace; background: rgba(0,0,0,.35); border-radius: 12px; padding: 10px; margin: 8px 0 0; color: rgba(255,255,255,.7); max-height: 180px; overflow: auto; }
   .errres .mean { white-space: pre-line; }
+  .errres details.rawtxt { margin-top: 10px; }
+  .errres details.rawtxt > summary { list-style: none; cursor: pointer; font-size: var(--fs-hint); color: var(--dim); font-weight: 700; min-height: 36px; display: flex; align-items: center; }
+  .errres details.rawtxt > summary::-webkit-details-marker { display: none; }
   .linkrow button { min-height: 46px; border-radius: 14px; padding: 0 16px; background: var(--red); font-weight: 700; font-size: 14px; flex: 1; }
   .linkrow button.ghost { background: var(--card2); border: 1px solid var(--line); flex: 0 0 auto; }
   .linkrow button:disabled { opacity: .45; }
@@ -293,6 +303,10 @@
   .arow .go:active { opacity: .6; }
   .star { width: 42px; height: 42px; border-radius: 12px; background: transparent; color: rgba(255,255,255,.35); font-size: 21px; flex-shrink: 0; }
   .star.on { color: var(--gold); }
+  .star { display: grid; place-items: center; }
+  .stp button svg, .soon-x svg { width: 15px; height: 15px; display: block; margin: auto; }
+  .star svg { width: 22px; height: 22px; fill: none; }
+  .star.on svg { fill: currentColor; }
   /* play time */
   .limitline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--gold); font-size: 13px; font-weight: 700; }
   .now .limitline button { background: rgba(255,201,60,.16); color: var(--gold); border: 1px solid rgba(255,201,60,.45); }
@@ -370,7 +384,7 @@
   .out svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--dim); }
   .out.on { border-color: rgba(239,59,45,.6); background: rgba(239,59,45,.12); }
   .out.on svg { color: var(--red); }
-  .out em { font-style: normal; font-size: 11.5px; color: var(--red); flex-shrink: 0; }
+  .out em { font-style: normal; font-size: 11.5px; color: var(--gold); flex-shrink: 0; }
   .mic { min-width: 108px; min-height: 44px; border-radius: 14px; font-weight: 700; font-size: 14px; background: rgba(52,211,153,.14); border: 1px solid rgba(52,211,153,.45); color: var(--green); }
   .mic.off { background: rgba(239,59,45,.14); border-color: rgba(239,59,45,.5); color: #ffb4ad; }
   /* the screens */
@@ -439,7 +453,9 @@
   .sheet.tall .scroll { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
   /* «تكلم من جوالك» */
   .talk { display: grid; place-items: center; gap: 10px; padding: 6px 0 4px; }
-  .talk button { width: 112px; height: 112px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #ff5a4a, var(--red)); box-shadow: 0 14px 40px -12px rgba(239,59,45,.9); display: grid; place-items: center; font-size: 40px; touch-action: none; transition: transform .15s; }
+  /* the mic: a stone circle, red only while it records (one red per screen) */
+  .talk button { width: 112px; height: 112px; border-radius: 50%; image-rendering: pixelated; background: linear-gradient(rgb(23 18 19 / .35), rgb(23 18 19 / .35)), var(--tex-dark) 0 0 / 24px 24px;
+    box-shadow: inset 0 0 0 2px #000, inset 0 4px 0 rgb(140 118 119 / .45), inset 0 -4px 0 rgb(0 0 0 / .6); display: grid; place-items: center; font-size: 40px; touch-action: none; transition: transform .15s; }
   .talk button.rec { transform: scale(1.12); background: radial-gradient(circle at 50% 35%, #ff8a80, #c62828); animation: recpulse 1s ease-in-out infinite; }
   @keyframes recpulse { 50% { box-shadow: 0 0 0 18px rgba(239,59,45,.15), 0 14px 40px -12px rgba(239,59,45,.9); } }
   .talk p { margin: 0; font-size: 13.5px; font-weight: 700; color: var(--dim); font-variant-numeric: tabular-nums; text-align: center; }
@@ -467,7 +483,7 @@
   .gauge.open { box-shadow: inset 0 0 0 1.5px rgba(255,201,60,.55); }
   .gauge.hot { box-shadow: inset 0 0 0 1.5px #ff8a1f, 0 0 24px -8px #ff8a1f; }
   .dart { width: 46px; height: 46px; border-radius: 50%; flex: none; display: grid; place-items: center; font-family: var(--f-num, "Rajdhani"), sans-serif; font-weight: 700; font-size: 16px; background: radial-gradient(circle at 35% 30%, #ff7a5c, #b5121b) center / cover no-repeat; box-shadow: 0 6px 18px -6px rgba(239,59,45,.8); }
-  .dart.off { background: #241b1c; box-shadow: none; }
+  .dart.off { display: none; }
   .dtop small { color: var(--dim); font-weight: 600; }
   .dtop small .dn { color: var(--green); font-family: var(--f-num, "Rajdhani"), sans-serif; font-size: 14px; direction: ltr; unicode-bidi: isolate; }
   .dxp { height: 6px; border-radius: 99px; background: #241b1c; overflow: hidden; margin: -2px 0 14px; }
@@ -487,7 +503,13 @@
   html, body { font-family: "Baloo Bhaijaan 2", system-ui, sans-serif; }
   /* cards: soft corners, one thin warm line, no shadow; a box inside a card has no line */
   section, details.grp, .tabhead, .catempty, .now { border: 0; border-radius: 18px; box-shadow: inset 0 0 0 1.5px var(--warm); }
-  .catempty { box-shadow: inset 0 0 0 1.5px var(--warm); border-style: none; }
+  .catempty { box-shadow: inset 0 0 0 1.5px var(--warm); border-style: none; display: grid; justify-items: center; gap: 12px; }
+  .catempty .ei { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; color: var(--gold); image-rendering: pixelated;
+    background: linear-gradient(rgb(23 18 19 / .4), rgb(23 18 19 / .4)), var(--tex-dark) 0 0 / 24px 24px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(140 118 119 / .45); }
+  .catempty .ei svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  /* a key the player presses: a small drawn stone keycap */
+  kbd.key { display: inline-block; min-width: 34px; padding: 1px 7px 3px; margin: 0 2px; border-radius: 8px; font: 700 13px/1.6 var(--f-num); color: #fff; direction: ltr; image-rendering: pixelated;
+    background: linear-gradient(rgb(255 255 255 / .06), rgb(255 255 255 / .06)), var(--tex-dark) 0 0 / 12px 12px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(255 255 255 / .2), inset 0 -3px 0 rgb(0 0 0 / .6); }
   .tabhead { box-shadow: none; }
   .g, .stat, .week div, .speed div, .clip, .errres, .stp, .sd, .shot .pic { border: 0; border-radius: 12px; }
   .g { box-shadow: inset 0 0 0 1.5px var(--warm); }
@@ -505,14 +527,15 @@
     background: var(--tex-dark) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(120 100 101 / .55), inset -3px -3px 0 #0d0909;
   }
   /* the red ones: what you press to do the thing */
-  :is(.wide:not(.ghost), .linkrow button:not(.ghost), .frow .save, .now button, .g button:active)::before {
+  :is(.wide:not(.ghost):not(.calm):not(:disabled), .linkrow button:not(.ghost):not(.calm):not(:disabled), .frow .save, .now button, .g button:active)::before {
     background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 3px 3px 0 rgb(255 138 124 / .6), inset -3px -3px 0 #6e1010;
   }
-  .banner button { color: #2a1a00; text-shadow: none; }
-  .banner button::before { background: var(--tex-lava) 0 0 / 15px 15px; box-shadow: inset 0 3px 0 rgb(255 255 255 / .35), inset 0 -3px 0 #7a2800; }
+  /* the banner's «ألغِ الإطفاء»: a calm stone block with white words (a cancel, not the main thing; it used to be dark brown words
+     on dark stone — the lava plate lost to the shared rule above) */
+  .banner button { color: #fff; min-height: 40px; padding: 0 14px; }
   :is(.wide, .linkrow button, .frow .save, .now button, .banner button, .g button, .pr button, .tr button, .mic, .clip a, .x, .back, header .refresh):active { translate: 0 3px; transform: none; }
   :is(.wide, .linkrow button, .frow .save, .now button, .g button, .pr button, .tr button, .mic, .clip a, .x, .back, header .refresh):active::before { box-shadow: inset 3px 3px 0 #0d0909, inset -3px -3px 0 rgb(120 100 101 / .4); }
-  :is(.wide:not(.ghost), .linkrow button:not(.ghost), .frow .save, .now button):active::before { box-shadow: inset 3px 3px 0 #6e1010, inset -3px -3px 0 rgb(255 138 124 / .45); }
+  :is(.wide:not(.ghost):not(.calm):not(:disabled), .linkrow button:not(.ghost):not(.calm):not(:disabled), .frow .save, .now button):active::before { box-shadow: inset 3px 3px 0 #6e1010, inset -3px -3px 0 rgb(255 138 124 / .45); }
   .wide.ghost { color: rgba(255,255,255,.8); }
   .tr button { color: var(--gold); } .pr button { color: #ffb4ad; }
   .mic { color: var(--green); } .mic.off { color: #ffb4ad; }
@@ -530,16 +553,18 @@
   }
   :is(.b, .app, .mode, .out, .pcrow, .scene, .dashbtn):active { transform: none; translate: 0 2px; }
   :is(.b, .app, .mode, .out, .pcrow, .scene, .dashbtn):active::before { box-shadow: inset 2px 2px 0 #0d0909, inset -2px -2px 0 rgb(120 100 101 / .3); }
-  /* a picked tile / device / screen mode: a soft red block (the desktop's picked tab) */
-  :is(.out.on, .mode.on, .pcrow.on)::before { background: var(--tex-red) 0 0 / 24px 24px; box-shadow: inset 2px 2px 0 rgb(255 138 124 / .5), inset -2px -2px 0 #6e1010; }
-  :is(.out.on, .mode.on) svg, .out.on em { color: #fff; }
+  /* a picked tile / device / screen mode / PC: dark stone with a gold outline, its icon gold — one look for a picked choice, like
+     the desktop (mission 10; it was a red block: red is only for buttons you press) */
+  :is(.out.on, .mode.on, .pcrow.on)::before { background: linear-gradient(rgb(255 255 255 / .04), rgb(0 0 0 / .12)), var(--tex-dark) 0 0 / 24px 24px;
+    box-shadow: inset 0 0 0 1.5px rgb(255 201 60 / .85), inset 0 3px 0 rgb(140 118 119 / .45), inset 0 -3px 0 rgb(0 0 0 / .6); }
+  :is(.out.on, .mode.on) svg, .out.on em { color: var(--gold); }
   .scene.ran::before { box-shadow: inset 0 0 0 2px var(--green); }
   .scene.add { background: transparent !important; border: 1.5px dashed rgba(255,255,255,.2) !important; padding: 10px 14px; }
   .scene.add::before { content: none; }
   .app.open { box-shadow: 0 0 0 1.5px rgba(52,211,153,.6); }
   .app.open.bg { box-shadow: none; }
 
-  /* chips and the category row: soft stone pills, the picked one red */
+  /* chips and the category row: soft stone pills, the picked one stone with a gold outline */
   .chip, .cats button, .seg button, .emojis button, .star {
     position: relative; isolation: isolate; border: 0 !important; background: #000 !important; color: rgba(255,255,255,.8);
   }
@@ -549,8 +574,9 @@
     box-shadow: inset 0 2px 0 rgb(255 255 255 / .12);
   }
   .chip, .cats button { border-radius: 12px; } .seg button { border-radius: 9px; }
-  :is(.chip.on, .cats button.on, .seg button.on, .emojis button.on) { color: #fff; text-shadow: 2px 2px 0 rgb(0 0 0 / .5); }
-  :is(.chip.on, .cats button.on, .seg button.on, .emojis button.on)::before { background: var(--tex-red) 0 0 / 16px 16px; box-shadow: inset 0 2px 0 rgb(255 138 124 / .55), inset 0 -2px 0 #6e1010; }
+  :is(.chip.on, .cats button.on, .seg button.on, .emojis button.on) { color: #fff; text-shadow: 1px 1px 0 #000; }
+  :is(.chip.on, .cats button.on, .seg button.on, .emojis button.on)::before { background: linear-gradient(rgb(255 255 255 / .04), rgb(0 0 0 / .12)), var(--tex-dark) 0 0 / 16px 16px;
+    box-shadow: inset 0 0 0 1.5px rgb(255 201 60 / .85), inset 0 2px 0 rgb(140 118 119 / .45), inset 0 -2px 0 rgb(0 0 0 / .6); }
   .chip.gold { color: var(--gold); }
   .chip.gold::before { box-shadow: inset 0 0 0 1.5px rgba(255,201,60,.45), inset 0 2px 0 rgb(255 255 255 / .12); }
   .cats button.on { animation: pop .3s cubic-bezier(.3,1.6,.5,1); }
@@ -711,8 +737,8 @@
   #frList .pcrow { padding: 8px 14px 8px 8px !important; margin-bottom: var(--sp-tile); }
   #frList .pcrow b { font-size: var(--fs-row); }
   #frList .pcrow small { font-size: var(--fs-hint); }
-  /* the picked PC: its «الحين» readable on the red block */
-  .pcrow.on em { color: #fff; }
+  /* the picked PC: its «أنت عليه» in gold, like its outline */
+  .pcrow em, .pcrow.on em { color: var(--gold); }
   .pcrow em { font-size: var(--fs-hint); }
   /* ===== «تحدّي» and «أسبوعك» (owner's picks, 2026-10-12) ===== */
   .setrow.col { flex-direction: column; align-items: stretch; gap: 8px; }
@@ -720,6 +746,7 @@
   .setrow.col .seg button { flex: 1; min-height: 40px; white-space: nowrap; font-size: 13px; }
   .funbest { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 12px; font-size: 13px; color: var(--dim); }
   .funbest b { font-family: var(--f-num); font-size: 26px; color: #fff; direction: ltr; unicode-bidi: isolate; }
+  .funbest b.none { font-family: inherit; font-size: 14px; color: var(--dim); direction: rtl; }
   .funx { position: fixed; inset: 0 0 var(--iosgap, 0px); z-index: 62; display: flex; flex-direction: column; padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
     background: radial-gradient(ellipse 85% 45% at 50% 0%, rgba(239,59,45,.16), transparent 70%), #0a0606; animation: fade .2s; }
   .funhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -806,7 +833,7 @@
   .soon-conf i { position: absolute; top: -12px; width: 10px; height: 10px; animation: soondrop 1.6s ease-in forwards; }
   @keyframes soondrop { to { transform: translateY(110vh) rotate(540deg); } }
   /* the category row as a grid of tiles (owner's pick «شبكة مربعات», 2026-10-12): every section seen at once, an icon
-     over its full name; a tile sinks under the finger, the picked one pops red and throws a few pixel bits (catBits) */
+     over its full name; a tile sinks under the finger, the picked one pops (stone, gold outline) and throws a few gold pixel bits (catBits) */
   .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: visible; margin-inline: 0; padding: 0 0 12px; }
   /* four tiles sit in one row (three and one left alone looked broken) */
   .cats:has(> button:nth-child(4):last-child) { grid-template-columns: repeat(4, 1fr); }
@@ -815,8 +842,8 @@
   .cats button::before { box-shadow: inset 0 2px 0 rgb(255 255 255 / .12), inset 0 -2px 0 rgb(0 0 0 / .5); }
   .cats button:active { transform: translateY(2px); }
   .cats button:active::before { box-shadow: inset 0 2px 0 rgb(0 0 0 / .45), inset 0 -1px 0 rgb(255 255 255 / .06); }
-  .cats button.on::before { box-shadow: inset 0 2px 0 rgb(255 138 124 / .55), inset 0 -2px 0 #6e1010; }
-  .cats button.on svg { filter: drop-shadow(1px 1px 0 rgb(0 0 0 / .45)); }
+  .cats button.on::before { box-shadow: inset 0 0 0 1.5px rgb(255 201 60 / .85), inset 0 2px 0 rgb(140 118 119 / .45), inset 0 -2px 0 rgb(0 0 0 / .6); }
+  .cats button.on svg { color: var(--gold); filter: drop-shadow(1px 1px 0 rgb(0 0 0 / .45)); }
   /* «وأنا جاي»: one big lava button, the steps ticking under it */
   .come-sum { margin: -2px 2px 12px; }
   .come-go { width: 100%; height: 74px; border: 0; border-radius: 18px; font-size: 21px; font-weight: 900; color: #2a1200; cursor: pointer;
@@ -844,7 +871,10 @@
   .comeset h3 { margin: 0 2px -6px; font-size: 13px; color: var(--dim); font-weight: 700; }
   .comeset .opts { display: flex; flex-wrap: wrap; gap: 7px; }
   .comeset .opts .chip { min-height: 38px; padding: 0 12px; font-size: 13px; }
-  .comeset .opts .chip.rm::after { content: " ✕"; color: var(--dim); }
+  /* a picked program to close: a drawn ✕ after its name (never a typed one) */
+  .comeset .opts .chip.rm::after { content: ""; position: static; inset: auto; width: 12px; height: 12px; margin-inline-start: 6px; background: var(--dim);
+    -webkit-mask: var(--x-icon) center / contain no-repeat; mask: var(--x-icon) center / contain no-repeat; }
+  :root { --x-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E"); }
   .comeset .wide { width: 100%; }
   /* «كاميرا بثك»: the camera fills the screen, the settings in a sheet from the bottom (owner's pick, 2026-10-13). Its own
      full-screen layout (no centring: a tall view used to spill over the title on an iPhone), a fixed frame that never
@@ -900,7 +930,7 @@
   .cam-ask .row { display: flex; gap: 8px; margin-top: 10px; direction: ltr; }
   .cam-ask .row button { flex: 1; min-height: 40px; border-radius: 12px; font: 700 15px var(--f-num); }
   .cam-ask small { display: block; margin-top: 4px; color: var(--dim); font-size: 11.5px; font-weight: 400; }
-  .cam-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; color: var(--dim); font-size: 13px; text-align: center; }
+  .cam-msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px 64px; color: var(--dim); font-size: 13px; line-height: 1.7; text-align: center; }
   .cam-msg[hidden] { display: none; }
   /* «وضع خفيف»: the phone draws nothing; a dark card says it's still sending */
   .cam-lite { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px 24px 24px 70px; text-align: center; background: #070404; }
@@ -925,6 +955,7 @@
   .cam-tabs button { min-height: 40px; border-radius: 12px; font-size: 13px; font-weight: 700; color: var(--dim); background: none; box-shadow: none; padding: 0 2px; white-space: nowrap; }
   .cam-tabs button.on { color: #fff; background: #2a2021; box-shadow: inset 0 0 0 1.5px rgb(255 201 60 / .55); }
   .camv2 #camGo { flex-shrink: 0; min-height: 50px; }
+  .wide.dim { opacity: .55; }
   .cam-pane h3 { margin: 4px 2px -4px; font-size: 13px; color: var(--dim); font-weight: 700; }
   .cam-pane .opts { display: flex; flex-wrap: wrap; gap: 7px; }
   .cam-pane .opts .chip { min-height: 38px; padding: 0 13px; font-size: 13px; }
@@ -990,6 +1021,22 @@
   .toast { display: flex; align-items: center; justify-content: center; gap: 8px; }
   .toast .tk { width: 18px; height: 18px; flex: none; color: #7cff5a; filter: drop-shadow(1px 1px 0 #000); }
   .toast.bad .tk { color: #ff8a7a; }
+  /* «متأكد؟» sits over any other sheet */
+  .sheet.ask { z-index: 66; }
+  .sheet.ask h3 { font-size: var(--fs-card); line-height: 1.6; margin: 0 4px 4px; }
+  .sheet.ask .hint { margin: 0 4px 14px; }
+  .sheet.ask .linkrow { margin-top: 6px; }
+  /* the iPhone's first screen: three numbered steps, each with its picture (owner's pick A, 2026-10-22) */
+  .isteps { list-style: none; margin: 0 auto 14px; padding: 0; display: grid; gap: 10px; max-width: 360px; text-align: right; }
+  .isteps li { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #171112; box-shadow: inset 0 0 0 1.5px var(--warm); }
+  .isteps .n { flex: none; width: 22px; text-align: center; font-family: var(--f-num); font-weight: 700; font-size: 24px; line-height: 1; color: var(--gold); }
+  .isteps .pic { flex: none; width: 48px; height: 48px; border-radius: 13px; display: grid; place-items: center; color: #fff; image-rendering: pixelated;
+    background: linear-gradient(rgb(23 18 19 / .4), rgb(23 18 19 / .4)), var(--tex-dark) 0 0 / 24px 24px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(140 118 119 / .45); }
+  .isteps .pic svg { width: 26px; height: 26px; }
+  .isteps .pic img { width: 48px; height: 48px; border-radius: 13px; image-rendering: auto; }
+  .isteps .t { flex: 1; min-width: 0; }
+  .isteps b { display: block; font-size: var(--fs-row); line-height: 1.6; }
+  .isteps small { display: block; color: var(--dim); font-size: var(--fs-hint); line-height: 1.7; }
   /* pairing: the 4 digits the PC shows too */
   .paircode { margin: -6px auto 18px; display: grid; gap: 8px; justify-items: center; }
   .paircode b { font-family: var(--f-num); font-weight: 700; font-size: 54px; line-height: 1; letter-spacing: 12px; padding-inline-start: 12px; color: var(--gold); text-shadow: 0 0 22px rgba(255,201,60,.35); }
@@ -1022,7 +1069,17 @@
   .x, .back, .soon-x { width: 44px; height: 44px; }
   .g button { min-height: 44px; }
   h2 .more { position: relative; }
-  h2 .more::after { content: ""; position: absolute; inset: -13px -10px; }
+  h2 .more::after { content: ""; position: absolute; inset: -4px -2px; }
+  /* a heading's own button («الخطوات», «عدّل», «كل البرامج», «كل الصور», «قيس»): a small stone pill with gold words, 36 px (it was
+     red words: red is only for the buttons you press, and they were too small for a thumb) */
+  section h2 { align-items: center; }
+  section h2 .more { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 12px; color: var(--gold); font-weight: 700; flex-shrink: 0;
+    image-rendering: pixelated; background: linear-gradient(rgb(255 255 255 / .04), rgb(255 255 255 / .04)), var(--tex-dark) 0 0 / 16px 16px; box-shadow: inset 0 0 0 1.5px #000, inset 0 2px 0 rgb(255 255 255 / .12); }
+  section h2 .more:active { translate: 0 2px; }
+  /* chips: a 44 px place to tap (they're 40 px tall) */
+  .chip::after { content: ""; position: absolute; inset: -2px 0; }
+  .chips .chip { min-width: 44px; }
+  header .refresh { width: 44px; height: 44px; }
   section h2 .seg button { position: relative; min-height: 32px; }
   section h2 .seg button::after { content: ""; position: absolute; inset: -8px 0; }
   .cam-lens button { position: relative; }
@@ -1130,8 +1187,9 @@
   <div id="intro" class="center">
     <img class="big" src="remote-logo.webp" alt="" />
     <h2 id="introTitle">NUKE GG</h2>
+    <ol id="introSteps" class="isteps hidden"></ol>
     <p id="introText">افتح NUKE GG على البيسي ← «جوالك» ← «جوالك أنت» ← «اربط جوال»، وصوّر الكود بكاميرا جوالك.</p>
-    <div id="introCode" class="paircode hidden"><b dir="ltr"></b><small>ما طلع رقم على البيسي؟ يبيله تحديث NUKE GG، ووافق بس إذا الطلب منك.</small></div>
+    <div id="introCode" class="paircode hidden"><b dir="ltr"></b><small></small></div>
     <div id="introSpin" class="spin hidden"></div>
     <button id="scanBtn" class="wide hidden" style="max-width:320px;margin:0 auto">صوّر الكود من هنا</button>
     <button id="introAlt" class="wide ghost hidden" style="max-width:320px;margin:10px auto 0"></button>
@@ -1154,6 +1212,12 @@
     <div id="pcList"></div>
     <button id="pcAdd" class="wide ghost" style="margin-top:6px">+ أضف بيسي</button>
     <p class="hint">على البيسي الثاني: NUKE GG ← «جوالك» ← «جوالك أنت» ← «اربط جوال»، وصوّر الكود. وتتنقّل بينهم من هنا.</p>
+  </div></div>
+  <!-- «متأكد؟»: our own small sheet (the browser's confirm() was a system alert titled with the site's address) -->
+  <div id="askSheet" class="sheet ask hidden" role="dialog" aria-modal="true" aria-labelledby="askTitle"><div class="in">
+    <h3 id="askTitle"></h3>
+    <p id="askBody" class="hint"></p>
+    <div class="linkrow"><button id="askNo" class="calm">لا</button><button id="askYes"></button></div>
   </div></div>
   <div id="scan" class="scan hidden">
     <video id="scanVideo" playsinline muted></video>
@@ -1186,7 +1250,7 @@
     <header>
       <img src="remote-logo.webp" alt="" />
       <button id="pcBtn" class="t pcBtn" aria-label="أجهزتك">
-        <h1><span id="pcName">البيسي</span><span class="chev">▼</span></h1>
+        <h1><span id="pcName">البيسي</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></h1>
         <p><span id="dot" class="dot"></span><span id="status">نتصل…</span></p>
       </button>
       <button id="refreshBtn" class="refresh" aria-label="حدّث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
@@ -1196,7 +1260,7 @@
     <!-- 🎮 games -->
     <div id="tab-games" class="tab on">
       <div class="tabhead"><img src="ban-games.jpg" alt="" /><div><b>ألعابي</b><small>ألعابك وصورها وتحميلاتها</small></div></div>
-      <div class="cats" role="tablist"><button role="tab" data-cat="mine" data-empty="ما لقينا ألعاب للحين.">ألعابك</button><button role="tab" data-cat="friends" data-empty="ثبّت مودات للعبة بالبيسي، وتقدر تسوي لها كود لربعك هنا.">ربعك</button><button role="tab" data-cat="fun" data-empty="">تحدّي</button><button role="tab" data-cat="soon" data-empty="">تنتظرها</button><button role="tab" data-cat="shots" data-empty="ما لقينا صور من ألعابك. صوّر وأنت تلعب (F12 بستيم) وتطلع هنا.">صورك</button><button role="tab" data-cat="steam" data-empty="ما فيه تحميلات ستيم الحين.">التحميلات</button></div>
+      <div class="cats" role="tablist"><button role="tab" data-cat="mine" data-empty="ما لقينا ألعاب للحين.">ألعابك</button><button role="tab" data-cat="friends" data-empty="ثبّت مودات للعبة بالبيسي، وتقدر تسوي لها كود لربعك هنا.">ربعك</button><button role="tab" data-cat="fun" data-empty="">تحدّي</button><button role="tab" data-cat="soon" data-empty="">تنتظرها</button><button role="tab" data-cat="shots" data-empty="صوّر وأنت تلعب (زر F12 بستيم) وتطلع صورك هنا.">صورك</button><button role="tab" data-cat="steam" data-empty="ما فيه تحميلات ستيم الحين.">التحميلات</button></div>
       <p class="catempty hidden"></p>
       <div data-cat="mine" id="nowCard" class="now hidden"><img id="nowImg" alt="" /><div class="in"><span class="live" id="nowLive"></span><div class="row"><b id="nowName"></b><button id="nowClose">سكّرها</button></div><div id="nowLimit" class="limitline hidden"><span id="nowLimitText"></span><button id="nowSnooze">خلّني نص ساعة</button></div></div></div>
       <section data-cat="steam" id="steamBox" class="hidden">
@@ -1205,13 +1269,13 @@
       </section>
       <section data-cat="mine" id="weekBox" class="hidden">
         <h2><span>أسبوعك</span></h2>
-        <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span>أيام ورا بعض</span></div><div><b id="wLevel">—</b><span>مستواك</span></div></div>
+        <div class="week"><div><b id="wHours">—</b><span>لعب هالأسبوع</span></div><div><b id="wStreak">—</b><span id="wStreakW">أيام ورا بعض</span></div><div><b id="wLevel">—</b><span>مستواك</span></div></div>
         <button id="wkOpen" class="wide ghost" style="margin-top:10px">شوف أسبوعك</button>
       </section>
       <!-- «تحدّي»: the reaction challenge (owner's pick, 2026-10-12), its look chosen in الإعدادات -->
       <section data-cat="fun" id="funBox">
-        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>تحدّى ربعك بردة الفعل</span></h2>
-        <p class="hint" style="margin:0 2px 12px">كم سرعتك؟ العب، وأرسل رقمك لربعك برابط. يلعبون نفس التحدّي من جوالهم بدون تطبيق، ويطلع مين فاز.</p>
+        <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>كم سرعتك؟</span></h2>
+        <p class="hint" style="margin:0 2px 12px">العب، وأرسل رقمك لربعك برابط. يلعبون نفس التحدّي من جوالهم بدون تطبيق، ويطلع مين فاز.</p>
         <div class="funbest"><span>أحسن رقم لك</span><b id="rxBest" class="dn">—</b></div>
         <button id="rxPlay" class="wide">العب</button>
       </section>
@@ -1234,7 +1298,7 @@
         <div id="shots" class="shots"></div>
       </section>
       <section data-cat="mine">
-        <h2><span>ألعابك</span><span id="gCount"></span></h2>
+        <h2><span></span><span id="gCount"></span></h2>
         <input id="gSearch" class="search" placeholder="دوّر لعبة…" dir="auto" />
         <div id="games" class="games"><p class="muted">نجيب ألعابك…</p></div>
       </section>
@@ -1243,7 +1307,7 @@
     <!-- 💻 PC -->
     <div id="tab-pc" class="tab">
       <div class="tabhead"><img src="ban-pc.jpg" alt="" /><div><b>البيسي</b><small>تحكم فيه من مكانك</small></div></div>
-      <div class="cats" role="tablist"><button role="tab" data-cat="quick" data-empty="">سريع</button><button role="tab" data-cat="send" data-empty="">أرسل</button><button role="tab" data-cat="apps" data-empty="">البرامج</button><button role="tab" data-cat="sound" data-empty="">الصوت والشاشة</button><button role="tab" data-cat="power" data-empty="">التشغيل</button></div>
+      <div class="cats" role="tablist"><button role="tab" data-cat="quick" data-empty="">سريع</button><button role="tab" data-cat="send" data-empty="">أرسل وخذ</button><button role="tab" data-cat="apps" data-empty="">البرامج</button><button role="tab" data-cat="sound" data-empty="">الصوت والشاشة</button><button role="tab" data-cat="power" data-empty="">التشغيل</button></div>
       <p class="catempty hidden"></p>
       <section data-cat="quick" id="comeBox">
         <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></i>وأنا جاي</span><button id="comeEdit" class="more">الخطوات</button></h2>
@@ -1256,7 +1320,7 @@
       <section data-cat="quick" id="camBox">
         <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3v10l-5-3"/><rect x="3" y="6" width="12" height="12" rx="2.5"/></svg></i>كاميرا بثك</span></h2>
         <p class="hint">جوالك يصير كاميرا لبثك: تطلع بنافذة على البيسي، ورابط تحطه ببرنامج البث.</p>
-        <div class="linkrow"><button id="camOpen">شغّل الكاميرا</button></div>
+        <div class="linkrow"><button id="camOpen" class="calm">شغّل الكاميرا</button></div>
       </section>
       <section data-cat="quick" id="errBox">
         <div class="errcall">
@@ -1264,7 +1328,7 @@
           <b>طلع لك خطأ؟</b>
           <small>صوّره (أو اختر صورته من المعرض)، ونقول لك وش هو ونصلّحه بالبيسي</small>
         </div>
-        <div class="linkrow"><button id="errGo">صوّر الخطأ</button></div>
+        <div class="linkrow"><button id="errGo" class="calm">صوّر الخطأ</button></div>
         <input id="errIn" type="file" accept="image/*" hidden />
         <p id="errState" class="hint hidden"></p>
         <div id="errOut" class="errres hidden"></div>
@@ -1286,12 +1350,12 @@
         <input id="fileIn" type="file" multiple hidden />
         <div id="sending" class="sending hidden"><div class="dl"><div class="n"><span id="sendName" dir="auto"></span><em id="sendPct"></em></div><div class="bar"><div id="sendBar" style="width:0%"></div></div><div class="sendrow"><small id="sendMore"></small><button id="sendStop" class="ghost">وقّف الإرسال</button></div></div></div>
         <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div><div id="clipMore" class="cliplist hidden"></div></div>
-        <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام ينحط بحافظته (الصقه بـ Ctrl+V). الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
+        <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام تقدر تلصقه بالبيسي. الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
       </section>
       <section data-cat="send">
         <h2><span>رسالة على شاشة البيسي</span></h2>
-        <textarea id="msgIn" class="search sendbox" rows="2" dir="auto" maxlength="300" placeholder="مثلاً: تعال العشا 🍽️" autocomplete="off"></textarea>
-        <div class="chips" id="msgQuick" style="margin:0 0 10px"><button class="chip">تعال العشا 🍽️</button><button class="chip">الصلاة 🕌</button><button class="chip">رد على جوالك 📱</button><button class="chip">نام بدري 😴</button></div>
+        <textarea id="msgIn" class="search sendbox" rows="2" dir="auto" maxlength="300" placeholder="مثلاً: تعال العشا" autocomplete="off"></textarea>
+        <div class="chips" id="msgQuick" style="margin:0 0 10px"><button class="chip">تعال العشا</button><button class="chip">الصلاة</button><button class="chip">رد على جوالك</button><button class="chip">نام بدري</button></div>
         <div class="linkrow"><button id="msgGo" disabled>أرسلها للشاشة</button></div>
         <p id="msgState" class="hint">تطلع فوق كل شي مع صوت، واللي قدام البيسي يرد عليك بضغطة.</p>
       </section>
@@ -1309,23 +1373,32 @@
           <button class="b" data-root="videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>الفيديوهات</button>
           <button class="b" id="fFind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>دوّر بالاسم</button>
         </div>
-        <p class="hint">تختار أي ملف ويوصل جوالك. مع «متصل مباشرة ⚡» يوصل لين 4 جيجا (الآيفون لين 1 جيجا)، وبدونه لين 100 ميجا.</p>
+        <p class="hint">تختار أي ملف ويوصل جوالك. لما يكون فوق «متصل مباشرة» يوصل لين 4 جيجا (الآيفون لين 1 جيجا)، وبدونه لين 100 ميجا.</p>
       </section>
       <section data-cat="apps" id="appsBox" class="hidden">
         <h2><span>برامجك</span><button id="appsAllBtn" class="more hidden">كل البرامج</button></h2>
         <div id="apps" class="apps"></div>
-        <p id="appsEmpty" class="hint hidden" style="margin-top:0">اضغط «كل البرامج» وحط النجمة على اللي تبيه، ويطلع هنا.</p>
+        <div id="appsEmpty" class="hidden"><p class="hint" style="margin:0 2px 10px">اختار البرامج اللي تفتحها كثير، وتطلع هنا.</p><button id="appsPick" class="wide calm">اختار برامجك</button></div>
       </section>
       <section data-cat="sound">
         <h2><span>الصوت</span><span id="volNote"></span></h2>
         <div id="volBox" class="vol hidden"><input id="volRange" type="range" min="0" max="100" step="1" value="0" aria-label="مستوى الصوت" /><b id="volNum">—</b></div>
-        <div class="grid three">
-          <button class="b" data-a="vol.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/></svg>أقل</button>
-          <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>كتم</button>
-          <button class="b" data-a="vol.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/><path d="M19 9v6"/></svg>أعلى</button>
+        <div class="grid three" dir="ltr">
+          <button class="b" data-a="vol.down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/></svg><span dir="rtl">أقل</span></button>
+          <button class="b" data-a="vol.mute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg><span dir="rtl">كتم</span></button>
+          <button class="b" data-a="vol.up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M16 12h6"/><path d="M19 9v6"/></svg><span dir="rtl">أعلى</span></button>
         </div>
         <div id="outBox" class="hidden"><p class="sub">الصوت يطلع من</p><div id="outs" class="outs"></div></div>
         <div id="micRow" class="setrow hidden" style="padding-top:2px"><div><b>المايك</b><small id="micName" dir="auto"></small></div><button id="micBtn" class="mic">—</button></div>
+      </section>
+      <!-- play / next / back: sound controls, with the sound (owner's yes, 2026-10-22; they were under «البرامج») -->
+      <section data-cat="sound">
+        <h2><span>الأغاني والفيديو</span></h2>
+        <div class="grid three" dir="ltr">
+          <button class="b" data-a="media.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg><span dir="rtl">اللي قبل</span></button>
+          <button class="b" data-a="media.play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 13 9-13 9V3Z"/></svg><span dir="rtl">شغّل / وقّف</span></button>
+          <button class="b" data-a="media.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg><span dir="rtl">الجاية</span></button>
+        </div>
       </section>
       <section data-cat="sound" id="screenBox" class="hidden">
         <h2><span>الشاشة</span></h2>
@@ -1344,16 +1417,8 @@
         <h2><span class="hm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10-5 5V2l5 5L7 17"/></svg></i>البلوتوث</span></h2>
         <div class="setrow" style="padding:4px"><div><b>شغّل البلوتوث</b><small>للسماعة أو اليد اللاسلكية</small></div><button id="btSw" class="sw" aria-label="البلوتوث"></button></div>
       </section>
-      <section data-cat="apps">
-        <h2><span>الأغاني والفيديو</span></h2>
-        <div class="grid three" dir="ltr">
-          <button class="b" data-a="media.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 20-10-8 10-8v16Z"/><path d="M5 19V5"/></svg><span dir="rtl">اللي قبل</span></button>
-          <button class="b" data-a="media.play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 13 9-13 9V3Z"/></svg><span dir="rtl">شغّل / وقّف</span></button>
-          <button class="b" data-a="media.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></svg><span dir="rtl">الجاية</span></button>
-        </div>
-      </section>
       <section data-cat="power">
-        <h2><span>البيسي</span></h2>
+        <h2><span>قفل وإطفاء</span></h2>
         <div class="grid">
           <button class="b" data-a="power.lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>قفل الشاشة</button>
           <button class="b" data-a="power.sleep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>نوم</button>
@@ -1437,13 +1502,13 @@
       <details class="grp" id="grpGames"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg></i>تنبيهات الألعاب<small></small></summary><div class="in">
         <div id="gameAlerts" class="hidden">
           <div class="setrow"><div><b>تحديث للعبة عندك</b><small>أول ما تنزل ملاحظات تحديث لعبة على البيسي.</small></div><button id="upSw" class="sw" aria-label="تحديث للعبة عندك"></button></div>
-          <div class="setrow"><div><b>لعبة مجانية جديدة</b><small>أي لعبة تصير مجانية بـ Epic أو Steam أو غيرها.</small></div><button id="freeSw" class="sw" aria-label="لعبة مجانية جديدة"></button></div>
+          <div class="setrow"><div><b>لعبة مجانية جديدة</b><small>أي لعبة تصير مجانية بإبك أو ستيم أو غيرها.</small></div><button id="freeSw" class="sw" aria-label="لعبة مجانية جديدة"></button></div>
           <div class="setrow"><div><b>نزل سعر لعبة تتابعها</b><small id="priceHint">تختار الألعاب من «الألعاب ← أرخص سعر» بالبيسي.</small></div><button id="priceSw" class="sw" aria-label="نزل سعر لعبة تتابعها"></button></div>
         </div>
       </div></details>
       <details class="grp" id="grpPc"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></i>تنبيهات البيسي<small></small></summary><div class="in">
         <div class="setrow"><div><b>نبّهني إذا انفتح البيسي</b><small>إذا أحد فتح قفل البيسي يوصلك تنبيه.</small></div><button id="unlockSw" class="sw" aria-label="نبّهني إذا انفتح البيسي"></button></div>
-        <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت NVIDIA).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
+        <div class="setrow"><div><b>نبّهني إذا كرت الشاشة حرّ</b><small>إذا وصلت حرارته للرقم اللي تختاره (كروت إنفيديا).</small></div><button id="heatSw" class="sw" aria-label="نبّهني إذا كرت الشاشة حرّ"></button></div>
         <div id="heatChips" class="chips" style="margin:0 4px 6px"><button class="chip" data-heat="80">80°</button><button class="chip" data-heat="85">85°</button><button class="chip" data-heat="90">90°</button></div>
         <div class="setrow"><div><b>الرام امتلت</b><small>إذا ظلّت فوق 92%، ونقول لك وش ماكلها.</small></div><button id="ramSw" class="sw" aria-label="الرام امتلت"></button></div>
         <div class="setrow"><div><b>الهارديسك قرّب يمتلي</b><small>إذا باقي أقل من 10 جيجا (أو أقل من 5%).</small></div><button id="diskSw" class="sw" aria-label="الهارديسك قرّب يمتلي"></button></div>
@@ -1458,12 +1523,12 @@
         <button id="snoozeSet" class="wide ghost hidden">خلّني ألعب نص ساعة زيادة</button>
       </div></details>
       <details class="grp" id="grpFun"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/></svg></i>شكل التحدّي وأسبوعك</summary><div class="in">
-        <div class="setrow col"><div><b>تحدّي ردة الفعل</b><small>الشكل اللي تلعبه، ونفسه يلعبه ربعك</small></div><div class="seg" id="segRx"><button type="button" data-v="circle">دائرة</button><button type="button" data-v="blocks">خمس بلوكات</button></div></div>
-        <div class="setrow col"><div><b>أسبوعك</b><small>كيف ينعرض لك ملخص أسبوعك</small></div><div class="seg" id="segWk"><button type="button" data-v="story">قصص</button><button type="button" data-v="track">مسار مستوى</button></div></div>
+        <div class="setrow col"><div><b>شكل التحدّي</b><small>الشكل اللي تلعبه، ونفسه يلعبه ربعك</small></div><div class="seg" id="segRx"><button type="button" data-v="circle">دائرة</button><button type="button" data-v="blocks">خمس بلوكات</button></div></div>
+        <div class="setrow col"><div><b>أسبوعك</b><small>كيف ينعرض لك ملخص أسبوعك</small></div><div class="seg" id="segWk"><button type="button" data-v="story">قصص</button><button type="button" data-v="track">مستواك</button></div></div>
       </div></details>
       <details class="grp" id="grpPcs"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></i>أجهزتك<small id="grpPcsN"></small></summary><div class="in">
         <p class="hint" style="margin-top:0">البيسيات المربوطة بجوالك. تبدّل بينها من اسم البيسي فوق، أو من هنا.</p>
-        <button id="pcsOpen" class="wide ghost">أجهزتك</button>
+        <button id="pcsOpen" class="wide ghost">بدّل البيسي أو أضف واحد</button>
         <button id="byeBtn" class="wide ghost" style="margin-top:8px">افصل الجوال عن هالبيسي</button>
       </div></details>
       <details class="grp" id="homeHint"><summary><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg></i>حطها على الشاشة الرئيسية</summary><div class="in">
@@ -1509,10 +1574,34 @@ const STORE = "nk-remote-pcs"; // [{ id, k, pc, vapid }] — every PC this phone
 const CUR = "nk-remote-cur";
 // NUKE's own relay on Cloudflare (2026-10-07; site/relay/worker.js): the same small shape the page used with Supabase
 // Realtime — channel(name).on(…, fn).subscribe(cb), send({ payload }), removeChannel(c). One WebSocket per channel,
-// "ping" every 45 s, back by itself 1, 2, 4… up to 30 s after a drop. (No relay address → Supabase, as before.)
+// back by itself 1, 2, 4… up to 30 s after a drop. (No relay address → Supabase, as before.)
+// A phone that changes network (5G → home Wi-Fi) or wakes up keeps a socket that looks open but is dead, and never says it
+// closed (the owner's bug, 2026-10-22: stuck on «نعيد الاتصال…» until the page was reopened). So every socket is checked:
+// a "ping", and nothing at all back within 4 s → it's let go of at once (not waiting for its «close») and a new one opens
+// with no back-off. Checked every 5 s while on screen (the relay answers "ping" at the edge without waking the room — a few
+// bytes, like the direct link's own 3 s beat; a dead socket is gone within ~9 s; skipped when something came in the last
+// 5 s or the socket is still sending), and whenever the page asks (c.check(): back on screen, the network changed, ↻, an ask
+// the PC didn't answer — that one may also start a socket stuck opening, or cut a back-off short, once per 15 s and without
+// resetting it: a relay that can't be reached still backs off 1, 2, 4… 30 s). Hidden: a plain ping every 45 s only. A light
+// channel (a pending «افصل», pairing) checks every 45 s.
 function createRelay(url) {
+  // a socket let go of: its handlers off first (a dead one's own «close» comes minutes later, or never)
+  const drop = (c) => {
+    const ws = c.ws;
+    c.ws = null;
+    clearInterval(c.ping);
+    clearTimeout(c.checkT);
+    c.checkT = null;
+    if (!ws) return;
+    ws.onopen = ws.onmessage = ws.onclose = null;
+    try {
+      ws.close(1000);
+    } catch {}
+  };
   const open = (c) => {
     if (c.closed) return;
+    clearTimeout(c.again);
+    drop(c);
     let ws;
     try {
       ws = new WebSocket(`${url}?ch=${encodeURIComponent(c.name)}`);
@@ -1520,14 +1609,31 @@ function createRelay(url) {
       return retry(c);
     }
     c.ws = ws;
+    c.since = Date.now();
     ws.onopen = () => {
       c.tries = 0;
-      clearInterval(c.ping);
-      c.ping = setInterval(() => ws.readyState === 1 && ws.send("ping"), 45e3);
+      c.lastIn = Date.now();
+      let n = 0;
+      c.ping = setInterval(() => {
+        const nth = ++n % 9 === 0;
+        if (document.visibilityState !== "visible") return void (nth && ws.send("ping"));
+        // (no need while it's clearly alive: a message came in just now — its own pong doesn't count — or it's still sending)
+        if ((c.light && !nth) || Date.now() - c.lastData < 5000 || ws.bufferedAmount > 0) return;
+        check(c);
+      }, 5e3);
+      flush(c);
       c.status?.("SUBSCRIBED");
     };
     ws.onmessage = (e) => {
+      // anything at all (its "pong" too): this socket is alive
+      c.lastIn = Date.now();
+      if (c.checkT) {
+        clearTimeout(c.checkT);
+        c.checkT = null;
+        flush(c);
+      }
       if (typeof e.data !== "string" || e.data === "pong") return;
+      c.lastData = Date.now();
       let payload;
       try {
         payload = JSON.parse(e.data);
@@ -1537,27 +1643,77 @@ function createRelay(url) {
       c.handlers.forEach((fn) => fn({ payload }));
     };
     ws.onclose = () => {
-      clearInterval(c.ping);
-      if (c.ws === ws) c.ws = null;
-      if (!c.closed) retry(c);
+      if (c.ws !== ws) return;
+      drop(c);
+      retry(c);
     };
   };
-  const retry = (c) => !c.closed && setTimeout(() => open(c), Math.min(30e3, 1000 * 2 ** c.tries++));
+  const retry = (c) => {
+    clearTimeout(c.again);
+    if (!c.closed) c.again = setTimeout(() => open(c), Math.min(30e3, 1000 * 2 ** c.tries++));
+  };
+  // what's sent while a socket is being checked or opened waits for it (never written into one that may be dead, never sent
+  // twice), each for its own time (`ttl`: an ask's own wait; 8 s by default) — then it's dropped, its ask has given up;
+  // `sent()` tells the asker it went late (its wait starts again from there)
+  const flush = (c) => {
+    if (c.ws?.readyState !== 1 || c.checkT) return;
+    for (const q of c.queue.splice(0)) {
+      if (Date.now() - q.at >= q.ttl) continue;
+      c.ws.send(q.text);
+      q.sent?.();
+    }
+  };
+  // force: the page asked (not the 5 s beat) — may start a socket stuck opening or waiting out a back-off, once per 15 s
+  const check = (c, force = false) => {
+    if (c.closed || c.checkT) return;
+    const ws = c.ws;
+    if (!ws || ws.readyState > 1 || (ws.readyState === 0 && Date.now() - c.since > 6000)) {
+      if (!force || Date.now() - c.forcedAt < 15e3) return;
+      c.forcedAt = Date.now();
+      return open(c); // (its tries stay: one that still can't reach the relay goes on backing off)
+    }
+    if (ws.readyState === 0) return;
+    const t0 = Date.now();
+    try {
+      ws.send("ping");
+    } catch {
+      return (c.tries = 0), open(c);
+    }
+    c.checkT = setTimeout(() => {
+      c.checkT = null;
+      if (c.ws !== ws || c.lastIn >= t0) return flush(c);
+      // it had been open: a new one at once
+      c.tries = 0;
+      open(c);
+    }, 4000);
+  };
   return {
-    channel(name) {
-      const c = { name, handlers: [], ws: null, closed: false, tries: 0, status: null, ping: null };
+    channel(name, opts) {
+      const c = { name, handlers: [], ws: null, closed: false, tries: 0, status: null, ping: null, again: null, checkT: null, lastIn: 0, lastData: 0, since: 0, forcedAt: 0, queue: [], light: Boolean(opts?.light) };
       c.on = (_t, _f, fn) => (c.handlers.push(fn), c);
       c.subscribe = (cb) => ((c.status = cb), open(c), c);
-      c.send = async (m) => (c.ws?.readyState === 1 ? (c.ws.send(JSON.stringify(m?.payload ?? null)), "ok") : "error");
+      // "ok" only when it went into a socket that isn't in doubt; otherwise it waits (above). A send never starts a socket nor
+      // cuts a back-off (an unreachable relay was asked for a new socket every second); one open but in doubt is checked.
+      // { ttl, sent }: how long it may wait (≤ 60 s: the PC refuses a sealed message older than 2 minutes), told when it went
+      c.send = async (m, { ttl = 8e3, sent = null } = {}) => {
+        const text = JSON.stringify(m?.payload ?? null);
+        if (c.ws?.readyState === 1 && !c.checkT) return c.ws.send(text), "ok";
+        c.queue.push({ at: Date.now(), ttl: Math.min(60e3, Math.max(1e3, ttl)), text, sent });
+        if (c.queue.length > 40) c.queue.shift();
+        if (c.ws?.readyState === 1) check(c);
+        return "error";
+      };
+      c.check = () => check(c, true);
+      // open and not in doubt
+      c.alive = () => c.ws?.readyState === 1 && !c.checkT;
       return c;
     },
     removeChannel(c) {
       if (c) {
         c.closed = true;
-        clearInterval(c.ping);
-        try {
-          c.ws?.close(1000);
-        } catch {}
+        clearTimeout(c.again);
+        drop(c);
+        c.queue.length = 0;
       }
       return Promise.resolve("ok");
     },
@@ -1589,6 +1745,14 @@ const W = {
   stick: ["قطعة وحدة", "قطعتين", "قطع", "قطعة"],
   core: ["نواة وحدة", "نواتين", "أنوية", "نواة"],
   thread: ["خيط واحد", "خيطين", "خيوط", "خيط"],
+  prog: ["برنامج واحد", "برنامجين", "برامج", "برنامج"],
+  mod: ["مود واحد", "مودين", "مودات", "مود"],
+  pc: ["بيسي واحد", "بيسيين", "بيسيات", "بيسي"],
+};
+// the word under a big number: 1 يوم, 2 يومين, 3–10 أيام, else يوم («أيام» under a 0 or a 15 read wrong — QA L3)
+const unitOf = (n, [one, two, few, many]) => {
+  const r = Math.round(Number(n) || 0) % 100;
+  return n === 1 ? one : n === 2 ? two : r >= 3 && r <= 10 ? few : many;
 };
 // how long ago, for what's shown from earlier ("قبل 5 دقايق")
 function ago(t) {
@@ -1739,6 +1903,29 @@ function overlayDone(el, fromBack = false) {
   if (!fromBack) closeLayer(id);
 }
 const isOpen = (el) => Boolean(el._layer);
+// «متأكد؟» → true / false: the question as the title, one line under it, the action word red, «لا» stone (back = «لا»)
+let askEnd = null;
+function ask(title, body, yes) {
+  askEnd?.(false);
+  return new Promise((resolve) => {
+    const el = $("askSheet");
+    $("askTitle").textContent = title;
+    $("askBody").textContent = body || "";
+    $("askBody").classList.toggle("hidden", !body);
+    $("askYes").textContent = yes;
+    const end = (v, fromBack = false) => {
+      if (askEnd !== end) return;
+      askEnd = null;
+      overlayDone(el, fromBack);
+      resolve(v);
+    };
+    askEnd = end;
+    overlayOpen(el, (fromBack) => end(false, fromBack));
+  });
+}
+$("askYes").addEventListener("click", () => askEnd?.(true));
+$("askNo").addEventListener("click", () => askEnd?.(false));
+$("askSheet").addEventListener("click", (e) => e.target === $("askSheet") && askEnd?.(false));
 const pcs = () => {
   try {
     const list = JSON.parse(localStorage.getItem(STORE) || "null");
@@ -1869,18 +2056,28 @@ async function keysLoad() {
   const used = new Set([...pcs().map((p) => p.id), ...byes().map((b) => b.id).filter(Boolean)]);
   for (const id of [...KEYS.keys()]) if (!used.has(id)) dropKey(id);
 }
-const phoneName = () => (/iPhone/i.test(navigator.userAgent) ? "iPhone" : isIos ? "iPad" : /Android/i.test(navigator.userAgent) ? "جوال Android" : "جوال");
-// alt: a second, quieter button ({ label, run }); scan: the label of the QR button (or false: none)
-function intro(title, text, spin = false, { alt = null, scan = "صوّر الكود من هنا", code = null } = {}) {
+// the phone's name as the PC shows it («آيفون يبي يتحكم بالبيسي»), in Arabic like the rest of the PC's question
+const phoneName = () => (/iPhone/i.test(navigator.userAgent) ? "آيفون" : isIos ? "آيباد" : /Android/i.test(navigator.userAgent) ? "جوال أندرويد" : "جوال");
+const CODE_NOTE = "ما طلع رقم على البيسي؟ حدّث NUKE GG على البيسي.";
+// the camera refused: where to allow it (an iPhone: Safari's own setting)
+const CAM_ALLOW = isIos ? "اسمح للكاميرا: الإعدادات ← سفاري ← الكاميرا ← اسمح، وارجع هنا." : "اسمح للصفحة تستخدم الكاميرا من إعدادات المتصفح، وارجع هنا.";
+// alt: a second, quieter button ({ label, run }); scan: the label of the QR button (or false: none — the default while
+// waiting); note: the small line under the 4 digits
+// steps: numbered steps with a picture each ([{ pic, b, small }]), shown above the text
+function intro(title, text, spin = false, { alt = null, scan = spin ? false : "صوّر الكود من هنا", code = null, note = CODE_NOTE, steps = null } = {}) {
   $("app").classList.add("hidden");
   $("nav").classList.add("hidden");
   $("intro").classList.remove("hidden");
   $("introTitle").textContent = title;
   $("introText").textContent = text;
+  $("introText").classList.toggle("hidden", !text);
+  $("introSteps").classList.toggle("hidden", !steps);
+  $("introSteps").innerHTML = (steps ?? []).map((st, i) => `<li><span class="n">${i + 1}</span><span class="pic">${st.pic}</span><span class="t"><b>${esc(st.b)}</b>${st.small ? `<small>${esc(st.small)}</small>` : ""}</span></li>`).join("");
   $("introCode").classList.toggle("hidden", !code);
   $("introCode").querySelector("b").textContent = code ?? "";
+  $("introCode").querySelector("small").textContent = note;
   $("introSpin").classList.toggle("hidden", !spin);
-  $("scanBtn").classList.toggle("hidden", spin || !scan); // waiting for the PC: nothing to scan
+  $("scanBtn").classList.toggle("hidden", !scan);
   if (scan) $("scanBtn").textContent = scan;
   // on an iPhone in Safari the home-screen way comes first: scanning here is the quieter choice
   $("scanBtn").classList.toggle("ghost", Boolean(scan && iosSafari));
@@ -1891,8 +2088,20 @@ function intro(title, text, spin = false, { alt = null, scan = "صوّر الك�
 let introAltRun = null;
 $("introAlt").addEventListener("click", () => introAltRun?.());
 // an iPhone in Safari: the home-screen app keeps its own storage, so a pairing done here wouldn't reach it
-const IOS_TITLE = "أول شي: حطها على الشاشة الرئيسية";
-const IOS_FIRST = "أضف الصفحة للشاشة الرئيسية أول (زر المشاركة ← «إضافة إلى الشاشة الرئيسية»)، وبعدها افتحها من هناك وامسح الكود من داخلها. كذا الربط يبقى، وتوصلك التنبيهات.";
+// (owner's pick A, 2026-10-22: three numbered steps with pictures — it was five lines mixing two jobs)
+const IOS_TITLE = "حط NUKE GG على شاشة جوالك";
+const IOS_WHY = "كذا الربط يبقى عندك، وتوصلك التنبيهات.";
+const IOS_PIC = {
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M7 10H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1"/></svg>',
+  add: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+  app: '<img src="remote-app.png" alt="" />',
+};
+// pc: where the code is on the PC (only when this phone has no PC yet and no code was scanned)
+const iosSteps = (pc = false) => [
+  { pic: IOS_PIC.share, b: "اضغط زر المشاركة", small: "تحت بشريط سفاري" },
+  { pic: IOS_PIC.add, b: "اختار «إضافة إلى الشاشة الرئيسية»", small: "انزل بالقائمة شوي لين تلقاه" },
+  { pic: IOS_PIC.app, b: "افتح NUKE GG من شاشة جوالك", small: pc ? "وصوّر كود البيسي من هناك (بالبيسي: NUKE GG ← «جوالك» ← «اربط جوال»)" : "وصوّر كود البيسي من هناك" },
+];
 // where pairing lives on the PC now (the «جوالك» section; Settings only points there)
 const PAIR_PATH = "افتح NUKE GG على البيسي ← «جوالك» ← «جوالك أنت» ← «اربط جوال»";
 
@@ -1943,7 +2152,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js";
+        sc.src = "jsqr.js?v=988f56c9d8";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -1965,7 +2174,7 @@ async function startScan() {
     scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
   } catch {
     overlayDone($("scan"));
-    return toast("ما قدرنا نفتح الكاميرا. اسمح للصفحة تستخدمها وجرّب مرة ثانية.", true);
+    return toast(CAM_ALLOW, true);
   }
   if (!isOpen($("scan"))) return scanStream.getTracks().forEach((t) => t.stop()); // closed while it was asking
   v.addEventListener("playing", () => v.classList.add("on"), { once: true });
@@ -2014,12 +2223,24 @@ async function startScan() {
 }
 $("scanBtn").addEventListener("click", startScan);
 $("scanClose").addEventListener("click", () => stopScan());
-const listen = (name, onMsg) =>
-  new Promise((resolve) => {
-    const c = sb.channel(name, { config: { broadcast: { self: false } } });
-    c.on("broadcast", { event: "m" }, ({ payload }) => onMsg(payload));
-    c.subscribe((s) => s === "SUBSCRIBED" && resolve(c));
-  });
+// → the channel once it's joined (the promise's `.channel` = the same channel at once, to check or let go of one that never
+// joins — a phone with no internet, a socket stuck opening); joined again later (a new socket after a drop) → relayBack.
+// light: a side channel (a pending «افصل», pairing) checked every 45 s instead of 5
+function listen(name, onMsg, { light = false } = {}) {
+  const c = sb.channel(name, { config: { broadcast: { self: false } }, light });
+  c.on("broadcast", { event: "m" }, ({ payload }) => onMsg(payload));
+  let first = true;
+  const joined = new Promise((resolve) =>
+    c.subscribe((s) => {
+      if (s !== "SUBSCRIBED") return;
+      if (!first) return relayBack(c);
+      first = false;
+      resolve(c);
+    }),
+  );
+  joined.channel = c;
+  return joined;
+}
 // "20%" inside Arabic text: kept left to right (else it shows as "%20")
 const pct = (n) => `\u2066${Math.floor(n)}%\u2069`;
 const hours = (sec) => (sec >= 3600 ? `${Math.round(sec / 360) / 10} س` : sec >= 60 ? `${Math.round(sec / 60)} د` : "—");
@@ -2037,22 +2258,70 @@ async function pairDigits(rawKey, pin) {
   const h = new DataView(await crypto.subtle.digest("SHA-256", all));
   return String(h.getUint32(0) % 10000).padStart(4, "0");
 }
+// pairing: never a spinner with no way out (QA, 2026-10-22: offline, or an old code, it spun for 5 minutes with no button) —
+// «إلغاء» on every screen of it, a phone with no internet is told so, and a PC that never shows the question is said after 20 s
+let pairRun = 0, pairEnd = null;
 async function pairWith(rawKey, pc) {
-  intro("نربط جوالك…", `مع ${pc || "البيسي"}`, true);
+  // a new code scanned while waiting on an old one: the old one is let go of
+  pairEnd?.();
+  const me = ++pairRun;
+  let done = false, joined = null, again = null, late = null;
+  pairEnd = () => end();
+  const end = () => {
+    done = true;
+    clearInterval(again);
+    clearTimeout(late);
+    clearTimeout(cap);
+    removeEventListener("online", onNet);
+    removeEventListener("offline", onNet);
+    if (joined) sb.removeChannel(joined.channel);
+  };
+  // «إلغاء»: back to the phone's own PCs, or the first screen
+  const cancel = {
+    label: "إلغاء",
+    run: () => {
+      end();
+      history.replaceState(null, "", location.pathname);
+      start();
+    },
+  };
+  const joining = () =>
+    navigator.onLine === false
+      ? intro("جوالك مو متصل بالنت", "شغّل الواي فاي أو بيانات الجوال، والربط يكمل لحاله.", true, { alt: cancel })
+      : intro("نربط جوالك…", `مع ${pc || "البيسي"}`, true, { alt: cancel });
+  // (only while joining: the network coming and going changes the words)
+  let inJoin = true;
+  // (the network back: the pairing socket is checked at once — one stuck opening on the old network is started again)
+  const onNet = (e) => {
+    if (done) return;
+    if (e?.type === "online") joined?.channel?.check?.();
+    if (inJoin) joining();
+  };
+  addEventListener("online", onNet);
+  addEventListener("offline", onNet);
+  joining();
+  // the code works 5 minutes on the PC: then it's over, whatever this phone was doing
+  const cap = setTimeout(() => {
+    if (done) return;
+    end();
+    if (pcs().length) (toast("انتهى وقت الربط. اطلب كود جديد من البيسي.", true), start());
+    else intro("انتهى وقت الربط", "الكود يشتغل 5 دقايق بس. اطلب واحد جديد من البيسي.");
+  }, 5 * 60e3);
   const key = await importKey(rawKey);
   const pin = b64u(crypto.getRandomValues(new Uint8Array(18)));
   const code = await pairDigits(rawKey, pin);
-  let done = false;
-  const c = await listen(await channelName(rawKey), async (payload) => {
+  if (done || me !== pairRun) return;
+  joined = listen(await channelName(rawKey), async (payload) => {
     const m = await unseal(key, payload);
     if (!m || done) return;
     if (m.t === "clock") {
       // this phone's clock is off: the hello goes again, stamped by the PC's time
       if (learnClock(m.ts)) return hello();
+      end();
       return intro("ساعة الجوال مو مضبوطة", CLOCK_BAD);
     }
     if (m.t === "welcome") {
-      done = true;
+      end();
       // the same PC paired again replaces its old entry (by the PC's own id: two PCs can have the same
       // name; a PC without one, an older NUKE GG, by its name); a new one is added
       const id = crypto.randomUUID();
@@ -2063,30 +2332,36 @@ async function pairWith(rawKey, pc) {
       localStorage.setItem(CUR, id);
       stopRemote();
       history.replaceState(null, "", location.pathname);
-      sb.removeChannel(c);
       toast("انربط جوالك ✓");
       start();
     } else if (m.t === "no") {
-      done = true;
-      sb.removeChannel(c);
+      end();
       if (pcs().length) (toast("الربط انرفض من البيسي", true), start());
       else intro("ما انربط", "الربط انرفض من البيسي. إذا كنت أنت، اطلب كود جديد وجرّب مرة ثانية.");
     }
-  });
+  }, { light: true });
+  const c = await joined;
+  if (done || me !== pairRun) return;
+  inJoin = false;
   let phoneId = localStorage.getItem("nk-phone-id");
   if (!phoneId) localStorage.setItem("nk-phone-id", (phoneId = crypto.randomUUID()));
   const hello = async () => !done && c.send({ type: "broadcast", event: "m", payload: await seal(key, { t: "hello", phoneId, name: phoneName(), pin }) });
   await hello();
-  intro("وافق من البيسي", "طلع على شاشة البيسي سؤال «جوال يبي يتحكم». تأكد إن الرقم فيه نفس هذا، واضغط «وافق». إذا الرقم غير، اضغط «لا».", true, { code });
-  const again = setInterval(() => (done ? clearInterval(again) : hello()), 3000);
-  setTimeout(() => {
-    if (!done) {
-      clearInterval(again);
-      sb.removeChannel(c);
-      if (pcs().length) (toast("انتهى وقت الربط. اطلب كود جديد من البيسي.", true), start());
-      else intro("انتهى وقت الربط", "الكود يشتغل 5 دقايق بس. اطلب واحد جديد من البيسي.");
-    }
-  }, 5 * 60e3);
+  if (done) return;
+  const ask = `على البيسي طلع: «${phoneName()} يبي يتحكم بالبيسي». إذا الرقم نفسه، اضغط «وافق».`;
+  intro("وافق من البيسي", ask, true, { code, alt: cancel });
+  again = setInterval(() => (done ? clearInterval(again) : hello()), 3000);
+  // the PC says nothing until «وافق», so 20 s of quiet can be the owner still deciding — or a code that's old or already
+  // used: the waiting goes on, with the likely cause and a new code one press away
+  late = setTimeout(() => {
+    if (done) return;
+    intro("وافق من البيسي", ask, true, {
+      code,
+      alt: cancel,
+      scan: "صوّر كود جديد",
+      note: "ما طلع شي على البيسي؟ الكود يمكن قديم أو انستخدم. اطلب كود جديد من البيسي وصوّره.",
+    });
+  }, 20e3);
 }
 
 // ---- the remote ----
@@ -2096,11 +2371,15 @@ const pending = new Map();
 function stopRemote() {
   run++;
   const left = ch ? Promise.resolve(sb.removeChannel(ch)).catch(() => {}) : Promise.resolve();
+  if (joiningCh) Promise.resolve(sb.removeChannel(joiningCh)).catch(() => {});
+  joiningCh = null;
   ch = null;
   key = null;
   lastPong = 0;
   graceUntil = 0;
   expectBy = 0;
+  lostAt = 0;
+  painted = "";
   backAgain = false;
   pushInfo = null;
   prefs = {};
@@ -2110,6 +2389,7 @@ function stopRemote() {
   relayName = null;
   rejoining = null;
   clearTimeout(leaveTimer);
+  clearInterval(comeTimer);
   return left;
 }
 async function start() {
@@ -2119,7 +2399,7 @@ async function start() {
   const s = saved();
   if (!s)
     return iosSafari
-      ? intro(IOS_TITLE, `${IOS_FIRST}\nعلى البيسي: NUKE GG ← «جوالك» ← «جوالك أنت» ← «اربط جوال».`, false, { scan: "أو امسح الكود هنا بسفاري" })
+      ? intro(IOS_TITLE, IOS_WHY, false, { steps: iosSteps(true), scan: "أو صوّر الكود هنا بسفاري" })
       : intro("NUKE GG", `${PAIR_PATH}، وبعدين اضغط الزر تحت وصوّر الكود.`);
   // its key (IndexedDB, or the old way): gone (the phone's storage was cleared) → paired again
   const kk = await keyFor(s);
@@ -2201,7 +2481,7 @@ async function start() {
         backAgain = false;
         refresh();
       }
-      if (!rtc && Date.now() - rtcTry > 20e3) startRtc(me);
+      if (!rtc && document.visibilityState === "visible" && rtcDue()) startRtc(me);
     } else if (m.t === "power") {
       // another phone planned or cancelled it
       showPower(m.power);
@@ -2226,14 +2506,23 @@ async function start() {
     }
   };
   relayName = kk.ch;
-  const c = await listen(relayName, handle);
+  // (the loops and the «back on screen / network back» listeners first: a first join stuck on a dead network is rescued too)
+  startLoops();
+  const joining = listen(relayName, handle);
+  joiningCh = joining.channel;
+  const c = await joining;
+  if (joiningCh === c) joiningCh = null;
   if (me !== run) return sb.removeChannel(c); // switched to another PC meanwhile
   key = k;
   ch = c;
   onPayload = handle;
   // one ping now (the loop below waits its turn: no second one right after)
   lastPing = Date.now();
+  expectBy = 0;
   ping();
+}
+// the page's beat (once, for every PC): asks the PC, notices one that went quiet, and comes back with the screen / the network
+function startLoops() {
   if (loops) return;
   loops = true;
   const tick = () => {
@@ -2243,7 +2532,16 @@ async function start() {
     // asked for nothing). Over the direct link these cost nothing; over the relay a few small messages a minute.
     const shown = document.visibilityState === "visible";
     const every = shown ? (really ? 15e3 : 3e3) : really ? Infinity : 60e3;
-    if (Date.now() - lastPing >= every) {
+    // an ask the PC didn't answer: maybe the PC, maybe this phone's own socket that died without saying so (an iPhone that
+    // just joined Wi-Fi fires no event at all) — the socket is checked, once per unanswered ask
+    if (shown && expectBy && Date.now() > expectBy && checkedFor !== expectBy) {
+      checkedFor = expectBy;
+      checkRelay();
+    }
+    // still joining the relay (the first time, or again after the direct link): a socket stuck opening is started again
+    // (createRelay does it only after 6 s stuck, once per 15 s, without resetting its back-off)
+    if (shown && !ch && joiningCh) checkRelay();
+    if (key && Date.now() - lastPing >= every) {
       lastPing = Date.now();
       ping();
     }
@@ -2251,23 +2549,62 @@ async function start() {
   };
   tick();
   setInterval(tick, 1000);
+  // back on screen, a page brought back from the browser's memory, or the phone's network came back: the socket is checked
+  // at once (a dead one is replaced within ~4 s), the PC asked again, and the direct link tried again on its answer
+  const comeBack = (fresh) => {
+    if (document.visibilityState !== "visible") return;
+    if (fresh && hidOn) graceUntil = Date.now() + 6000;
+    backAgain = true;
+    lastPing = 0;
+    expectBy = 0; // (a wait from before doesn't count: asked fresh now)
+    netChanged();
+    paintPush();
+    tick();
+  };
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      // back on screen: asked again right away, «متصل» stays meanwhile (if it was), and the open tab
-      // fills in quietly when the PC answers; only a PC that doesn't answer in a few seconds shows «نعيد الاتصال…»
-      if (hidOn) graceUntil = Date.now() + 6000;
-      // a phone puts a hidden page to sleep and its direct link with it: started fresh (the relay meanwhile)
+      // «متصل» stays meanwhile (if it was), and the open tab fills in quietly when the PC answers; only a PC that doesn't
+      // answer in a few seconds shows «نعيد الاتصال…». A phone puts a hidden page to sleep and its direct link with it:
+      // started fresh (the relay meanwhile)
       if (Date.now() - hiddenAt > 10e3) closeRtc();
-      backAgain = true;
-      lastPing = 0;
-      expectBy = 0; // (a wait from before the page slept doesn't count: asked fresh now)
-      tick();
+      comeBack(true);
     } else (hidOn = connected()), (hiddenAt = Date.now());
   });
+  addEventListener("pageshow", (e) => e.persisted && comeBack(true));
+  addEventListener("online", () => comeBack(false));
   setInterval(() => document.visibilityState === "visible" && live(), 4000);
   paintPush();
 }
-let loops = false, lastPing = 0, graceUntil = 0, hidOn = false, backAgain = false, hiddenAt = 0;
+let loops = false, lastPing = 0, graceUntil = 0, hidOn = false, backAgain = false, hiddenAt = 0, checkedFor = 0;
+// the relay channel being joined (the first time, or again after the direct link): checked like the joined one — a socket
+// stuck opening on the network it was started on (Wi-Fi → 5G) is started again
+let joiningCh = null;
+// is this phone's relay socket still alive? (a dead one is let go of and a new one opened within ~4 s; createRelay)
+const checkRelay = () => (ch ?? joiningCh)?.check?.();
+// a fresh start for the direct link: a try still opening on the old network is let go of (not counted as a failure), and the
+// next one goes on the PC's next answer
+function rtcAfresh() {
+  if (rtc && !rtc.open) closeRtc();
+  rtcTry = 0;
+  rtcFails = 0;
+}
+// the network may have changed: the socket checked, the direct link tried again from the start on the PC's next answer
+// (joining home Wi-Fi gives «متصل مباشرة» within seconds), and the «PC isn't there» clock starts again (no gold flash)
+function netChanged() {
+  rtcAfresh();
+  lostAt = 0;
+  checkRelay();
+}
+// the relay's socket came back after a drop: the PC asked at once, and the direct link tried on its answer
+function relayBack(c) {
+  if (c !== ch || !key) return;
+  rtcAfresh();
+  lostAt = 0;
+  expectBy = 0;
+  lastPing = Date.now();
+  ping();
+  paint();
+}
 // expectBy: a ping went out and an answer is due by then; none came → «نعيد الاتصال…» at once, whatever lastPong says
 let expectBy = 0;
 const PONG_WAIT = 6000;
@@ -2314,7 +2651,7 @@ function iceEnough(pc, servers, max = 3000) {
     pc.addEventListener("icegatheringstatechange", onState);
   });
 }
-let rtc = null, rtcTry = 0, onPayload = null, relayName = null, rejoining = null, leaveTimer = null;
+let rtc = null, rtcTry = 0, rtcFails = 0, onPayload = null, relayName = null, rejoining = null, leaveTimer = null;
 // while the direct link is open this page lets go of the relay (each open connection counts toward the relay's limit
 // for everyone); it joins again the moment it needs it: the link closed, or something must go over the relay
 function leaveRelay() {
@@ -2329,10 +2666,14 @@ function leaveRelay() {
 function rejoinRelay() {
   clearTimeout(leaveTimer);
   if (ch || !relayName || !onPayload) return Promise.resolve(ch);
+  if (rejoining) return rejoining;
   const me = run;
-  rejoining ??= listen(relayName, onPayload)
+  const joining = listen(relayName, onPayload);
+  joiningCh = joining.channel;
+  rejoining = joining
     .then((c) => {
       rejoining = null;
+      if (joiningCh === c) joiningCh = null;
       if (me !== run || ch) return Promise.resolve(sb.removeChannel(c)).catch(() => {}), ch;
       return (ch = c);
     })
@@ -2354,12 +2695,13 @@ async function rawPiece(fid, i) {
   return got;
 }
 const direct = () => Boolean(rtc?.open && rtc.dc.readyState === "open");
-const sendRelay = async (obj) => {
+// opts: { ttl, sent } for the relay's queue (createRelay: how long it may wait, told when it went)
+const sendRelay = async (obj, opts) => {
   if (!key) return;
   if (!ch) await rejoinRelay();
-  return ch && ch.send({ type: "broadcast", event: "m", payload: await seal(key, obj) });
+  return ch && ch.send({ type: "broadcast", event: "m", payload: await seal(key, obj) }, opts);
 };
-const send = async (obj) => {
+const send = async (obj, opts) => {
   if (direct() && key) {
     try {
       return rtc.dc.send(JSON.stringify(await seal(key, obj)));
@@ -2367,7 +2709,7 @@ const send = async (obj) => {
       closeRtc();
     }
   }
-  return sendRelay(obj);
+  return sendRelay(obj, opts);
 };
 function closeRtc() {
   const r = rtc;
@@ -2391,7 +2733,7 @@ async function startRtc(me) {
   const dc = pc.createDataChannel("nk", { ordered: true });
   dc.binaryType = "arraybuffer";
   const r = (rtc = { pc, dc, me, open: false });
-  dc.onopen = () => rtc === r && ((r.open = true), (r.hbAt = Date.now()), paint(), leaveRelay());
+  dc.onopen = () => rtc === r && ((r.open = true), (r.hbAt = Date.now()), (rtcFails = 0), paint(), leaveRelay());
   dc.onclose = () => rtc === r && closeRtc();
   dc.onmessage = (e) => {
     if (rtc !== r) return;
@@ -2417,7 +2759,7 @@ async function startRtc(me) {
     return closeRtc();
   }
   // not open in 15 s (a network that blocks it): the relay it is, tried again later
-  setTimeout(() => rtc === r && !r.open && closeRtc(), 15e3);
+  setTimeout(() => rtc === r && !r.open && (rtcFails++, closeRtc()), 15e3);
 }
 // a link that died without closing (the PC slept, the app closed, the network changed) is noticed within ~8 s: a
 // tiny "hb" every 3 s while on screen, answered by the PC's link window itself
@@ -2430,50 +2772,101 @@ setInterval(() => {
     closeRtc();
   }
 }, 3000);
-// tried again while the page is on screen and the PC answers: a minute after a failed try
+// tried again while the page is on screen and the PC answers — for as long as it's open (it used to stop after 150 s): 20 s
+// after a failed try, then 30, 45, and once a minute at most (a network that never allows it costs one small offer a minute);
+// a network change, the relay back or the page back on screen start again at once (netChanged / relayBack). Never hidden.
+const rtcDue = () => Date.now() - rtcTry > Math.min(60e3, 20e3 * 1.5 ** rtcFails);
 setInterval(() => {
-  if (!rtc && key && document.visibilityState === "visible" && Date.now() - lastPong < 150e3 && Date.now() - rtcTry > 60e3) startRtc(run);
+  if (!rtc && key && document.visibilityState === "visible" && connected() && rtcDue()) startRtc(run);
 }, 5000);
 const ping = () => {
   expectBy ||= Date.now() + PONG_WAIT;
   return send({ t: "ping" });
 };
+// The header says only what's true (the "never lies" rule): «نعيد الاتصال…» only while the page is really getting the link
+// back — its relay socket re-opening, or the PC asked again and not answering for under 15 s; then «البيسي مو متصل»; a phone
+// with no internet says that. lostAt: since when the PC hasn't answered (this open, or since it last did).
+let lostAt = 0, painted = "";
+function linkState() {
+  if (connected()) return (lostAt = 0), direct() ? "direct" : "on";
+  lostAt ||= Date.now();
+  if (clockBad) return "clock";
+  if (navigator.onLine === false) return "offline";
+  const relayUp = direct() || (ch ? (ch.alive?.() ?? true) : false);
+  if (!relayUp || Date.now() - lostAt < 15e3) return lastPong ? "again" : "first";
+  return "pcoff";
+}
+// the drawn bolt after «متصل مباشرة» (no emoji)
+const BOLT = '<svg class="bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>';
+const LINK_WORDS = {
+  direct: `متصل مباشرة${BOLT}`,
+  on: "متصل",
+  clock: "ساعة جوالك أو البيسي مو مضبوطة",
+  offline: "جوالك مو متصل بالنت",
+  again: "نعيد الاتصال…",
+  first: "نتصل بالبيسي… (لازم NUKE GG يكون مفتوح عليه)",
+  pcoff: "البيسي مو متصل",
+};
+// (drawn only when it changes: nothing is touched every second while nothing happens)
 function paint() {
-  const on = connected();
-  $("dot").className = "dot" + (on ? " on" : "");
-  $("status").textContent = on ? (direct() ? "متصل مباشرة ⚡" : "متصل") : clockBad ? "ساعة جوالك أو البيسي مو مضبوطة" : lastPong ? "نعيد الاتصال…" : "نتصل بالبيسي… (لازم NUKE GG يكون مفتوح عليه)";
+  const s = linkState();
+  if (s === painted) return;
+  painted = s;
+  $("dot").className = "dot" + (s === "direct" || s === "on" ? " on" : s === "pcoff" || s === "offline" ? " off" : "");
+  $("status").className = s === "pcoff" || s === "offline" ? "gold" : "";
+  $("status").innerHTML = LINK_WORDS[s];
 }
 function cmd(action, args, wait = 9000) {
+  // the PC isn't answering (the header already says so in gold) or this phone has no internet: every press answers at once
+  // with the same words instead of spinning 9 s (owner's pick B, 2026-10-22); the PC is asked again meanwhile
+  const state = key ? linkState() : "";
+  if (state === "pcoff" || state === "offline") {
+    suspect();
+    return Promise.resolve({ ok: false, error: state === "offline" ? "PHONE_OFFLINE" : "PC_OFF" });
+  }
   const id = crypto.randomUUID();
   // (no answer over a direct link that didn't say it closed: it's dropped, the next ask goes over the relay — never the
   // same ask twice: it may have been done already)
   const wasDirect = direct();
   return new Promise((resolve) => {
-    const timer = setTimeout(() => {
+    const giveUp = () => {
       pending.delete(id);
       if (wasDirect) closeRtc();
       suspect(); // no answer: is the PC still there?
       resolve({ ok: false, error: "TIMEOUT" });
-    }, wait);
+    };
+    let timer = setTimeout(giveUp, wait);
     pending.set(id, (m) => {
       clearTimeout(timer);
       resolve(m);
     });
-    send({ t: "cmd", id, action, args });
+    // waiting for the relay's socket (a check, a new socket): it may wait almost as long as this ask (`vcam.setup` 3 minutes,
+    // `err.end` 45 s…, at most 60 s); if it goes late, its wait starts again from then (a shutdown that left at 7.9 s and was
+    // done at 9 s is never «البيسي ما رد»)
+    send({ t: "cmd", id, action, args }, { ttl: wait - 2000, sent: () => (clearTimeout(timer), (timer = setTimeout(giveUp, wait))) });
   });
 }
 const ERR = {
   TIMEOUT: "البيسي ما رد. تأكد إن NUKE GG مفتوح عليه.",
-  REMOTE_OFF: "التحكم من الجوال مطفي من إعدادات البيسي.",
+  PC_OFF: "البيسي مو متصل. شغّله وافتح NUKE GG عليه، وأول ما يفتح نرجع لحالنا.",
+  PHONE_OFFLINE: "جوالك مو متصل بالنت. شغّل الواي فاي أو بيانات الجوال.",
+  REMOTE_OFF: "التحكم من الجوال طافي. شغّله من NUKE GG ← «جوالك» بالبيسي.",
   REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE GG على البيسي.",
   REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
   CODE_NEEDED: "هذا يحتاج كود. فتحنا لك شاشة الكود على البيسي، اكتبه هناك.",
-  REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا.",
-  REMOTE_BUSY: "فيه ملفات قاعدة تنرسل. انتظرها تخلص.",
+  REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا. خلّ جوالك على نفس واي فاي البيسي ويصير يوصل لين 4 جيجا.",
+  REMOTE_BUSY: "فيه ملفات قاعد تنرسل. انتظرها تخلص.",
   GAME_ALREADY_RUNNING: "اللعبة شغّالة أصلاً على البيسي.",
-  STEAM_DOWN: "Steam ما فتح على البيسي، واللعبة تحتاجه.",
-  GAME_RUNNING: "سكّر اللعبة أول، وبعدين غيّر المودات.",
-  PLAY_XBOX: "ألعاب Xbox تنفتح من تطبيق Xbox على البيسي.",
+  STEAM_DOWN: "ستيم ما فتح على البيسي، واللعبة تحتاجه.",
+  GAME_RUNNING: "سكّر اللعبة أول وجرّب.",
+  // «العب مع ربعك» (the PC's own words, i18n-extra/friends.ts)
+  ROOM_EMPTY: "ما عندك مودات شغّالة لهاللعبة ترسلها.",
+  ROOM_OFFLINE: "البيسي ما قدر يوصل لخادم الغرف. تأكد من نت البيسي وجرّب مرة ثانية.",
+  ROOM_GONE: "هالكود انتهى أو انسكّرت غرفته. سوّ كود جديد.",
+  ROOM_TOO_BIG: "موداتك وإعداداتها أكبر من اللي ينرسل.",
+  ROOM_FULL: "الغرفة مليانة (16 لاعب).",
+  ROOM_BAD_CODE: "الكود غلط. يبدأ بـ NUKE وبعده 6 حروف وأرقام.",
+  PLAY_XBOX: "ألعاب إكس بوكس تنفتح من تطبيق إكس بوكس على البيسي.",
   REMOTE_GONE: "ما عاد موجود على البيسي. سكّر وافتح القائمة مرة ثانية.",
   SCREEN_NONE: "ما فيه شاشة ثانية أو تلفزيون موصول بالبيسي.",
   BRIGHT_NONE: "شاشتك ما تقبل تغيير السطوع من البيسي.",
@@ -2532,7 +2925,7 @@ function catEmpty(tabEl) {
   if (!note || !cat) return;
   const any = [...tabEl.querySelectorAll(`:scope > [data-cat="${cat}"]`)].some((el) => !el.classList.contains("hidden"));
   const text = tabEl.querySelector(`.cats [data-cat="${cat}"]`)?.dataset.empty || "ما فيه شي هنا الحين.";
-  note.textContent = text;
+  note.innerHTML = `${CAT_ICONS[cat] ? `<span class="ei"><svg viewBox="0 0 24 24">${CAT_ICONS[cat]}</svg></span>` : ""}<span>${esc(text).replace("F12", '<kbd class="key">F12</kbd>')}</span>`;
   note.classList.toggle("hidden", any);
 }
 // each category tile's line icon (the row is a grid of tiles: icon over its name)
@@ -2561,7 +2954,7 @@ document.querySelectorAll(".cats button[data-cat]").forEach((b) => {
 function catBits(btn) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const r = btn.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-  const cols = ["#ef3b2d", "#ff8a1f", "#ffc93c", "#7a1010"];
+  const cols = ["#ffc93c", "#ff8a1f", "#ffe08a", "#8c7677"];
   for (let i = 0; i < 10; i++) {
     const bit = document.createElement("i");
     bit.className = "catbit";
@@ -2598,15 +2991,17 @@ document.querySelectorAll(".tab").forEach((tabEl) => {
 });
 
 // ---- settings groups: how many are on, and a group with nothing in it stays out ----
+// «طافي» / «وحدة من 3 شغّالة» / «2 من 3 شغّالة» / «كلها شغّالة»
+const onOf = (on, all) => (!on ? (all === 1 ? "طافي" : "كلها طافية") : on === all ? (all === 1 ? "شغّال" : "كلها شغّالة") : `${on === 1 ? "وحدة" : on} من ${all} شغّالة`);
 function syncGroups() {
   for (const g of document.querySelectorAll("#tab-set details.grp")) {
     const sws = [...g.querySelectorAll(".sw")].filter((x) => !x.closest(".hidden"));
     const small = g.querySelector("summary small");
-    if (small && sws.length) small.textContent = `${sws.filter((x) => x.classList.contains("on")).length} من ${sws.length} شغّالة`;
+    if (small && sws.length) small.textContent = onOf(sws.filter((x) => x.classList.contains("on")).length, sws.length);
     if (g.id === "grpGames") g.classList.toggle("hidden", $("gameAlerts").classList.contains("hidden"));
   }
   const n = typeof pcs === "function" ? pcs().length : 0;
-  if ($("grpPcsN")) $("grpPcsN").textContent = n ? `${n}` : "";
+  if ($("grpPcsN")) $("grpPcsN").textContent = n ? num(n, W.pc) : "";
 }
 document.getElementById("tab-set").addEventListener("click", () => setTimeout(syncGroups, 400));
 // a setting's whole row flips its switch (the switch alone was 46×28: hard to hit), everywhere — the settings, the camera's
@@ -2648,6 +3043,7 @@ $("refreshBtn").addEventListener("click", async () => {
   const b = $("refreshBtn");
   b.classList.add("busy");
   suspect(); // the PC asked again: no answer within a few seconds → «نعيد الاتصال…» (it used to keep saying «متصل»)
+  netChanged(); // and this phone's own socket checked (a dead one replaced), the direct link tried again
   const started = Date.now();
   try {
     await refresh();
@@ -2685,7 +3081,7 @@ function openPcs() {
   // two PCs with the same name: the computer's own name tells them apart
   const twin = (p) => list.filter((x) => (x.pc || "") === (p.pc || "")).length > 1;
   $("pcList").innerHTML = list
-    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(pcLabel(p))}${(twin(p) || pcLabel(p) !== p.pc) && p.host ? ` <small dir="ltr">${esc(p.host)}</small>` : ""}</span>${p.id === cur?.id ? "<em>الحين</em>" : ""}</button>`)
+    .map((p) => `<button class="pcrow${p.id === cur?.id ? " on" : ""}" data-pc="${esc(p.id)}"><span dir="auto">${esc(pcLabel(p))}${(twin(p) || pcLabel(p) !== p.pc) && p.host ? ` <small dir="ltr">${esc(p.host)}</small>` : ""}</span>${p.id === cur?.id ? "<em>أنت عليه</em>" : ""}</button>`)
     .join("");
   overlayOpen($("pcSheet"), closePcs);
 }
@@ -2708,7 +3104,14 @@ $("pcAdd").addEventListener("click", () => {
 });
 
 // ---- 📤 send anything to the PC: a link opens, text goes to its clipboard, photos/files are saved ----
-const isLink = (t) => /^https?:\/\/\S+$/i.test(t.trim());
+// a link → its address (https:// added to «www.site.com» / «youtube.com/…» typed without it — a child types it that way, QA
+// L6), else null; only well-known endings count, so «notes.txt» stays words
+const asLink = (t) => {
+  t = String(t ?? "").trim();
+  if (/^https?:\/\/\S+$/i.test(t)) return t;
+  return /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)*\.(com|net|org|io|gg|tv|me|co|app|dev|edu|gov|info|sa|ae|kw|qa|bh|om|eg|jo|uk|us)(\/\S*)?$/i.test(t) ? `https://${t}` : null;
+};
+const isLink = (t) => Boolean(asLink(t));
 function paintSend() {
   const t = $("sendIn").value.trim();
   $("sendGo").disabled = !t;
@@ -2724,13 +3127,13 @@ $("sendGo").addEventListener("click", async () => {
   buzz();
   const link = isLink(t);
   const done = working($("sendGo"), link ? "نفتحه…" : "نرسله…");
-  const r = link ? await cmd("link.open", { url: t }) : await cmd("clip.set", { text: t });
+  const r = link ? await cmd("link.open", { url: asLink(t) }) : await cmd("clip.set", { text: t });
   done();
   paintSend();
   if (!r.ok) return r.error === "REMOTE_BAD_LINK" ? toast("هذا الرابط ما ينفتح", true) : fail(r);
   $("sendIn").value = "";
   paintSend();
-  toast(link ? "فتحناه بمتصفح البيسي ✓" : "انحط بحافظة البيسي ✓ الصقه بـ Ctrl+V");
+  toast(link ? "فتحناه بمتصفح البيسي ✓" : "انحط بالبيسي ✓ الصقه هناك");
 });
 $("sendPaste").addEventListener("click", async () => {
   try {
@@ -2772,13 +3175,13 @@ function paintSending(name, pct, done = null) {
   $("sendPct").textContent = `${Math.round(pct * 100)}%`;
   $("sendBar").style.width = `${pct * 100}%`;
   const left = queue.length ? `وبعده ${num(queue.length, ["ملف", "ملفين", "ملفات", "ملف"])}` : "";
-  let speed = sendSpeed?.mbps ? `${sendSpeed.mbps.toFixed(1)} ميقا بالثانية` : "";
+  let speed = sendSpeed?.mbps ? `${sendSpeed.mbps.toFixed(1)} ميجا بالثانية` : "";
   if (done != null) {
     const now = performance.now();
     // (what has left the phone wobbles a little with the link's queue: only a new file starts the measure again)
     if (!sendSpeed) sendSpeed = { t: now, bytes: done, mbps: null };
     else if (now - sendSpeed.t > 700 && done > sendSpeed.bytes) sendSpeed = { t: now, bytes: done, mbps: (done - sendSpeed.bytes) / 1048576 / ((now - sendSpeed.t) / 1000) };
-    if (sendSpeed.mbps) speed = `${sendSpeed.mbps.toFixed(1)} ميقا بالثانية`;
+    if (sendSpeed.mbps) speed = `${sendSpeed.mbps.toFixed(1)} ميجا بالثانية`;
   }
   $("sendMore").textContent = [speed, sendWay ? KIND_SHORT[sendWay] : "", left].filter(Boolean).join(" · ");
 }
@@ -2831,7 +3234,7 @@ async function sendRaw(file, tag, piece, list, onSent) {
 async function sendFile(file) {
   if (sendStopped) return false;
   if (file.size > (direct() ? MAX_DIRECT : MAX_RELAY)) {
-    toast(direct() ? `${file.name} أكبر من 4 جيجا` : `${file.name} أكبر من 50 ميجا. يحتاج «متصل مباشرة ⚡»: افتح الصفحة وانت على نفس واي فاي البيسي`, true);
+    toast(direct() ? `${file.name} أكبر من 4 جيجا` : `${file.name} أكبر من 50 ميجا. يحتاج «متصل مباشرة»: افتح الصفحة وأنت على نفس واي فاي البيسي`, true);
     return true;
   }
   sendSpeed = null;
@@ -2948,7 +3351,7 @@ function showClip(i) {
   const t = clipAll[i]?.text ?? "";
   $("clipText").textContent = t;
   $("clipOpen").classList.toggle("hidden", !isLink(t));
-  if (isLink(t)) $("clipOpen").href = t.trim();
+  if (isLink(t)) $("clipOpen").href = asLink(t);
   const more = clipAll.length > 1;
   $("clipMore").classList.toggle("hidden", !more);
   if (more)
@@ -3017,7 +3420,10 @@ $("apps").addEventListener("click", (e) => {
   if (b) tapApp(b, b.textContent.trim());
 });
 
-// "كل البرامج": search, tap to open, ☆ to keep it under «برامجك»
+// "كل البرامج": search, tap to open, the star to keep it under «برامجك»
+// a drawn ✕ (a step's or a game's «شيل»)
+const XICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const STAR = '<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
 const appsSeen = new IntersectionObserver(
   (es) => {
     const ids = es.filter((e) => e.isIntersecting).map((e) => (appsSeen.unobserve(e.target), e.target.dataset.icon)).filter((id) => !appIcons.has(id));
@@ -3039,13 +3445,15 @@ function paintAllApps() {
     ? list
         .map(
           (a) =>
-            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span>${openIds.has(`a:${a.id}`) ? (bgIds.has(`a:${a.id}`) ? '<span class="live bg">● بالخلفية</span>' : '<span class="live">● مفتوح</span>') : ""}</button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${pinned.has(a.id) ? "★" : "☆"}</button></div>`,
+            `<div class="arow"><button class="go" data-run="${esc(a.id)}">${appIcons.has(a.id) ? appIcon({ ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(a.name.trim().charAt(0))}</span>`}<span class="n" dir="auto">${esc(a.name)}</span>${openIds.has(`a:${a.id}`) ? (bgIds.has(`a:${a.id}`) ? '<span class="live bg">● بالخلفية</span>' : '<span class="live">● مفتوح</span>') : ""}</button><button class="star${pinned.has(a.id) ? " on" : ""}" data-pin="${esc(a.id)}" aria-label="ثبّته فوق">${STAR}</button></div>`,
         )
         .join("")
     : `<p class="muted">ما فيه برنامج بهالاسم على البيسي.</p>`;
   $("appsList").querySelectorAll("[data-icon]").forEach((el) => appsSeen.observe(el));
 }
 const closeAllApps = (fromBack = false) => overlayDone($("appsSheet"), fromBack);
+// an empty «برامجك»: its button opens the same list
+$("appsPick").addEventListener("click", () => $("appsAllBtn").click());
 $("appsAllBtn").addEventListener("click", async () => {
   buzz(8);
   overlayOpen($("appsSheet"), closeAllApps);
@@ -3073,7 +3481,6 @@ $("appsSheet").addEventListener("click", (e) => {
     const on = !list.includes(id);
     localStorage.setItem(pinKey(), JSON.stringify(on ? [...list, id] : list.filter((x) => x !== id)));
     star.classList.toggle("on", on);
-    star.textContent = on ? "★" : "☆";
     paintApps();
     return toast(on ? "ثبّتناه تحت «برامجك» ✓" : "شلناه من «برامجك»");
   }
@@ -3348,12 +3755,16 @@ for (const [id, kind, said] of [
       return fail(r);
     }
     paintAlerts(r.data);
-    toast(on ? said : "شلنا التنبيه");
+    toast(on ? onPhone(said) : "شلنا التنبيه");
   });
 
+// "3 ساعات" / «أقل من ساعة»
+const hoursWord = (h) => (h >= 1 ? num(Math.round(h), W.hour) : "أقل من ساعة");
 // ---- 🌙 play time: a reminder after a long session, and games closed at bedtime ----
 let limit = null;
-const clock = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { hour: "numeric", minute: "2-digit" }).format(t);
+// (to the nearest minute: a time the PC worked out from "in N seconds" lands a moment before the minute picked — 9:39:59 for
+// 9:40 — and used to show a minute early, QA L2)
+const clock = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { hour: "numeric", minute: "2-digit" }).format(Math.round(t / 60e3) * 60e3);
 // "23:30" → that moment today, and how far away it is (a time already gone today is tomorrow)
 const atToday = (hm) => {
   const [h, m] = String(hm).split(":").map(Number);
@@ -3472,6 +3883,7 @@ function paintWeek(w, stale = false) {
   if (!w) return;
   $("wHours").textContent = hours(w.total);
   $("wStreak").textContent = w.streak || "0";
+  $("wStreakW").textContent = `${unitOf(w.streak, W.day)} ورا بعض`;
   $("wLevel").textContent = w.level;
 }
 function paintNow() {
@@ -3514,7 +3926,7 @@ function paintGames() {
 $("gSearch").addEventListener("input", paintGames);
 // closing a game: asked first (anything not saved in it is lost), then what really happened
 async function closeGame(key, b) {
-  if (!key || !confirm("نسكّر اللعبة على البيسي؟ أي شي مو محفوظ ممكن يروح.")) return;
+  if (!key || !(await ask("نسكّر اللعبة؟", "اللي مو محفوظ فيها يروح.", "سكّرها"))) return;
   buzz();
   const done = working(b, "نسكّرها…");
   const r = await cmd("games.close", { key });
@@ -3589,9 +4001,9 @@ function paintStatus(s, staleAt = null) {
   let html =
     tile("المعالج", s.cpu != null ? perc(s.cpu) : "…", "", spark(h.t, h.cpu, 100)) +
     tile("الرام", ram != null ? perc(ram) : "—", s.ram ? `${size(s.ram.used)} من ${size(s.ram.total)}` : "", spark(h.t, h.ram, 100)) +
-    tile("كرت الشاشة", s.gpu ? perc(s.gpu.use) : "—", s.gpu ? (s.gpu.temp ? `الحرارة ${s.gpu.temp}°` : "") : "تفاصيله لكروت NVIDIA بس", spark(h.t, h.gpu, 100)) +
+    tile("كرت الشاشة", s.gpu ? perc(s.gpu.use) : "—", s.gpu ? (s.gpu.temp ? `الحرارة ${s.gpu.temp}°` : "") : "تفاصيله لكروت إنفيديا بس", spark(h.t, h.gpu, 100)) +
     (net ? tile("النت (التنزيل)", speed(net.down), [net.up != null ? `الرفع ${speed(net.up)}` : "", net.ping != null ? `البنق ${ltr(`${net.ping} ms`)}` : "ما وصلنا للنت"].filter(Boolean).join("، "), spark(h.t, h.down)) : tile("الهارديسك", s.disk ? `باقي ${gb(s.disk.free)}` : "—", "", ""));
-  for (const p of s.pads ?? []) html += tile(p.kind === "ds5" ? "يد بلايستيشن ٥" : "يد بلايستيشن ٤", perc(p.battery), [p.charging ? "تشحن" : "", p.conn === "bt" ? "بلوتوث" : "بالكيبل", p.hz ? `${ltr(`${p.hz}`)} مرة بالثانية` : ""].filter(Boolean).join("، "), "", true);
+  for (const p of s.pads ?? []) html += tile(p.kind === "ds5" ? "يد بلايستيشن 5" : "يد بلايستيشن 4", perc(p.battery), [p.charging ? "تشحن" : "", p.conn === "bt" ? "بلوتوث" : "بالكيبل", p.hz ? `${ltr(`${p.hz}`)} مرة بالثانية` : ""].filter(Boolean).join("، "), "", true);
   if (s.battery) html += tile("البطارية", perc(s.battery.percent), s.battery.charging ? "يشحن" : s.battery.plugged ? "على الشاحن" : s.battery.minutesLeft ? `باقي ${span(s.battery.minutesLeft * 60)}` : "", "", true);
   $("stats").innerHTML = html;
   $("stats").classList.toggle("stale", Boolean(staleAt));
@@ -3663,7 +4075,7 @@ async function closeFlow(action, args, name) {
   // (only that program's own file is closed: another one with the same name stays open)
   if (r.data && r.data.count === 0) return toast(`ما لقينا ${name} مفتوح على البيسي`), true;
   if (r.data && r.data.closed === false) {
-    if (!confirm(`${name} فاتح نافذة على البيسي (يمكن يسألك تحفظ شي). نسكّره غصب؟ اللي مو محفوظ فيه يروح.`)) return toast("خلّيناه مفتوح"), false;
+    if (!(await ask(`نسكّر ${name} غصب؟`, "فاتح نافذة، يمكن فيه شي مو محفوظ.", "سكّره"))) return toast("خلّيناه مفتوح"), false;
     r = await cmd(action, { ...args, force: true });
     if (!r.ok) return fail(r), false;
     if (r.data && r.data.closed === false) return toast(`${name} ما رضى يتسكّر`, true), false;
@@ -3808,13 +4220,14 @@ function paintBill(b, stale = false) {
     if (bulbDays >= 2) fun.push(`<div><span>أو لمبة غرفتك شغّالة</span><b>${num(bulbDays, W.day)}</b></div>`);
     paper.innerHTML =
       `<div class="ph"><img src="remote-icon.png" alt="" /><div><b>فاتورة كهرباء بيسيك</b><small>${monthName(b.month)}${b.demo ? " · أرقام تجربة" : ""}</small></div></div>` +
-      `<div class="meta"><span>رقم العداد</span><b dir="ltr">${esc(b.pc ?? "")}</b><span>الفترة</span><b>${period}</b><span>شغّال</span><b>${num(b.hours, W.hour)}، لعبت منها ${num(Math.round(b.gameHours), W.hour)}</b></div>` +
+      `<div class="meta"><span>رقم العداد</span><b dir="ltr">${esc(b.pc ?? "")}</b><span>الفترة</span><b>${period}</b><span>شغّال</span><b>${hoursWord(b.hours)}، لعبت منها ${b.gameHours >= 1 ? num(Math.round(b.gameHours), W.hour) : b.gameHours > 0 ? "أقل من ساعة" : "ولا شي"}</b></div>` +
       `<hr />` +
       b.lines.map((l) => billLine(l, p)).join("") +
       `<hr class="dbl" />` +
       `<div class="tot"><span class="k">المجموع<small><span class="nb">${kwhOf(b.wh)}</span> كيلوواط</small></span><span class="v">${money(b.cost, p, true)}</span></div>${stamp}` +
       (b.guess != null ? `<p class="guess">لو كمّلت كذا، آخر الشهر تقريباً ${money(b.guess, p)}</p>` : "") +
-      `<hr /><div class="label">${label}</div><p>${gradeSay}</p>` +
+      // (graded only after an hour of data: six minutes in, a grade G said «100% راحت وهو شغّال» — QA L11)
+      (b.hours >= 1 ? `<hr /><div class="label">${label}</div><p>${gradeSay}</p>` : `<hr /><p>نعطيك تقييم بيسيك بعد ساعة تشغيل.</p>`) +
       (fun.length ? `<hr /><div class="fun">${fun.join("")}</div>` : "") +
       `<div class="code" style="background:${stripes(b.month + (b.pc ?? ""))}"></div><p class="bye">شكراً لأنك تلعب مع نيوك</p>`;
   }
@@ -4108,12 +4521,6 @@ function showPower(p, { stale = false } = {}) {
   paintPlan();
   paintOff();
 }
-// "1:20:05" / "4:09"
-const hms = (sec) => {
-  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
-  const two = (n) => String(n).padStart(2, "0");
-  return h ? `${h}:${two(m)}:${two(s)}` : `${m}:${two(s)}`;
-};
 function paintPlan() {
   const left = plan ? Math.round((plan.end - Date.now()) / 1000) : 0;
   if (!plan || left <= 0) {
@@ -4127,13 +4534,13 @@ function paintPlan() {
   }
   $("banner").classList.add("show");
   const what = plan.kind === "restart" ? "بيعيد التشغيل" : "بيطفي";
-  if (left < 60) {
-    $("bannerText").textContent = `البيسي ${what} بعد ${num(left, W.sec)}`;
-    $("bannerLeft").textContent = "";
-  } else {
-    $("bannerText").textContent = `البيسي ${what} الساعة ${clock(plan.end)}`;
-    $("bannerLeft").textContent = `باقي ${ltr(hms(left))}`;
-  }
+  // in minutes («باقي ساعة ودقيقتين»), the seconds only in the last minute (owner's yes, 2026-10-22: nothing ticking every second
+  // while you do nothing); written only when the words change
+  const [text, small] = left < 60 ? [`البيسي ${what} بعد ${num(left, W.sec)}`, ""] : [`البيسي ${what} الساعة ${clock(plan.end)}`, `باقي ${span(left)}`];
+  if ($("bannerText").textContent !== text) $("bannerText").textContent = text;
+  if ($("bannerLeft").textContent !== small) $("bannerLeft").textContent = small;
+  const cancel = plan.kind === "restart" ? "ألغِ إعادة التشغيل" : "ألغِ الإطفاء";
+  if (!$("cancelBtn").classList.contains("busy") && $("cancelBtn").textContent !== cancel) $("cancelBtn").textContent = cancel;
 }
 async function cancelPower(b) {
   buzz();
@@ -4153,6 +4560,7 @@ $("timerCancel").addEventListener("click", () => cancelPower($("timerCancel")));
 function paintOff() {
   const t = $("offTime").value;
   $("offGo").disabled = !t;
+  $("timerCancel").classList.toggle("hidden", !plan);
   // (only a preview: nothing happens until the button is pressed — owner: "هل يعني البيسي بيطفى؟")
   const after = t ? span(Math.round((nextAt(t) - Date.now()) / 1000)) : "";
   $("offNote").textContent = !t ? "" : plan ? `لو ضغطت الزر، يتغيّر الوقت: البيسي يطفي بعد ${after}` : `لو ضغطت الزر، البيسي يطفي بعد ${after}`;
@@ -4186,7 +4594,7 @@ $("offGo").addEventListener("click", async () => {
   paintOff();
   if (!r.ok) return fail(r);
   showPower(r.data?.power ?? { kind: "shutdown", left: sec * 1000, timer: true });
-  toast(`${had ? "غيّرنا الوقت: " : ""}البيسي بيطفي الساعة ${clock(plan?.end ?? nextAt(t))} 😴`);
+  toast(`${had ? "غيّرنا الوقت: " : ""}البيسي بيطفي الساعة ${clock(plan?.end ?? nextAt(t))}`);
 });
 
 // ---- ⚙️ settings ----
@@ -4201,6 +4609,9 @@ function paintPrefs(p) {
 // el: what was tapped (it pulses until the PC says yes)
 async function setPrefs(next, done, el) {
   buzz();
+  // (the PC isn't there: said at once, like every press)
+  const st = linkState();
+  if (st === "pcoff" || st === "offline") return suspect(), toast(ERR[st === "offline" ? "PHONE_OFFLINE" : "PC_OFF"], true);
   const before = { unlock: false, heat: true, heatAt: 85, ram: true, disk: true, restart: true, battery: true, ...prefs };
   const want = { ...before, ...next };
   paintPrefs(want);
@@ -4217,7 +4628,8 @@ async function setPrefs(next, done, el) {
     return toast(ERR.TIMEOUT, true);
   }
   paintPrefs((prefs = r.data ?? want));
-  toast(done(prefs));
+  const said = done(prefs);
+  toast(/^بننبهك/.test(said) ? onPhone(said) : said);
 }
 $("unlockSw").addEventListener("click", () => setPrefs({ unlock: !$("unlockSw").classList.contains("on") }, (p) => (p.unlock ? "بننبهك إذا انفتح البيسي 🔓" : "شلنا التنبيه"), $("unlockSw")));
 $("heatSw").addEventListener("click", () => setPrefs({ heat: !$("heatSw").classList.contains("on") }, (p) => (p.heat ? `بننبهك إذا كرت الشاشة وصل ${p.heatAt}° 🔥` : "شلنا تنبيه الحرارة"), $("heatSw")));
@@ -4271,14 +4683,14 @@ async function sayBye(entry) {
       }
       // the PC is back ("I'm here"), or asked for the right time: said again now
       sendBye(b);
-    });
+    }, { light: true });
   }
   if (b.c) await sendBye(b);
 }
 const sendBye = async (b) => b.c?.send({ type: "broadcast", event: "m", payload: await seal(b.key, { t: "bye" }, b.off) });
 const pendingByes = () => byes().forEach((b) => sayBye(b).catch(() => {}));
 $("byeBtn").addEventListener("click", async () => {
-  if (!confirm("نفصل هالجوال عن البيسي؟")) return;
+  if (!(await ask(`نفصل جوالك عن ${pcLabel(saved() ?? {})}؟`, "تقدر تربطه مرة ثانية بالكود.", "افصله"))) return;
   const s = saved();
   if (!s) return;
   // (its key stays — under its id, or the old raw one — only until that PC heard it)
@@ -4303,11 +4715,27 @@ function paintPush() {
     $("pushHint").textContent = isIos && !standalone ? "عشان توصلك التنبيهات على الآيفون: اضغط زر المشاركة ← «إضافة إلى الشاشة الرئيسية»، وافتحها من هناك." : "متصفحك ما يدعم التنبيهات.";
     return;
   }
+  // «لا تسمح» once: the phone answers no forever without asking, so the button can't help — the way to allow it instead
+  // (QA M6); checked again whenever the page comes back (the player may have just allowed it)
+  const denied = Notification.permission === "denied";
+  btn.classList.toggle("hidden", denied);
+  if (denied) {
+    $("pushHint").textContent = isIos
+      ? "التنبيهات مقفلة لهالصفحة. افتحها من إعدادات الآيفون ← الإشعارات ← NUKE GG ← اسمح بالإشعارات."
+      : "التنبيهات مقفلة لهالصفحة. اضغط القفل جنب العنوان فوق ← الأذونات ← الإشعارات ← اسمح (ولو هي على شاشتك الرئيسية: اضغط مطوّل على أيقونتها ← معلومات التطبيق ← الإشعارات).";
+    return;
+  }
+  $("pushHint").textContent = PUSH_HINT;
   if (Notification.permission === "granted" && localStorage.getItem("nk-push")) {
     btn.innerHTML = `${TICK}التنبيهات شغّالة`;
     btn.classList.add("ghost");
   }
 }
+const PUSH_HINT = "يوصلك على جوالك: انثبّت المود، اللعبة خلصت تنزيل، تحديث للعبة عندك، لعبة صارت مجانية، نزل سعر لعبة، وتنبيهات البيسي اللي تختارها تحت.";
+// notifications on for this phone (asked and allowed, and given to the PC)
+const pushOn = () => window.Notification?.permission === "granted" && Boolean(localStorage.getItem("nk-push"));
+// "we'll tell you": true only with notifications on — else it says how to turn them on (never a promise that won't come)
+const onPhone = (t) => (pushOn() ? t : `${plain(t)}. بس فعّل التنبيهات من «الإعدادات» عشان توصل جوالك`);
 // the phone signs up once with its own keys (ECDSA P-256) and gives them to each of its PCs,
 // so every PC can reach the same subscription
 async function phoneVapid() {
@@ -4366,7 +4794,9 @@ $("pushBtn").addEventListener("click", async () => {
   // at once: the button says it's on it (the phone asks, then the PC has to answer)
   const done = working($("pushBtn"), "نفعّلها…");
   try {
-    if ((await Notification.requestPermission()) !== "granted") return toast("ما سمحت بالتنبيهات", true);
+    const asked = await Notification.requestPermission();
+    if (asked === "denied") return paintPush(), toast("انقفلت التنبيهات. مكتوب تحت كيف تفتحها.", true);
+    if (asked !== "granted") return toast("ما سمحت بالتنبيهات", true);
     const s = await subscription();
     if (!(await registerPush(s))) return toast(ERR.TIMEOUT, true);
     pushInfo = { endpoint: s.sub.endpoint, multi: pcs().length > 1 };
@@ -4674,7 +5104,22 @@ function filesUp() {
 const fRootOf = (f) => f.root ?? fRoot;
 const fPathOf = (f) => [...(f.at ?? fPath), f.name];
 const fThumbs = new Map();
-const gotFiles = new Map(); // key → File
+// key → File: what came from the PC, kept in the phone's memory until «احفظه». An iPhone holds it all in memory, so at most 8
+// and 1.2 GB together (the oldest go first), and a big one (over 20 MB) is let go of once it was saved (QA M5: eight big videos
+// and iOS reloads the page, dropping the link)
+const gotFiles = new Map();
+const GOT_MAX = 1.2 * 1024 * 1024 * 1024;
+function keepGot(key, file) {
+  gotFiles.set(key, file);
+  let total = 0;
+  for (const v of gotFiles.values()) total += v.size;
+  for (const [k, v] of gotFiles) {
+    if (gotFiles.size <= 8 && total <= GOT_MAX) break;
+    if (k === key) continue;
+    gotFiles.delete(k);
+    total -= v.size;
+  }
+}
 const fKeyOf = (f) => `${fRootOf(f)}/${fPathOf(f).join("/")}`;
 const fileWhen = (t) => new Intl.DateTimeFormat("ar-u-nu-latn", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }).format(t);
 function openFiles(root) {
@@ -4710,7 +5155,7 @@ async function findFiles() {
   $("filesList").innerHTML = '<p class="muted">ندوّر…</p>';
   const r = await cmd("files.search", { q }, 20000);
   if (seq !== fFindSeq || fFind !== q) return;
-  if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || ERR.REMOTE_FAILED)}</p>`);
+  if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || r.text || ERR.REMOTE_FAILED)}</p>`);
   fItems = r.data.items ?? [];
   if (!fItems.length) return ($("filesList").innerHTML = `<p class="muted">ما لقينا ملف اسمه فيه «${esc(q)}». جرّب كلمة ثانية من الاسم.</p>`);
   paintFileRows(r.data.more ? '<p class="muted">فيه أكثر… اكتب كلمة زيادة من الاسم.</p>' : "");
@@ -4734,7 +5179,7 @@ async function loadFiles() {
   $("filesCrumbs").innerHTML = [ROOT_NAME[fRoot], ...fPath].map((p, i, a) => (i === a.length - 1 ? `<b dir="auto">${esc(p)}</b>` : `<span dir="auto">${esc(p)}</span>`)).join(" ‹ ");
   $("filesList").innerHTML = '<p class="muted">نجيب الملفات…</p>';
   const r = await cmd("files.list", { root: fRoot, path: fPath.join("/") });
-  if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || ERR.REMOTE_FAILED)}</p>`);
+  if (!r.ok) return ($("filesList").innerHTML = `<p class="muted">${esc(ERR[r.error] || r.text || ERR.REMOTE_FAILED)}</p>`);
   fItems = r.data.items ?? [];
   if (!fItems.length) return ($("filesList").innerHTML = '<p class="muted">المجلد فاضي.</p>');
   paintFileRows(r.data.more ? `<p class="muted">وفيه ${r.data.more} غيرها… الأحدث فوق.</p>` : "");
@@ -4787,11 +5232,15 @@ $("filesList").addEventListener("click", async (e) => {
     return loadFiles();
   }
   if (f.big || f.size > takeLimit()) {
-    if (!direct() && f.size <= 4 * 1024 * MB) return toast(`الملف ${sizeWord(f.size)}. الكبيرة تحتاج «متصل مباشرة ⚡» فوق: يصير أغلب الوقت بروحه، وأسرع شي على نفس واي فاي البيسي`, true);
+    if (!direct() && f.size <= 4 * 1024 * MB) return toast(`الملف ${sizeWord(f.size)}. الكبيرة تحتاج «متصل مباشرة» فوق: يصير أغلب الوقت بروحه، وأسرع شي على نفس واي فاي البيسي`, true);
     return toast(`الملف أكبر من ${sizeWord(takeLimit())}، ما يمديه يوصل الجوال`, true);
   }
   const key = fKeyOf(f);
-  if (gotFiles.has(key)) return saveFile(gotFiles.get(key));
+  if (gotFiles.has(key)) {
+    const got = gotFiles.get(key);
+    if ((await saveFile(got)) && got.size > 20 * MB) (gotFiles.delete(key), b.querySelector(".save")?.remove());
+    return;
+  }
   if (b.dataset.busy) return;
   b.dataset.busy = "1";
   const small = b.querySelector("small");
@@ -4803,8 +5252,7 @@ $("filesList").addEventListener("click", async (e) => {
   if (!file) return;
   // (a big one went straight into the phone's Downloads)
   if (file.streamed) return toast(`انحفظ «${file.name}» بتنزيلات جوالك ✓`);
-  gotFiles.set(key, file);
-  if (gotFiles.size > 8) gotFiles.delete(gotFiles.keys().next().value);
+  keepGot(key, file);
   b.insertAdjacentHTML("beforeend", '<span class="save">احفظه</span>');
   toast("وصل ✓ اضغط «احفظه»");
 });
@@ -4889,14 +5337,16 @@ async function takeFile(f, onProgress) {
   }
   return new File(chunks, name, { type });
 }
+// → true once it was handed over (shared / downloading); false when the player closed the share sheet
 async function saveFile(file) {
   buzz();
   // the phone's own share sheet ("حفظ في الملفات" / "حفظ الصورة" are in it); else a plain download
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      return await navigator.share({ files: [file] });
+      await navigator.share({ files: [file] });
+      return true;
     } catch {
-      return;
+      return false;
     }
   }
   const a = document.createElement("a");
@@ -4904,6 +5354,7 @@ async function saveFile(file) {
   a.download = file.name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 60e3);
+  return true;
 }
 document.querySelectorAll("[data-root]").forEach((b) => b.addEventListener("click", () => (buzz(8), openFiles(b.dataset.root))));
 $("filesBack").addEventListener("click", () => (buzz(8), filesUp() || closeFiles()));
@@ -4978,7 +5429,7 @@ function stepWordRaw(s) {
     case "closegames": return "✋ سكّر الألعاب المفتوحة";
     case "screen": return MODE_WORD[s.mode] || "🖥️ الشاشات";
     case "bright": return `☀️ السطوع ${ltr(`${s.level}%`)}`;
-    case "off": return `⏻ طفّ البيسي بعد ${num(s.minutes, W.min)}`;
+    case "off": return `طفّ البيسي بعد ${num(s.minutes, W.min)}`;
     case "sleep": return "💤 نوّم البيسي";
     case "media": return "⏯️ شغّل / وقّف الأغنية";
     default: return s.t;
@@ -5030,7 +5481,7 @@ $("deck").addEventListener("click", async (e) => {
   const bad = (r.data?.steps ?? []).filter((s) => !s.ok).length;
   b.classList.add("ran");
   setTimeout(() => b.classList.remove("ran"), 1500);
-  toast(bad ? `«${sc?.name}» اشتغل، بس ${num(bad, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])} ما زبطت` : `«${sc?.name}» ✓`, Boolean(bad));
+  toast(bad ? `«${sc?.name}» اشتغل، بس ${num(bad, ["خطوة وحدة", "خطوتين", "خطوات", "خطوة"])} ما زبطت` : `شغّلنا «${sc?.name}» ✓`, Boolean(bad));
 });
 $("deckEdit").addEventListener("click", () => (buzz(8), openDeck("list")));
 const closeDeck = (fromBack = false) => overlayDone($("deckSheet"), fromBack);
@@ -5064,7 +5515,7 @@ function paintEditor() {
     <input id="edName" class="search" maxlength="30" dir="auto" placeholder="اسم الزر (مثلاً: وضع اللعب)" value="${esc(editing.name || "")}" />
     <div class="emojis">${EMOJIS.map((e) => `<button data-emo="${e}" class="${e === editing.emoji ? "on" : ""}" aria-label="شكل الزر">${sceneIcon(e)}</button>`).join("")}</div>
     <p class="sub">لما تضغطه يسوي هذي بالترتيب:</p>
-    <div class="steps">${editing.steps.length ? editing.steps.map((s, i) => `<div class="stp"><b>${i + 1}</b><span dir="auto">${esc(stepWord(s))}</span><button data-rm="${i}" aria-label="شيل">×</button></div>`).join("") : '<p class="muted">ما فيه خطوات للحين. أضف تحت.</p>'}</div>
+    <div class="steps">${editing.steps.length ? editing.steps.map((s, i) => `<div class="stp"><b>${i + 1}</b><span dir="auto">${esc(stepWord(s))}</span><button data-rm="${i}" aria-label="شيل">${XICON}</button></div>`).join("") : '<p class="muted">ما فيه خطوات للحين. أضف تحت.</p>'}</div>
     <div class="addstep">
       <select id="stepKind" class="search"><option value="">+ أضف خطوة…</option><option value="out">الصوت يطلع من…</option><option value="vol">مستوى الصوت</option><option value="mic">المايك</option><option value="game">شغّل لعبة</option><option value="app">افتح برنامج</option><option value="closegames">سكّر الألعاب المفتوحة</option><option value="screen">الشاشات</option><option value="bright">السطوع</option><option value="off">طفّ البيسي بعد…</option><option value="sleep">نوّم البيسي</option><option value="media">شغّل / وقّف الأغنية</option></select>
       <div id="stepVal"></div>
@@ -5157,7 +5608,7 @@ $("deckBody").addEventListener("click", async (e) => {
     return saveDeck(list, `حفظنا «${editing.name}» ✓`, t.closest("#edSave"));
   }
   if (t.closest("#edDel")) {
-    if (!confirm(`نحذف زر «${editing.name}»؟`)) return;
+    if (!(await ask(`نحذف زر «${editing.name}»؟`, "", "احذفه"))) return;
     return saveDeck(deckList.filter((b) => b.id !== editing.id), "حذفناه", t.closest("#edDel"));
   }
 });
@@ -5201,7 +5652,7 @@ async function talkStart(e) {
   recAt = Date.now();
   buzz(20);
   $("talkBtn").classList.add("rec");
-  const tick = () => talkSay(`نسجّل… ${Math.floor((Date.now() - recAt) / 1000)} ث · اتركه عشان يوصل`, true);
+  const tick = () => talkSay(`نسجّل… ${num(Math.floor((Date.now() - recAt) / 1000), W.sec)} · اتركه عشان يوصل`, true);
   tick();
   recTimer = setInterval(() => (Date.now() - recAt > 60e3 ? talkStop() : tick()), 250);
 }
@@ -5320,7 +5771,7 @@ async function loadFriends() {
   if (chip?.classList.contains("hidden") && $("tab-games").dataset.cat === "friends") pickCat($("tab-games"), "mine");
   if (!r.ok) return;
   $("frList").innerHTML = r.data
-    .map((g) => `<div class="pcrow" style="display:flex;align-items:center;gap:10px;padding:8px 2px"><b style="flex:1" dir="auto">${esc(g.name)}</b><small style="color:var(--dim)">${g.count} مود</small><button class="chip" data-fr="${esc(g.domain)}">${g.code ? "الكود" : "سوّ كود"}</button></div>`)
+    .map((g) => `<div class="pcrow" style="display:flex;align-items:center;gap:10px;padding:8px 2px"><b style="flex:1" dir="auto">${esc(g.name)}</b><small style="color:var(--dim)">${num(g.count, W.mod)}</small><button class="chip" data-fr="${esc(g.domain)}">${g.code ? "الكود" : "سوّ كود"}</button></div>`)
     .join("");
   $("frList").querySelectorAll("[data-fr]").forEach((b) => b.addEventListener("click", () => void frOpen(b.dataset.fr, b)));
 }
@@ -5398,7 +5849,8 @@ function paintErr(v, note) {
   }
   if (v.others?.length) h += `<ul>${v.others.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
   if (v.wiki?.titles?.length) h += `<p style="margin:12px 0 0;font-size:12.5px;color:var(--dim)">حلول بموقع بي سي قيمنق ويكي (تفاصيلها بالبيسي):</p><ul>${v.wiki.titles.map((t) => `<li dir="auto">${esc(t)}</li>`).join("")}</ul>`;
-  if (v.text) h += `<pre>${esc(v.text)}</pre>`;
+  // the raw text the PC read (English, Windows' own): folded away under a quiet line, open on a tap
+  if (v.text) h += `<details class="rawtxt"><summary>النص اللي قريناه من الصورة</summary><pre>${esc(v.text)}</pre></details>`;
   o.innerHTML = `<b style="display:block;font-size:13px;color:var(--dim);margin-bottom:6px">${esc(v.title)}</b>` + h;
   $("errFix")?.addEventListener("click", errFix);
 }
@@ -5426,6 +5878,8 @@ async function errSend(file) {
     paintErr(e.data);
   } finally {
     done();
+    // a result on screen: «صلّحها بالبيسي» is the red one, this one asks for another
+    if (!$("errOut").classList.contains("hidden")) $("errGo").textContent = "صوّر خطأ ثاني";
   }
 }
 const ERR_NOTES = { restart: "خلصنا. البيسي يبي إعادة تشغيل عشان يكمّل.", partial: "ثبّتنا جزء منها، والباقي ما زبط. جرّب مرة ثانية.", steam: "ستيم قاعد يفحص ملفاتها. إذا خلص جرّب اللعبة.", opened: "فتحنا الصفحة على البيسي.", admin: "فتحنا أداة ويندوز على البيسي. لازم أحد يوافق على نافذتها هناك.", dry: "نسخة تجربة: ما تغيّر شي على البيسي." };
@@ -5505,7 +5959,8 @@ function paintFunPrefs() {
   document.querySelectorAll("#segRx button").forEach((b) => b.classList.toggle("on", b.dataset.v === p.rx));
   document.querySelectorAll("#segWk button").forEach((b) => b.classList.toggle("on", b.dataset.v === p.wk));
   const b = rxBest(p.rx);
-  $("rxBest").textContent = b ? `${b} ms` : "—";
+  $("rxBest").textContent = b ? `${b} ms` : "ما لعبت للحين";
+  $("rxBest").classList.toggle("none", !b);
 }
 $("segRx").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { buzz(); setFun("rx", b.dataset.v); } });
 $("segWk").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { buzz(); setFun("wk", b.dataset.v); } });
@@ -5533,7 +5988,7 @@ $("funClose").addEventListener("click", () => closeFun());
 
 function playRx() {
   const mode = funPrefs().rx;
-  openFun(mode === "blocks" ? "خمس بلوكات" : "ردة فعلك", '<div id="rxBox"></div>');
+  openFun("كم سرعتك؟", '<div id="rxBox"></div>');
   if (!window.NKRx) return ($("funBody").innerHTML = '<p class="muted">ما قدرنا نحمّل اللعبة. تأكد من النت وجرّب مرة ثانية.</p>');
   NKRx.play($("rxBox"), mode, (ms, fastest) => showRx(mode, ms, fastest));
 }
@@ -5596,7 +6051,7 @@ function weekStory(w) {
     () => t1
       ? `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,138,31,.3),transparent 70%)"><small>لعبتك الأولى</small><span class="cover" style="${t1.image ? `background-image:url('${esc(t1.image)}')` : ""}">${t1.image ? "" : esc(initials(t1.name))}</span><span class="gname" dir="auto">${esc(t1.name)}</span><small><span class="dn">${wkHrs(t1.seconds)}</span> ساعة</small></div>`
       : null,
-    () => `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,201,60,.25),transparent 70%)"><small>لعبت ورا بعض</small><span class="big dn">${w.streak}</span><small>${w.streak === 1 ? "يوم" : "أيام"}</small>` +
+    () => `<div class="sl" style="background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,201,60,.25),transparent 70%)"><small>لعبت ورا بعض</small><span class="big dn">${w.streak}</span><small>${unitOf(w.streak, W.day)}</small>` +
       (best?.seconds ? `<small>أكثر يوم: ${dayName(best.day)} <span class="dn">${wkHrs(best.seconds)}</span> ساعة</small>` : "") +
       `<div class="daybars">${w.days.map((d) => `<div><i style="height:${Math.max(3, Math.round((d.seconds / max) * 70))}px;opacity:${d.seconds ? 1 : 0.25}"></i>${dayName(d.day).slice(0, 2)}</div>`).join("")}</div></div>`,
     () => `<div class="sl"><small>جاهز تشاركها؟</small><b style="font-size:20px">صورة فيها أسبوعك كامل</b><div class="linkrow" style="margin-top:12px;width:100%"><button id="wkShare">شاركها</button><button id="wkAgain" class="ghost">من البداية</button></div></div>`,
@@ -5616,9 +6071,9 @@ function weekStory(w) {
 function weekTrack(w) {
   const R = 38, C = 2 * Math.PI * R, max = Math.max(1, ...w.days.map((d) => d.seconds));
   const xp = Math.round(w.total / 60);
-  $("funBody").innerHTML = `<div class="wkt"><div class="lv"><svg viewBox="0 0 92 92"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#241b1c" stroke-width="8"/><circle class="lvval" cx="46" cy="46" r="${R}" fill="none" stroke="#7cff5a" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" transform="rotate(-90 46 46)"/></svg><div><small>المستوى <span class="dn">${w.level}</span></small><b class="dn">${xp} XP</b><small>هالأسبوع · كل دقيقة لعب نقطة</small></div></div>` +
-    w.days.map((d) => `<div class="day"><span class="d">${dayName(d.day)}</span><span class="dtrack"><i data-w="${Math.round((d.seconds / max) * 100)}"></i></span><em class="dn">${wkHrs(d.seconds)}h</em><span class="xp">+${Math.round(d.seconds / 60)} XP</span></div>`).join("") +
-    (w.top.length ? `<div class="tops">${w.top.map((t) => `<div><span class="c" style="${t.image ? `background-image:url('${esc(t.image)}')` : ""}"></span><span dir="auto">${esc(t.name)}</span><em class="dn">${wkHrs(t.seconds)}h</em></div>`).join("")}</div>` : "") +
+  $("funBody").innerHTML = `<div class="wkt"><div class="lv"><svg viewBox="0 0 92 92"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#241b1c" stroke-width="8"/><circle class="lvval" cx="46" cy="46" r="${R}" fill="none" stroke="#7cff5a" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" transform="rotate(-90 46 46)"/></svg><div><small>المستوى <span class="dn">${w.level}</span></small><b class="dn">${xp}</b><small>نقاطك هالأسبوع · كل دقيقة لعب نقطة</small></div></div>` +
+    w.days.map((d) => `<div class="day"><span class="d">${dayName(d.day)}</span><span class="dtrack"><i data-w="${Math.round((d.seconds / max) * 100)}"></i></span><em class="dn">${wkHrs(d.seconds)} ساعة</em><span class="xp">+${Math.round(d.seconds / 60)}</span></div>`).join("") +
+    (w.top.length ? `<div class="tops">${w.top.map((t) => `<div><span class="c" style="${t.image ? `background-image:url('${esc(t.image)}')` : ""}"></span><span dir="auto">${esc(t.name)}</span><em class="dn">${wkHrs(t.seconds)} ساعة</em></div>`).join("")}</div>` : "") +
     '<div class="linkrow" style="margin-top:14px"><button id="wkShare">شاركها</button><button id="wkAgain" class="ghost">عيدها</button></div></div>';
   const play = () => {
     const rows = $("funBody").querySelectorAll(".day"), ring = $("funBody").querySelector(".lvval");
@@ -5678,9 +6133,9 @@ async function drawWeekPic(w) {
   g.fillStyle = grad; g.fillRect(0, 0, 1080, 1350);
   g.direction = "rtl"; g.textAlign = "center"; g.fillStyle = "#fff";
   try { await document.fonts.ready; } catch {}
-  g.font = "700 46px 'Noto Kufi Arabic', sans-serif"; g.fillText("أسبوعي بالألعاب", 540, 150);
+  g.font = "700 46px 'Baloo Bhaijaan 2', sans-serif"; g.fillText("أسبوعي بالألعاب", 540, 150);
   g.font = "700 230px Rajdhani, sans-serif"; g.fillText(wkHrs(w.total), 540, 400);
-  g.font = "700 46px 'Noto Kufi Arabic', sans-serif"; g.fillStyle = "rgba(255,255,255,.75)"; g.fillText("ساعة لعب", 540, 470);
+  g.font = "700 46px 'Baloo Bhaijaan 2', sans-serif"; g.fillStyle = "rgba(255,255,255,.75)"; g.fillText("ساعة لعب", 540, 470);
   const max = Math.max(1, ...w.days.map((d) => d.seconds));
   w.days.forEach((d, k) => {
     const x = 1080 - 150 - k * 130, h = Math.max(8, (d.seconds / max) * 220);
@@ -5688,17 +6143,17 @@ async function drawWeekPic(w) {
     bg.addColorStop(0, "#ffc93c"); bg.addColorStop(1, "#ef3b2d");
     g.fillStyle = d.seconds ? bg : "#2a2223";
     g.beginPath(); g.roundRect?.(x - 40, 760 - h, 80, h, 16); g.fill();
-    g.fillStyle = "rgba(255,255,255,.6)"; g.font = "600 30px 'Noto Kufi Arabic', sans-serif"; g.fillText(dayName(d.day).slice(0, 2), x, 810);
+    g.fillStyle = "rgba(255,255,255,.6)"; g.font = "600 30px 'Baloo Bhaijaan 2', sans-serif"; g.fillText(dayName(d.day).slice(0, 2), x, 810);
   });
   g.textAlign = "right";
   w.top.forEach((t, k) => {
     const y = 930 + k * 110;
     g.fillStyle = "#171112"; g.beginPath(); g.roundRect?.(90, y - 70, 900, 90, 24); g.fill();
-    g.fillStyle = "#fff"; g.font = "700 40px 'Noto Kufi Arabic', sans-serif"; g.fillText(t.name.slice(0, 26), 950, y - 10);
-    g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.7)"; g.font = "700 42px Rajdhani, sans-serif"; g.fillText(`${wkHrs(t.seconds)}h`, 130, y - 10); g.textAlign = "right";
+    g.fillStyle = "#fff"; g.font = "700 40px 'Baloo Bhaijaan 2', sans-serif"; g.fillText(t.name.slice(0, 26), 950, y - 10);
+    g.textAlign = "left"; g.fillStyle = "rgba(255,255,255,.7)"; g.font = "700 42px Rajdhani, sans-serif"; g.fillText(`${wkHrs(t.seconds)} ساعة`, 130, y - 10); g.textAlign = "right";
   });
-  g.textAlign = "center"; g.fillStyle = "#ffc93c"; g.font = "700 34px 'Noto Kufi Arabic', sans-serif";
-  g.fillText(`${w.streak} ${w.streak === 1 ? "يوم" : "أيام"} ورا بعض · NUKE GG`, 540, 1290);
+  g.textAlign = "center"; g.fillStyle = "#ffc93c"; g.font = "700 34px 'Baloo Bhaijaan 2', sans-serif";
+  g.fillText(`${w.streak} ${unitOf(w.streak, W.day)} ورا بعض · NUKE GG`, 540, 1290);
   const blob = await new Promise((res) => c.toBlob(res, "image/png"));
   if (!blob) throw new Error("no picture");
   return new File([blob], "my-week.png", { type: "image/png" });
@@ -5841,7 +6296,7 @@ function paintSoon() {
   $("soonList").innerHTML = list.length ? '<h3 class="soonh">تنتظرها</h3>' + list.map((g) => {
     const l = soonLeft(g);
     const days = !l ? '<b>قريب</b><small>ما انعلن</small>' : l.ms <= 0 ? '<b>نزلت</b><small>اليوم</small>' : `<b class="dn">${l.d}</b><small>${g.prec >= 11 ? "يوم" : "يوم تقريباً"}</small>`;
-    return `<div class="soon-row"><button type="button" class="soon-open" data-id="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><span class="d">${days}</span></button><button type="button" class="soon-x" data-del="${esc(g.id)}" aria-label="شيلها">×</button></div>`;
+    return `<div class="soon-row"><button type="button" class="soon-open" data-id="${esc(g.id)}">${soonArt(g, "art")}<span class="t"><b dir="auto">${esc(g.name)}</b><small>${esc(soonWhen(g))}</small></span><span class="d">${days}</span></button><button type="button" class="soon-x" data-del="${esc(g.id)}" aria-label="شيلها">${XICON}</button></div>`;
   }).join("") : "";
   if (list.some((g) => !g.img)) soonFill();
 }
@@ -5900,7 +6355,17 @@ function soonConfetti() {
 function openSoon(id) {
   const g = soonSaved().find((x) => x.id === id);
   if (!g) return;
-  openFun("عدّ تنازلي", `<div class="soon-big"><div class="soon-hero">${soonArt(g, "bgp")}${g.img ? `<img class="poster" src="${esc(g.img)}" alt="">` : ""}<div class="t"><b dir="auto">${esc(g.name)}</b><small>${g.date ? (soonLeft(g).ms > 0 ? "تنزل " : "") + esc(soonWhen(g)) : "ما انعلن موعدها للحين"}</small></div></div><div id="soonTiles"></div><p class="hint" id="soonNote"></p><div class="linkrow"><button id="soonDel" class="ghost">شيلها من قائمتك</button></div></div>`);
+  openFun("عدّ تنازلي", `<div class="soon-big"><div class="soon-hero">${soonArt(g, "bgp")}${g.img ? `<img class="poster" src="${esc(g.img)}" alt="">` : ""}<div class="t"><b dir="auto">${esc(g.name)}</b><small>${g.date ? (soonLeft(g).ms > 0 ? "تنزل " : "") + esc(soonWhen(g)) : "ما انعلن موعدها للحين"}</small></div></div><div id="soonTiles"></div><p class="hint" id="soonNote"></p><button id="soonPush" class="wide calm hidden" style="max-width:320px;margin:0 auto 10px">فعّل التنبيهات</button><div class="linkrow"><button id="soonDel" class="ghost">شيلها من قائمتك</button></div></div>`);
+  // the same as Settings' button; the note says so once they're on
+  $("soonPush").addEventListener("click", async () => {
+    $("pushBtn").click();
+    const until = Date.now() + 60e3;
+    const wait = setInterval(() => {
+      if (!pushOn() && Date.now() < until && $("soonPush")?.isConnected) return;
+      clearInterval(wait);
+      if (pushOn() && $("soonPush").isConnected) ($("soonNote").textContent = "يوصلك تنبيه قبلها بيوم، ويوم تنزل."), $("soonPush").classList.add("hidden");
+    }, 500);
+  });
   let last = {}, cheered = false;
   const tick = () => {
     const l = soonLeft(g), box = $("soonTiles");
@@ -5920,9 +6385,16 @@ function openSoon(id) {
   clearInterval(soonTimer);
   tick();
   soonTimer = setInterval(tick, 1000);
-  $("soonNote").textContent = g.prec >= 11
-    ? soonSynced === false ? "حدّث NUKE GG بالبيسي عشان يوصلك تنبيه قبلها بيوم ويوم تنزل." : "يوصلك تنبيه قبلها بيوم، ويوم تنزل."
-    : g.date ? "يومها بالضبط ما انعلن، فالعدّ تقريبي." : "";
+  // the notification is promised only when it can come: notifications on (else how to turn them on, like «راقب البيسي»)
+  const pushNote = () => {
+    const can = "serviceWorker" in navigator && "PushManager" in window;
+    if (!can && isIos && !standalone) return ["عشان يوصلك تنبيه قبلها بيوم ويوم تنزل: حط الصفحة على شاشة جوالك (الإعدادات ← حطها على الشاشة الرئيسية).", false];
+    if (!can || window.Notification?.permission === "denied") return ["", false];
+    return pushOn() ? ["يوصلك تنبيه قبلها بيوم، ويوم تنزل.", false] : ["فعّل التنبيهات عشان يوصلك تنبيه قبلها بيوم ويوم تنزل.", true];
+  };
+  const [say, ask] = g.prec >= 11 ? (soonSynced === false ? ["حدّث NUKE GG بالبيسي عشان يوصلك تنبيه قبلها بيوم ويوم تنزل.", false] : pushNote()) : [g.date ? "يومها بالضبط ما انعلن، فالعدّ تقريبي." : "", false];
+  $("soonNote").textContent = say;
+  $("soonPush").classList.toggle("hidden", !ask);
   $("soonDel").addEventListener("click", () => { buzz(); soonSave(soonSaved().filter((x) => x.id !== g.id)); paintSoon(); closeFun(); });
 }
 paintSoon();
@@ -5937,7 +6409,7 @@ let comeClick = null; // the settings view's click handler (one at a time, also 
 function comeSummary(c) {
   const p = [];
   if (c.steam) p.push("يفتح ستيم ويحدّث ألعابك");
-  if (c.close.length) p.push(c.close.length === 1 ? `يسكّر ${c.close[0].name}` : `يسكّر ${c.close.length} برامج`);
+  if (c.close.length) p.push(c.close.length === 1 ? `يسكّر ${c.close[0].name}` : `يسكّر ${num(c.close.length, W.prog)}`);
   if (c.out) p.push(`الصوت على ${devName(c.out.name).main}`);
   if (c.game) p.push(c.launch ? `يفتح ${c.game.name}` : `يشيّك بلوك ${c.game.name}`);
   return p.length ? p.join(" · ") : "ما اخترت خطوات. اضغط «الخطوات» وحدّدها.";
@@ -5953,8 +6425,8 @@ function paintComing() {
   $("comeSum").textContent = comeSummary(comeCfg);
   const r = comeRun;
   const live = r && !r.done;
-  // a finished run stays on the card for 15 minutes
-  const show = r && (live || Date.now() - r.at < 15 * 60e3);
+  // a finished run stays on the card for 15 minutes; one stopped with «وقّف» is gone at once (its steps never ran)
+  const show = r && !r.stopped && (live || Date.now() - r.at < 15 * 60e3);
   go.disabled = Boolean(live);
   go.textContent = live ? "نجهّز البيسي…" : "أنا جاي";
   $("comeStopRow").classList.toggle("hidden", !live);
@@ -5982,11 +6454,15 @@ async function loadComing() {
   paintComing();
   if (comeRun && !comeRun.done) pollComing();
 }
+// one ask at a time, only on screen and while the PC answers (a PC that went away mid-run used to be asked every second, each
+// ask waiting 9 s — QA M4); a PC switched or the page let go of it stops it (stopRemote)
+let comeAsking = false;
 function pollComing() {
   clearInterval(comeTimer);
   comeTimer = setInterval(async () => {
-    if (document.hidden) return;
-    const r = await cmd("coming.state");
+    if (document.hidden || comeAsking || !connected()) return;
+    comeAsking = true;
+    const r = await cmd("coming.state").finally(() => (comeAsking = false));
     if (!r.ok) return;
     const was = comeRun;
     comeRun = r.data;
@@ -6004,7 +6480,7 @@ $("comeGo").addEventListener("click", async () => {
   const r = await cmd("coming.start");
   if (!r.ok) {
     $("comeGo").disabled = false;
-    return toast(ERR[r.error] ?? "ما قدرنا نبدأ. جرّب مرة ثانية.", true);
+    return toast(ERR[r.error] ?? r.text ?? "ما قدرنا نبدأ. جرّب مرة ثانية.", true);
   }
   comeRun = r.data;
   paintComing();
@@ -6060,7 +6536,7 @@ $("comeEdit").addEventListener("click", () => {
       ${gameSearch}
       <div class="opts" id="comeGames">${gameChips}</div>
       ${c.game ? sw("launch", c.launch, `افتح ${esc(c.game.name)} لما يجهز`, "بآخر خطوة، والبيسي يكون جاهز.") : ""}
-      ${sw("notify", c.notify, "نبّهني لما يجهز", "يوصلك تنبيه على جوالك.")}
+      ${sw("notify", c.notify, "نبّهني لما يجهز", pushOn() ? "يوصلك تنبيه على جوالك." : "فعّل التنبيهات من «الإعدادات» عشان يوصلك على جوالك.")}
       <button class="wide" data-savecome="1">احفظ</button>
     </div>`;
     // typing in the game search repaints the chips only (the box keeps its focus)
@@ -6182,8 +6658,8 @@ const CAM_I = {
   hide: '<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c5 0 9 5 10 7a14 14 0 0 1-3.1 3.9M6.6 6.6C4.4 8 3 10 2 12c1 2 5 7 10 7 1.7 0 3.2-.5 4.6-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
 };
 const camIc = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${CAM_I[k]}</svg>`;
-const KIND_SAY = { usb: "⚡ بالكيبل", lan: "⚡ على نفس الواي فاي", net: "مباشر عن طريق النت", relay: "عن طريق سيرفر نيوك" };
-const KIND_SHORT = { usb: "⚡ بالكيبل", lan: "⚡ نفس الواي فاي", net: "عن طريق النت", relay: "سيرفر نيوك" };
+const KIND_SAY = { usb: "بالكيبل", lan: "على نفس الواي فاي", net: "مباشر عن طريق النت", relay: "عن طريق الاتصال الاحتياطي" };
+const KIND_SHORT = { usb: "بالكيبل", lan: "نفس الواي فاي", net: "عن طريق النت", relay: "اتصال احتياطي" };
 // The way the picture travels, from the link's chosen pair. "lan" (the same Wi-Fi) is told by the addresses, not only by
 // the candidate's type: the PC hides its home address behind a ".local" name, and a phone that can't look that name up
 // reaches the PC as "prflx" with its home address — that used to read as "over the internet",
@@ -6336,7 +6812,8 @@ $("camOpen").addEventListener("click", () => {
   function paintGo() {
     const b = $("camGo");
     b.disabled = busy && !live;
-    b.className = `wide${live || back ? " ghost" : ""}`;
+    // (calm and dimmed until there's a picture to send: the only red is a press that can work)
+    b.className = `wide${live || back ? " ghost" : !stream ? " calm dim" : ""}`;
     b.textContent = busy && !live ? "نوصّل…" : live || back ? "وقّف البث" : "ابدأ البث للبيسي";
   }
   function paintRec() {
@@ -6513,12 +6990,12 @@ $("camOpen").addEventListener("click", () => {
       return `${now}
         ${n60 ? `<div class="cam-line"><span>${n60}</span>${prioChip()}</div>` : ""}
         ${sw("lite", "وضع خفيف", "يبرّد الجوال ويوفّر البطارية", P.lite)}
-        <div class="cam-line"><span>سيرفر نيوك</span><em class="${ice.ready ? "ok" : ""}">${ice.ready ? "جاهز" : "مو مفعّل"}</em></div>
+        <div class="cam-line"><span>اتصال احتياطي</span><em class="${ice.ready ? "ok" : ""}">${ice.ready ? "جاهز" : "طافي"}</em></div>
         ${fix}
         ${iphoneLine()}
         ${more("usb", "وصّله بالكيبل", "أوضح وأسرع", `<div class="cam-how"><b>آيفون</b><span>اشبكه ← الإعدادات ← نقطة الاتصال الشخصية ← شغّلها.</span><small>البيسي يبي برنامج «Apple Devices» من متجر مايكروسوفت (مجاني).</small></div>
           <div class="cam-how"><b>أندرويد</b><span>اشبكه ← الإعدادات ← نقطة الاتصال ← «مشاركة الإنترنت بالكيبل».</span></div>
-          <div class="cam-how"><small>بعدها يطلع فوق: ⚡ بالكيبل</small></div>`)}`;
+          <div class="cam-how"><small>بعدها يطلع فوق: بالكيبل</small></div>`)}`;
     }
     return "";
   }
@@ -6663,7 +7140,7 @@ $("camOpen").addEventListener("click", () => {
         stream?.getTracks().forEach((t) => t.stop());
         stream = null;
       }
-      $("camMsg").textContent = err?.name === "NotAllowedError" ? "اسمح للصفحة تستخدم الكاميرا من إعدادات المتصفح، وجرّب مرة ثانية." : "ما قدرنا نفتح الكاميرا.";
+      $("camMsg").textContent = err?.name === "NotAllowedError" ? CAM_ALLOW : "ما قدرنا نفتح الكاميرا.";
     }
     draw();
   }
@@ -7433,7 +7910,7 @@ $("camOpen").addEventListener("click", () => {
     }
     if (b.dataset.copy) {
       const r = await cmd("cam.copy");
-      return toast(r.ok ? "انسخ بالبيسي: الصقه ببرنامج البث (Ctrl+V)" : "ما قدرنا ننسخه.", !r.ok);
+      return toast(r.ok ? "نسخناه بالبيسي: الصقه ببرنامج البث" : "ما قدرنا ننسخه.", !r.ok);
     }
     if (b.dataset.reset) {
       Object.assign(P.fx, { b: 0, c: 0, w: 0, s: 0, auto: false });
@@ -7631,7 +8108,8 @@ function setGauge(id, value, sub, more) {
   el.style.strokeDashoffset = v == null ? RING_ARC : RING_ARC * (1 - Math.max(0.02, Math.min(1, v / max)));
   el.style.stroke = c;
   el.closest(".gauge").classList.toggle("hot", v != null && v >= hotAt);
-  $(`gv-${id}`).innerHTML = v == null ? "—" : `${id === "down" ? v.toFixed(1) : Math.round(v)}<small>${unit}</small>`;
+  // (the degree sits on its number, full size: as a small separate mark it read «62 °» — QA L9)
+  $(`gv-${id}`).innerHTML = v == null ? "—" : `${id === "down" ? v.toFixed(1) : Math.round(v)}${unit === "°" ? "°" : `<small>${unit}</small>`}`;
   $(`gs-${id}`).innerHTML = (dashOpenRing === id ? more : sub) || "";
 }
 async function dashTick() {
@@ -7646,16 +8124,16 @@ async function dashTick() {
   if (s.net?.ping != null) { dashPings.push(s.net.ping); if (dashPings.length > 12) dashPings.shift(); }
   const spread = dashPings.length > 3 ? Math.max(...dashPings) - Math.min(...dashPings) : 0;
   const steady = spread < 15 ? "ثابت" : "يتذبذب";
-  const top = dashHeavy ? `<bdi>${esc(dashHeavy.name)}</bdi> ${dnum(Math.round(dashHeavy.cpu) + "%")}` : "";
+  const top = dashHeavy ? `<bdi>${esc(dashHeavy.name)}</bdi>` : "";
   const ramPct = s.ram ? (100 * s.ram.used) / s.ram.total : null;
   const down = s.net?.down != null ? (s.net.down * 8) / 1e6 : null, up = s.net?.up != null ? (s.net.up * 8) / 1e6 : null;
-  setGauge("gpu", s.gpu?.use, g2.memUsed != null ? dnum(`${(g2.memUsed / 1024).toFixed(1)}/${(g2.memTotal / 1024).toFixed(0)}GB`) : "",
-    [g2.clock != null && `السرعة ${dnum(g2.clock + " MHz")}`, g2.power != null && `الكهربا ${dnum(Math.round(g2.power) + " W")}`].filter(Boolean).join(" · "));
+  setGauge("gpu", s.gpu?.use, g2.memUsed != null ? `${dnum(Math.round(g2.memUsed / 1024))} من ${dnum(Math.round(g2.memTotal / 1024))} جيجا` : "",
+    [g2.clock != null && `السرعة ${dnum(g2.clock)} ميقاهرتز`, g2.power != null && `الكهربا ${dnum(Math.round(g2.power))} واط`].filter(Boolean).join(" · "));
   setGauge("temp", s.gpu?.temp, g2.fan != null ? `المروحة ${dnum(g2.fan + "%")}` : "", s.gpu?.temp == null ? "" : s.gpu.temp < 80 ? "بارد وتمام" : s.gpu.temp < 86 ? "دافي، عادي وقت اللعب" : "حار، شيّك على التهوية");
   setGauge("cpu", s.cpu, top, top ? `ياكله أكثر شي: ${top}` : "");
-  setGauge("ram", ramPct, s.ram ? dnum(`${dgb(s.ram.used)}/${Math.round(s.ram.total / 1073741824)}GB`) : "", s.ram ? `فاضي ${dnum(dgb(s.ram.total - s.ram.used) + " GB")}` : "");
+  setGauge("ram", ramPct, s.ram ? `${dnum(Math.round(s.ram.used / 1073741824))} من ${dnum(Math.round(s.ram.total / 1073741824))} جيجا` : "", s.ram ? `فاضي ${dnum(dgb(s.ram.total - s.ram.used))} جيجا` : "");
   setGauge("ping", s.net?.ping, s.net?.ping != null ? steady : "", "يقيس للنت نفسه، مو لسيرفر اللعبة");
-  setGauge("down", down, up != null ? `↑ ${dnum(up.toFixed(1))}` : "", down != null ? `نازل ${dnum(down.toFixed(1))} ميقا · طالع ${dnum((up ?? 0).toFixed(1))} ميقا` : "");
+  setGauge("down", down, up != null ? `رفع ${dnum(up.toFixed(1))} ميقا` : "", down != null ? `نازل ${dnum(down.toFixed(1))} ميقا · طالع ${dnum((up ?? 0).toFixed(1))} ميقا` : "");
   const g = games.find((x) => x.key === runningKey);
   $("dGame").textContent = g ? g.name : "ما فيه لعبة شغّالة";
   const secs = g && runningSince ? Math.max(0, (Date.now() - runningSince) / 1000) : 0;
@@ -7714,7 +8192,7 @@ if (hash.get("p")) {
     // the iPhone's camera opened the QR in Safari: the home-screen app (where it should live) doesn't see what
     // Safari keeps, so that way first — the QR on the PC still works there for its 5 minutes
     history.replaceState(null, "", location.pathname);
-    intro(IOS_TITLE, IOS_FIRST, false, { scan: false, alt: { label: "لا، اربطه بسفاري هنا", run: () => pairWith(raw, pcOf) } });
+    intro(IOS_TITLE, IOS_WHY, false, { steps: iosSteps(), scan: false, alt: { label: "أو اربطه هنا بسفاري", run: () => pairWith(raw, pcOf) } });
   } else pairWith(raw, pcOf);
 } else {
   start();
