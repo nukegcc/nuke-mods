@@ -8,11 +8,13 @@
 //       here, refreshed behind
 //     • a cache that fails (storage full, a private window, a store gone bad) never stops anything: then from the internet
 //     Only remote.html and its own files: the other pages next to it (admin.html…) are never touched.
-//     A new caching way = a new CACHE name; the old ones are deleted when it starts.
+//     A new caching way = a new CACHE name; the old ones are deleted when it starts. Every publish is a new name too (its
+//     build's version, filled in by scripts/remote-page.mjs), and the page asks for its scripts by that version
+//     (rx-game.js?v=…): a page fresh from a publish never runs with an older script kept here (mission 10 M3).
 //  2. Shows the notifications the PC sends (Web Push):
 //     • short title + one line; a newer one of the same kind replaces the older (`tag`), so they don't pile up
 //     • tapping one opens the page on its tab (e.g. «الحالة» for "the RAM is full")
-const CACHE = "nk-remote-v3";
+const CACHE = "nk-remote-v4-988f56c9d8";
 const PAGE_WAIT = 1500; // ms the internet gets before the kept page is shown
 
 self.addEventListener("install", (event) => {
@@ -109,7 +111,12 @@ const matchIn = (c, req, opts) => (c ? c.match(req, opts).catch(() => undefined)
 async function pageFirst(event, req, key) {
   try {
     const c = await openCache();
-    const net = fetch(req).then((res) => {
+    // asked past the browser's own cache (GitHub Pages lets it keep the page 10 minutes): the server answers "not changed"
+    // in a few bytes when it isn't
+    // (an answer that came through a redirect — a captive portal, a moved page — can't answer a page load: asked plainly then,
+    // and never kept)
+    const net = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then((res) => {
+      if (res.redirected) return fetch(req);
       keepIn(c, key, res);
       return res;
     });
@@ -138,7 +145,9 @@ async function keptFirst(req) {
 async function keptThenFresh(event, req) {
   try {
     const c = await openCache();
-    const kept = await matchIn(c, req, { ignoreSearch: here(new URL(req.url)) });
+    // (a versioned script, rx-game.js?v=…: only that exact version; the rest of this site's files whatever their ?…)
+    const u = new URL(req.url);
+    const kept = await matchIn(c, req, { ignoreSearch: here(u) && !u.searchParams.has("v") });
     const net = fetch(req)
       .then((res) => {
         keepIn(c, req, res);
