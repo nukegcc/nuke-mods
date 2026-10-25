@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-j4HYOOKZwda0Ur6pkXN7DkV04McoNa+RhutNW8/wshs=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-3CvwEcysz/ohVZj7U4qpKZ2lWmHFFhcr/kkNklQn/6c=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=9144dbcc97" defer></script>
+<script src="rx-game.js?v=e94cd6ae67" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -209,7 +209,10 @@
   details.grp > summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 16px; font-weight: 700; font-size: 15px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   details.grp > summary::-webkit-details-marker { display: none; }
   details.grp > summary i { font-style: normal; font-size: 18px; }
-  details.grp > summary small { margin-inline-start: auto; color: var(--dim); font-weight: 500; font-size: 12.5px; }
+  /* how a group stands: one word in a small pill (owner's pick B, 2026-10-25): gold «شغّال» / «بعضها», calm «مطفي» / a count */
+  details.grp > summary small { margin-inline-start: auto; border-radius: 999px; padding: 2px 10px; font-weight: 700; font-size: 12.5px; color: var(--dim); background: rgba(255,255,255,.06); }
+  details.grp > summary small:empty { display: none; }
+  details.grp > summary small.on { color: var(--gold); background: rgba(255,201,60,.14); }
   details.grp > summary::after { content: ""; flex-shrink: 0; width: 8px; height: 8px; border-right: 2px solid var(--dim); border-bottom: 2px solid var(--dim); transform: rotate(45deg); margin-top: -4px; transition: transform .2s; }
   details.grp[open] > summary::after { transform: rotate(-135deg); margin-top: 4px; }
   details.grp > .in { padding: 0 12px 14px; }
@@ -1748,6 +1751,7 @@ const W = {
   prog: ["برنامج واحد", "برنامجين", "برامج", "برنامج"],
   mod: ["مود واحد", "مودين", "مودات", "مود"],
   pc: ["بيسي واحد", "بيسيين", "بيسيات", "بيسي"],
+  device: ["جهاز واحد", "جهازين", "أجهزة", "جهاز"],
 };
 // the word under a big number: 1 يوم, 2 يومين, 3–10 أيام, else يوم («أيام» under a 0 or a 15 read wrong — QA L3)
 const unitOf = (n, [one, two, few, many]) => {
@@ -2152,7 +2156,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=9144dbcc97";
+        sc.src = "jsqr.js?v=e94cd6ae67";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -2991,17 +2995,21 @@ document.querySelectorAll(".tab").forEach((tabEl) => {
 });
 
 // ---- settings groups: how many are on, and a group with nothing in it stays out ----
-// «طافي» / «وحدة من 3 شغّالة» / «2 من 3 شغّالة» / «كلها شغّالة»
-const onOf = (on, all) => (!on ? (all === 1 ? "طافي" : "كلها طافية") : on === all ? (all === 1 ? "شغّال" : "كلها شغّالة") : `${on === 1 ? "وحدة" : on} من ${all} شغّالة`);
+// one word (owner's pick B, 2026-10-25): «شغّال» (all on) / «بعضها» (some) / «مطفي» (none)
+const onOf = (on, all) => (!on ? "مطفي" : on === all ? "شغّال" : "بعضها");
 function syncGroups() {
   for (const g of document.querySelectorAll("#tab-set details.grp")) {
     const sws = [...g.querySelectorAll(".sw")].filter((x) => !x.closest(".hidden"));
     const small = g.querySelector("summary small");
-    if (small && sws.length) small.textContent = onOf(sws.filter((x) => x.classList.contains("on")).length, sws.length);
+    if (small && sws.length) {
+      const on = sws.filter((x) => x.classList.contains("on")).length;
+      small.textContent = onOf(on, sws.length);
+      small.classList.toggle("on", on > 0);
+    }
     if (g.id === "grpGames") g.classList.toggle("hidden", $("gameAlerts").classList.contains("hidden"));
   }
   const n = typeof pcs === "function" ? pcs().length : 0;
-  if ($("grpPcsN")) $("grpPcsN").textContent = n ? num(n, W.pc) : "";
+  if ($("grpPcsN")) $("grpPcsN").textContent = n ? num(n, W.device) : "";
 }
 document.getElementById("tab-set").addEventListener("click", () => setTimeout(syncGroups, 400));
 // a setting's whole row flips its switch (the switch alone was 46×28: hard to hit), everywhere — the settings, the camera's
