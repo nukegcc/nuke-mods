@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-3CvwEcysz/ohVZj7U4qpKZ2lWmHFFhcr/kkNklQn/6c=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-ovRdwiCh5NkCZPEJY/zNHP3Ev7820yC9ywsALUM3s2Y=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=e94cd6ae67" defer></script>
+<script src="rx-game.js?v=c1b9b3e830" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -176,6 +176,23 @@
   .vol input::-webkit-slider-runnable-track { height: 10px; border-radius: 99px; background: linear-gradient(90deg, var(--gold), var(--red)) 0 / var(--p, 0%) 100% no-repeat, rgba(255,255,255,.1); }
   .vol input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -9px; border-radius: 50%; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
   .vol.muted b { color: var(--dim); text-decoration: line-through; }
+  /* «صوت كل برنامج»: a row per program (its picture, its name, its slider, its mute); a silent one is faded */
+  .avs { display: flex; flex-direction: column; gap: 2px; }
+  .av { display: flex; align-items: center; gap: 10px; padding: 5px 2px; transition: opacity .2s; }
+  /* (a silent program: its name and slider fade, its picture stays clear — owner, 2026-10-27: «صور البرامج خليها طالعه») */
+  .av.quiet :is(.nm, input, .mt) { opacity: .5; }
+  .av .ic { flex: none; width: 34px; height: 34px; border-radius: 10px; object-fit: contain; }
+  .av .ic.ini { display: flex; align-items: center; justify-content: center; background: var(--card2); border: 1px solid var(--line); color: var(--gold); font-family: var(--f-num); font-weight: 700; font-size: 14px; }
+  .av .ic.ini svg { width: 18px; height: 18px; }
+  .av .nm { width: 29%; min-width: 0; font-weight: 700; font-size: 13.5px; line-height: 1.5; overflow-wrap: anywhere; }
+  .av .nm small { display: block; font-size: 11.5px; font-weight: 700; color: var(--green); }
+  .av input { flex: 1; min-width: 0; -webkit-appearance: none; appearance: none; height: 34px; background: transparent; direction: ltr; touch-action: none; }
+  .av input::-webkit-slider-runnable-track { height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--gold), var(--red)) 0 / var(--p, 0%) 100% no-repeat, rgba(255,255,255,.1); }
+  .av input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -8px; border-radius: 50%; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,.5); }
+  .av.muted input::-webkit-slider-runnable-track { background: linear-gradient(90deg, #5a4a4b, #5a4a4b) 0 / var(--p, 0%) 100% no-repeat, rgba(255,255,255,.1); }
+  .av .mt { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.85); }
+  .av .mt svg { width: 18px; height: 18px; }
+  .av.muted .mt { color: var(--gold); border-color: rgba(255,201,60,.6); }
   .setrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 4px; }
   .setrow div { flex: 1; }
   .setrow b { display: block; font-size: 14px; }
@@ -1394,6 +1411,11 @@
         <div id="outBox" class="hidden"><p class="sub">الصوت يطلع من</p><div id="outs" class="outs"></div></div>
         <div id="micRow" class="setrow hidden" style="padding-top:2px"><div><b>المايك</b><small id="micName" dir="auto"></small></div><button id="micBtn" class="mic">—</button></div>
       </section>
+      <!-- «صوت كل برنامج» (owner's picks, 2026-10-27): every program that opened sound, the game on top -->
+      <section data-cat="sound" id="appVolBox" class="hidden">
+        <h2><span>كل برنامج لحاله</span></h2>
+        <div id="appVols" class="avs"></div>
+      </section>
       <!-- play / next / back: sound controls, with the sound (owner's yes, 2026-10-22; they were under «البرامج») -->
       <section data-cat="sound">
         <h2><span>الأغاني والفيديو</span></h2>
@@ -2156,7 +2178,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=e94cd6ae67";
+        sc.src = "jsqr.js?v=c1b9b3e830";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -3040,7 +3062,7 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
 );
 function refresh() {
   if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam(), loadFriends()]);
-  if (tab === "pc") return Promise.all([loadVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard()]);
+  if (tab === "pc") return Promise.all([loadVol(), loadAppVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard()]);
   if (tab === "stat") return Promise.all([loadBill(), loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
   return Promise.resolve();
@@ -3074,6 +3096,8 @@ function live() {
     if (Date.now() - privAt > 10e3) loadPriv();
   }
   if (tab === "pc" && Date.now() - runLook > 3500) loadRunning();
+  // (a program that starts or stops making sound shows within seconds, only while «الصوت» is open)
+  if (tab === "pc" && $("tab-pc").dataset.cat === "sound" && Date.now() - avAt > 3500) loadAppVol();
   if (tab === "games") {
     // Steam's downloads: every 4 s while one is going, else every half minute
     if (Date.now() - steamAt > (steamCount ? 3500 : 30e3)) loadSteam();
@@ -4469,6 +4493,67 @@ $("volRange").addEventListener("change", () => {
   buzz(10);
 });
 
+// ---- «صوت كل برنامج»: a row per program; its picture comes from the PC once, then stays here ----
+const avIcons = new Map();
+let avDrag = null, avAt = 0, avLast = 0, avTimer = null, avNext = null;
+const AV_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const AV_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>';
+async function loadAppVol() {
+  if (avDrag) return;
+  avAt = Date.now();
+  const r = await cmd("vol.apps", { known: [...avIcons.keys()] });
+  if (r.ok) paintAppVol(r.data);
+  else avAt = Date.now() + 60e3; // (an older NUKE GG on the PC doesn't know it: ask again in a minute, not every few seconds)
+}
+function paintAppVol(list) {
+  if (!Array.isArray(list)) return;
+  for (const a of list) if (a.icon) avIcons.set(a.id, a.icon);
+  $("appVolBox").classList.toggle("hidden", !list.length);
+  // (not while a finger is on a slider: the row would jump under it)
+  if (avDrag) return void (avNext = list);
+  $("appVols").innerHTML = list
+    .map((a) => {
+      const ic = avIcons.get(a.id), lv = a.level ?? 0;
+      // (Windows' own sounds have no file: a speaker instead of letters)
+      const pic = ic ? `<img class="ic" src="${esc(ic)}" alt="" />` : `<span class="ic ini" dir="ltr">${a.exe ? esc(initials(a.name)) : AV_ON}</span>`;
+      return `<div class="av${a.active ? "" : " quiet"}${a.muted ? " muted" : ""}" data-av="${esc(a.id)}">${pic}<span class="nm"><span dir="auto">${esc(a.name)}</span>${a.game ? "<small>تلعبها الحين</small>" : ""}</span><input type="range" min="0" max="100" step="1" value="${lv}" style="--p:${lv}%" aria-label="صوت ${esc(a.name)}" /><button class="mt" aria-label="${a.muted ? "رجّع صوت" : "اكتم"} ${esc(a.name)}">${a.muted ? AV_OFF : AV_ON}</button></div>`;
+    })
+    .join("");
+}
+async function sendAppVol(row) {
+  avLast = Date.now();
+  const r = await cmd("vol.appSet", { id: row.dataset.av, level: Number(row.querySelector("input").value) });
+  if (r.ok) paintAppVol(r.data);
+  return r;
+}
+$("appVols").addEventListener("input", (e) => {
+  const row = e.target.closest("[data-av]");
+  if (!row || e.target.type !== "range") return;
+  avDrag = row.dataset.av;
+  e.target.style.setProperty("--p", `${e.target.value}%`);
+  clearTimeout(avTimer);
+  if (Date.now() - avLast > 160) sendAppVol(row);
+  else avTimer = setTimeout(() => sendAppVol(row), 160);
+});
+$("appVols").addEventListener("change", async (e) => {
+  const row = e.target.closest("[data-av]");
+  if (!row || e.target.type !== "range") return;
+  clearTimeout(avTimer);
+  buzz(10);
+  const r = await sendAppVol(row);
+  avDrag = null;
+  if (!r.ok) return r.error === "REMOTE_GONE" ? loadAppVol() : fail(r);
+  if (avNext) paintAppVol(avNext), (avNext = null);
+});
+$("appVols").addEventListener("click", async (e) => {
+  const b = e.target.closest(".mt");
+  if (!b) return;
+  buzz(12);
+  const r = await cmd("vol.appMute", { id: b.closest("[data-av]").dataset.av });
+  if (r.ok) return paintAppVol(r.data);
+  r.error === "REMOTE_GONE" ? loadAppVol() : fail(r);
+});
+
 // shutdown / restart: drag the button to the end (a tap by mistake does nothing)
 document.querySelectorAll("[data-slide]").forEach((el) => {
   const knob = el.querySelector(".knob");
@@ -5431,6 +5516,7 @@ function stepWordRaw(s) {
   switch (s.t) {
     case "out": return `🎧 الصوت يطلع من ${devName(s.name).main || "الجهاز اللي اخترته"}`;
     case "vol": return `🔊 الصوت ${ltr(`${s.level}%`)}`;
+    case "appvol": return s.muted === true ? `اكتم ${s.name || "برنامج"}` : s.muted === false ? `رجّع صوت ${s.name || "برنامج"}` : `صوت ${s.name || "برنامج"} ${ltr(`${s.level}%`)}`;
     case "mic": return s.muted ? "🔇 اكتم المايك" : "🎙️ افتح المايك";
     case "app": return `🚀 افتح ${s.name || "برنامج"}`;
     case "game": return `🎮 شغّل ${s.name || "لعبة"}`;
@@ -5525,7 +5611,7 @@ function paintEditor() {
     <p class="sub">لما تضغطه يسوي هذي بالترتيب:</p>
     <div class="steps">${editing.steps.length ? editing.steps.map((s, i) => `<div class="stp"><b>${i + 1}</b><span dir="auto">${esc(stepWord(s))}</span><button data-rm="${i}" aria-label="شيل">${XICON}</button></div>`).join("") : '<p class="muted">ما فيه خطوات للحين. أضف تحت.</p>'}</div>
     <div class="addstep">
-      <select id="stepKind" class="search"><option value="">+ أضف خطوة…</option><option value="out">الصوت يطلع من…</option><option value="vol">مستوى الصوت</option><option value="mic">المايك</option><option value="game">شغّل لعبة</option><option value="app">افتح برنامج</option><option value="closegames">سكّر الألعاب المفتوحة</option><option value="screen">الشاشات</option><option value="bright">السطوع</option><option value="off">طفّ البيسي بعد…</option><option value="sleep">نوّم البيسي</option><option value="media">شغّل / وقّف الأغنية</option></select>
+      <select id="stepKind" class="search"><option value="">+ أضف خطوة…</option><option value="out">الصوت يطلع من…</option><option value="vol">مستوى الصوت</option><option value="appvol">صوت برنامج</option><option value="mic">المايك</option><option value="game">شغّل لعبة</option><option value="app">افتح برنامج</option><option value="closegames">سكّر الألعاب المفتوحة</option><option value="screen">الشاشات</option><option value="bright">السطوع</option><option value="off">طفّ البيسي بعد…</option><option value="sleep">نوّم البيسي</option><option value="media">شغّل / وقّف الأغنية</option></select>
       <div id="stepVal"></div>
       <button id="stepAdd" class="wide ghost hidden" style="color:#fff">أضف الخطوة</button>
     </div>
@@ -5545,6 +5631,16 @@ async function paintStepVal() {
     const list = r.ok ? r.data?.list ?? [] : [];
     devAll = list.map((o) => o.name);
     box.innerHTML = list.length ? sel(list.map((o) => [o.id, devName(o.name).main])) : '<p class="muted">ما لقينا أجهزة صوت.</p>';
+  } else if (k === "appvol") {
+    // the programs that opened sound on the PC now (found again by their file's name when the button runs)
+    box.innerHTML = '<p class="muted">نجيب البرامج…</p>';
+    const r = await cmd("vol.apps", { known: [...avIcons.keys()] });
+    if (stepKind !== k) return;
+    const list = (r.ok ? r.data ?? [] : []).filter((a) => a.exe);
+    box.innerHTML = list.length
+      ? sel(list.map((a) => [a.exe, a.name])) + sel([[100, "100%"], [80, "80%"], [60, "60%"], [50, "50%"], [40, "40%"], [30, "30%"], [20, "20%"], [10, "10%"], ["m1", "اكتمه"], ["m0", "رجّع صوته"]]).replace('id="stepPick"', 'id="stepLvl"')
+      : '<p class="muted">ما فيه برنامج فاتح الصوت الحين. شغّل البرنامج بالبيسي، وبعدين ارجع هنا.</p>';
+    $("stepAdd").classList.toggle("hidden", !list.length);
   } else if (k === "vol" || k === "bright") box.innerHTML = sel([100, 80, 70, 60, 50, 40, 30, 20, 10].map((n) => [n, `${n}%`]));
   else if (k === "mic") box.innerHTML = sel([["1", "اكتمه"], ["0", "افتحه"]]);
   else if (k === "screen") box.innerHTML = sel(Object.entries(MODE_WORD).map(([v, t]) => [v, plain(t)]));
@@ -5567,6 +5663,10 @@ function pickedStep() {
   const label = $("stepPick")?.selectedOptions?.[0]?.textContent ?? "";
   if (k === "out") return v && { t: "out", id: v, name: devAll.find((n) => devName(n).main === label) || label };
   if (k === "vol" || k === "bright") return { t: k, level: Number(v) };
+  if (k === "appvol") {
+    const l = $("stepLvl")?.value;
+    return v && l && { t: "appvol", exe: v, name: label, ...(l.startsWith("m") ? { muted: l === "m1" } : { level: Number(l) }) };
+  }
   if (k === "mic") return { t: "mic", muted: v === "1" };
   if (k === "screen") return { t: "screen", mode: v };
   if (k === "off") return { t: "off", minutes: Number(v) };
