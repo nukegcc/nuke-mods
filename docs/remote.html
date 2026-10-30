@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-Xg1SL2E7Z2qabV5/cYeAVlWvipfRsn9//yNFpcV53VE=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-iKtlb2nDrAy4zHTHfEeSOgMP1iGeFglU2CrndQ3uvB8=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=c391d4344e" defer></script>
+<script src="rx-game.js?v=53bfddb137" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -2318,7 +2318,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=c391d4344e";
+        sc.src = "jsqr.js?v=53bfddb137";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -8893,13 +8893,32 @@ function openScreen() {
       V.z.y = pan.zy + (e.clientY - pan.y);
       if (Math.abs(e.clientX - pan.x) + Math.abs(e.clientY - pan.y) > 6) moved = true;
       apply();
-    } else if (pan && Math.abs(e.clientX - pan.x) + Math.abs(e.clientY - pan.y) > 6) moved = true;
+    } else if (pan) {
+      const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+      if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+      // not zoomed: a finger pulled down takes the view with it; far enough, it closes (owner: «اسحب اصبعي تحت ارجع»)
+      if (pan.pull || (dy > 14 && dy > Math.abs(dx) * 1.4)) {
+        pan.pull = true;
+        const d = Math.max(0, dy);
+        el.style.transition = "none";
+        el.style.transform = `translateY(${Math.round(d * 0.7)}px)`;
+        el.style.opacity = String(Math.max(0.4, 1 - d / 700));
+      }
+    }
   });
   const up = (e) => {
     pts.delete(e.pointerId);
     if (pts.size < 2) pinch = null;
     if (pts.size) return;
+    const pulled = pan?.pull ? e.clientY - pan.y : null;
     pan = null;
+    if (pulled != null) {
+      if (e.type === "pointerup" && pulled > 120) return void (buzz(10), closeScreen());
+      el.style.transition = "transform .25s, opacity .25s";
+      el.style.transform = "";
+      el.style.opacity = "";
+      return;
+    }
     if (moved || e.target.closest("button")) return;
     const now = performance.now();
     if (now - tapAt < 300) {
@@ -8921,7 +8940,25 @@ function openScreen() {
     apply();
   };
   addEventListener("resize", onTurn);
-  V.offTurn = () => removeEventListener("resize", onTurn);
+  // the view sits exactly on what the phone shows (owner's iPhone, 2026-10-30: the top bar with «×» went up out of sight —
+  // after the keyboard of the programs' search, iOS can leave the page moved up, and a fixed view goes with it)
+  const vv = window.visualViewport;
+  const glue = () => {
+    if (!vv || scrView !== V) return;
+    el.style.top = `${Math.round(vv.offsetTop)}px`;
+    el.style.height = `${Math.round(vv.height)}px`;
+  };
+  vv?.addEventListener("resize", glue);
+  vv?.addEventListener("scroll", glue);
+  glue();
+  // (the keyboard closed: the page put back where it was)
+  const unpan = () => setTimeout(() => (window.scrollTo(window.scrollX, window.scrollY), glue()), 60);
+  el.addEventListener("focusout", unpan);
+  V.offTurn = () => {
+    removeEventListener("resize", onTurn);
+    vv?.removeEventListener("resize", glue);
+    vv?.removeEventListener("scroll", glue);
+  };
   stage.addEventListener("pointerup", up);
   stage.addEventListener("pointercancel", up);
 
@@ -9306,6 +9343,13 @@ function openScreen() {
   });
   overlayOpen(el, () => closeScreen(true));
   void connect();
+  // (said once on this phone: the way out without the «×»)
+  try {
+    if (!localStorage.getItem("nk-scr-swipe")) {
+      localStorage.setItem("nk-scr-swipe", "1");
+      setTimeout(() => scrView === V && toast("تقدر تسحب لتحت عشان تطلع"), 2500);
+    }
+  } catch {}
 }
 // each screen's picture on the tab = the last frame this phone saw of it (the PC sends no pictures: taking them crashed it)
 function scrPics() {
