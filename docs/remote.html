@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-RoGzVCkB7+mBtpjgLuKtK1QgzDtAt6fv/ksfMOV8v5k=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-4VbJhRD5k2F74na7CorGKF9eW7O9VLqXoHe1baLAFkQ=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=b794842ffb" defer></script>
+<script src="rx-game.js?v=f232c80cf5" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1217,7 +1217,7 @@
   .scr-mons button.on { box-shadow: inset 0 0 0 2px var(--gold); }
   .scr-mons img, .scr-mons .ph { width: 100%; aspect-ratio: 16/9; border-radius: 10px; object-fit: cover; background: #0b0808; display: block; }
   .scr-mons b { font-size: 14px; } .scr-mons small { color: var(--dim); font-size: 12px; font-family: Rajdhani, system-ui, sans-serif; }
-  .scr-q { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .scr-q { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
   /* the live view */
   .scrx { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 64; background: #000; display: flex; flex-direction: column; touch-action: none; user-select: none; -webkit-user-select: none; }
   .scrx .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; display: grid; place-items: center; }
@@ -1237,7 +1237,7 @@
   .scr-pan h3 small { margin-inline-start: auto; font-size: 12px; color: var(--dim); font-weight: 600; }
   .scr-pan .pg { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
   .scr-pan .pg button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 4px; border-radius: 14px; background: var(--card2); font-size: 11.5px; font-weight: 700; color: #fff; }
-  .scr-pan .pg button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .scr-pan .pg button span { max-width: 100%; overflow-wrap: anywhere; line-height: 1.35; text-align: center; }
   .scr-pan .pg button.open::after { content: ""; position: absolute; top: 6px; inset-inline-end: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
   .scr-pan .pg img, .scr-pan .pg .ph { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; }
   .scr-pan .vrow { display: flex; align-items: center; gap: 10px; }
@@ -1248,6 +1248,9 @@
   .scr-pan .media button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   .scr-pan .media svg { width: 22px; height: 22px; }
   .scr-pan .note { color: var(--dim); font-size: 12.5px; margin: 6px 0 0; }
+  .scr-pan .search { margin: 0 0 10px; }
+  .scr-pan .pg button:active { transform: scale(.94); }
+  .scr-pan .pg button.going { box-shadow: inset 0 0 0 1.5px var(--gold); }
   .scrx video.on { animation: scrIn .7s cubic-bezier(.2,.9,.3,1) both; }
   .scrx .top, .scrx .dock { position: absolute; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left)); transition: opacity .25s, transform .25s; }
   .scrx .top { top: 0; background: linear-gradient(rgba(0,0,0,.75), transparent); }
@@ -1550,7 +1553,7 @@
       </section>
       <section>
         <h2><span>الوضوح</span></h2>
-        <div class="seg scr-q" id="scrQ"><button data-q="auto">تلقائي</button><button data-q="sharp">واضح</button><button data-q="smooth">ناعم</button></div>
+        <div class="seg scr-q" id="scrQ"><button data-q="auto">تلقائي</button><button data-q="sharp">واضح</button><button data-q="max">الأعلى</button><button data-q="smooth">ناعم</button></div>
         <p class="hint" id="scrQHint"></p>
         <div class="setrow" style="padding:4px 2px;margin-top:6px"><div><b>صوت البيسي</b><small>تسمع صوت اللعبة أو الفيديو مع الصورة</small></div><button id="scrSound" class="sw" aria-label="صوت البيسي"></button></div>
       </section>
@@ -2268,7 +2271,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=b794842ffb";
+        sc.src = "jsqr.js?v=f232c80cf5";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -8439,7 +8442,7 @@ const keepScr = () => {
   } catch {}
 };
 let scrScreens = [];
-const SCR_Q_HINT = { auto: "واضحة على واي فاي البيت، وأخف على نت الجوال.", sharp: "أوضح شي دايماً، وتاخذ نت أكثر.", smooth: "حركة أنعم، حلوة لو تتابع لعبة." };
+const SCR_Q_HINT = { auto: "واضحة على واي فاي البيت، وأخف على نت الجوال.", sharp: "أوضح شي دايماً، وتاخذ نت أكثر.", max: "مقاس شاشتك كامل وبدون ضغط، بالبيت وبرّا. ياخذ نت كثير.", smooth: "حركة أنعم، حلوة لو تتابع لعبة." };
 function paintScrPrefs() {
   document.querySelectorAll("#scrQ button").forEach((b) => b.classList.toggle("on", b.dataset.q === SCR.q));
   $("scrQHint").textContent = SCR_Q_HINT[SCR.q] ?? "";
@@ -8517,10 +8520,12 @@ function openScreen() {
   el.className = "scrx";
   el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div><div class="back hidden"><i></i><span>نرجّعه…</span></div></div>
     <div class="scr-pan" id="scrPan"><div class="grab"></div>
-      <h3>برامجك <small>اضغط عشان ينفتح بالبيسي</small></h3><div class="pg" id="scrApps"><p class="note">نجيب برامجك…</p></div>
       <h3>الصوت</h3>
       <div class="vrow"><button class="tool" data-pan="mute" style="min-width:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input type="range" min="0" max="100" step="1" id="scrVol" aria-label="صوت البيسي"><b id="scrVolN">–</b></div>
       <div class="media"><button data-pan="media.prev" aria-label="اللي قبل"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14l-10-7z"/></svg></button><button data-pan="media.play" aria-label="شغّل أو وقّف"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14l9-7zM14 5h3v14h-3zM19.5 5h3v14h-3z"/></svg></button><button data-pan="media.next" aria-label="الجاية"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l10-7z"/></svg></button><button data-pan="screen.off" aria-label="طفّ الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
+      <h3>برامجك <small>اضغط عشان ينفتح بالبيسي</small></h3>
+      <input id="scrAppQ" class="search" placeholder="دوّر برنامج…" dir="auto" autocomplete="off" />
+      <div class="pg" id="scrApps"><p class="note">نجيب برامجك…</p></div>
       <p class="note">التحكم بالماوس والكيبورد من الجوال ما هو موجود. تقدر تفتح برامجك وتتحكم بالصوت من هنا.</p>
     </div>
     <div class="top"><span class="live"><i></i>مباشر</span><span class="st"></span><button class="x" aria-label="سكّر">×</button></div>
@@ -8537,7 +8542,7 @@ function openScreen() {
   const v = el.querySelector("video");
   const V = { el, v, pc: null, live: false, want: true, tries: 0, timer: null, look: null, z: { s: 1, x: 0, y: 0 } };
   scrView = V;
-  const Q_NAME = { auto: "تلقائي", sharp: "واضح", smooth: "ناعم" };
+  const Q_NAME = { auto: "تلقائي", sharp: "واضح", max: "الأعلى", smooth: "ناعم" };
   const paintTools = () => {
     el.querySelector('[data-do="sound"]').classList.toggle("on", SCR.sound);
     el.querySelector('[data-do="sound"] .wave').style.opacity = SCR.sound ? "1" : ".2";
@@ -8784,7 +8789,7 @@ function openScreen() {
       if (SCR.sound) v.play().catch(() => askUnmute());
       void cmd("scr.set", { q: SCR.q, sound: SCR.sound }, 6000);
     } else if (what === "q") {
-      SCR.q = { auto: "sharp", sharp: "smooth", smooth: "auto" }[SCR.q] ?? "auto";
+      SCR.q = { auto: "sharp", sharp: "max", max: "smooth", smooth: "auto" }[SCR.q] ?? "auto";
       keepScr();
       void cmd("scr.set", { q: SCR.q, sound: SCR.sound }, 6000);
       toast(`الوضوح: ${Q_NAME[SCR.q]}`);
@@ -8813,38 +8818,78 @@ function openScreen() {
     // the sound at once; the programs as soon as the PC has read its Start menu (a few seconds the first time)
     void cmd("vol.get", {}, 6000).then((r) => r.ok && paintPanVol(r.data));
     paintPanApps(true);
-    try {
-      if (!chosenApps.length && !allApps) await loadApps();
-    } catch {}
+    await panApps();
     try {
       await loadRunning();
     } catch {}
     paintPanApps();
   }
+  // the PC's first read of its Start menu takes a few seconds: asked as soon as the view opens, again while it's still reading
+  let panLoad = null;
+  const panApps = () =>
+    (panLoad ??= (async () => {
+      for (let i = 0; i < 4 && !allApps && scrView === V; i++) {
+        try {
+          await loadApps();
+        } catch {}
+        if (!allApps && !canAll) await new Promise((r) => setTimeout(r, 2500));
+        if (!allApps && el.querySelector("#scrPan").classList.contains("on")) paintPanApps(true);
+      }
+      panLoad = null;
+    })());
+  void panApps();
+  // every program on the PC (owner, 2026-10-30: «مافي الا برنامج واحد، ابي كل البرامج»): the ones he picked, the starred,
+  // the open ones, then the whole Start menu; a search on top; the pictures fetched as they scroll into sight
+  let panQ = "";
+  const panSeen = new IntersectionObserver(
+    (es) => {
+      const ids = es.filter((e) => e.isIntersecting).map((e) => (panSeen.unobserve(e.target), e.target.dataset.icon)).filter((id) => !appIcons.has(id));
+      if (ids.length) void iconsFor(ids).then(() => scrView === V && paintPanApps());
+    },
+    { root: el.querySelector("#scrPan"), rootMargin: "200px" },
+  );
   function paintPanApps(loading = false) {
     const box = el.querySelector("#scrApps");
-    const pinned = canAll && allApps ? pins().map((id) => allApps.find((a) => a.id === id)).filter(Boolean) : [];
-    let items = [...chosenApps.map((a) => ({ ...a, mine: true })), ...pinned.map((a) => ({ ...a, icon: appIcons.get(a.id) ?? null }))];
-    // nothing picked yet: the programs that are open now, then the first of the Start menu
-    if (!items.length && canAll && allApps?.length) {
-      const open = allApps.filter((a) => openIds.has(`a:${a.id}`));
-      items = [...open, ...allApps.filter((a) => !openIds.has(`a:${a.id}`))].slice(0, 16).map((a) => ({ ...a, icon: appIcons.get(a.id) ?? null }));
-      const missing = items.filter((a) => !appIcons.has(a.id)).map((a) => a.id);
-      if (missing.length) void iconsFor(missing).then(() => scrView && paintPanApps());
-    }
+    const q = panQ.trim().toLowerCase();
+    const pinned = new Set(pins());
+    const mine = chosenApps.map((a) => ({ ...a, mine: true }));
+    const mineNames = new Set(mine.map((a) => String(a.name || "").toLowerCase()));
+    const rest = canAll && allApps ? allApps.filter((a) => !mineNames.has(String(a.name || "").toLowerCase())) : [];
+    const rank = (a) => (a.mine ? 0 : pinned.has(a.id) ? 1 : openIds.has(`a:${a.id}`) ? 2 : 3);
+    const items = [...mine, ...rest].filter((a) => !q || String(a.name || "").toLowerCase().includes(q)).sort((x, y) => rank(x) - rank(y));
     if (!items.length) {
-      box.innerHTML = loading ? '<p class="note">نجيب برامجك…</p>' : '<p class="note">ما اخترت برامج للحين. اختارها من تبويب «البيسي» ← «البرامج».</p>';
+      box.innerHTML = `<p class="note">${q ? "ما فيه برنامج بهالاسم على البيسي." : loading || (canAll && !allApps) ? "نجيب برامجك…" : canAll ? "ما لقينا برامج على البيسي." : "فتح أي برنامج مطفي من إعدادات البيسي. شغّله عشان تطلع كل برامجك هنا."}</p>`;
       return;
     }
-    box.innerHTML = items.map((a) => { const k = a.mine ? `m:${a.id}` : `a:${a.id}`; return `<button class="${openIds.has(k) ? "open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`; }).join("");
+    box.innerHTML = items
+      .map((a) => {
+        const k = a.mine ? `m:${a.id}` : `a:${a.id}`;
+        const pic = a.mine || appIcons.has(a.id) ? appIcon(a.mine ? a : { ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(String(a.name || "?").trim().charAt(0))}</span>`;
+        return `<button class="${openIds.has(k) ? "open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${pic}<span dir="auto">${esc(a.name)}</span></button>`;
+      })
+      .join("");
+    box.querySelectorAll("[data-icon]").forEach((x) => panSeen.observe(x));
   }
+  el.querySelector("#scrAppQ").addEventListener("input", (e) => {
+    panQ = e.target.value;
+    paintPanApps();
+  });
   el.querySelector("#scrApps").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-app],[data-run]");
     if (!b) return;
-    const name = b.textContent.trim();
+    const name = (b.querySelector("span[dir]") ?? b).textContent.trim();
     if (openIds.has(openKey(b))) {
       if (await ask(`نسكّر ${name}؟`, "ينقفل على البيسي.", "سكّره")) await closeFlow("apps.close", b.dataset.app ? { id: b.dataset.app, mine: true } : { id: b.dataset.run }, name);
-    } else await openApp({ app: b.dataset.app, run: b.dataset.run }, name, b);
+    } else {
+      b.classList.add("going");
+      const ok = await openApp({ app: b.dataset.app, run: b.dataset.run }, name, b);
+      b.classList.remove("going");
+      if (ok) {
+        openIds.add(openKey(b));
+        b.classList.add("open");
+        setTimeout(() => el.querySelector("#scrPan").classList.remove("on"), 250);
+      }
+    }
     setTimeout(async () => (await loadRunning(), paintPanApps()), 1500);
   });
   const paintPanVol = (d) => {
