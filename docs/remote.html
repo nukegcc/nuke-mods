@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-czgQ71KOXpXhTxFspEuvWej0ifXJuUS3/q8uUmx4VCI=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-RoGzVCkB7+mBtpjgLuKtK1QgzDtAt6fv/ksfMOV8v5k=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=6179697209" defer></script>
+<script src="rx-game.js?v=b794842ffb" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1219,9 +1219,35 @@
   .scr-mons b { font-size: 14px; } .scr-mons small { color: var(--dim); font-size: 12px; font-family: Rajdhani, system-ui, sans-serif; }
   .scr-q { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
   /* the live view */
-  .scrx { position: fixed; inset: 0; z-index: 64; background: #000; display: flex; flex-direction: column; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .scrx { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 64; background: #000; display: flex; flex-direction: column; touch-action: none; user-select: none; -webkit-user-select: none; }
   .scrx .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; display: grid; place-items: center; }
-  .scrx video { width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; background: #000; }
+  .scrx video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; background: #000; }
+  .scrx.fill video { object-fit: cover; }
+  body:has(.scrx) .toast { z-index: 67; }
+  .scrx .back { position: absolute; z-index: 3; top: 50%; left: 50%; translate: -50% -50%; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.7); border-radius: 14px; padding: 8px 14px; font-weight: 700; font-size: 13px; pointer-events: none; }
+  .scrx .back.hidden { display: none; }
+  .scrx .back i { width: 16px; height: 16px; border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); animation: spin 1s linear infinite; }
+  .scrx .dock { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
+  .scrx .dock::-webkit-scrollbar { display: none; }
+  .scrx .tool { flex-shrink: 0; }
+  .scr-pan { position: absolute; z-index: 5; inset-inline: 0; bottom: 0; max-height: 72%; overflow-y: auto; background: rgba(16,11,12,.97); border-radius: 22px 22px 0 0; box-shadow: 0 -10px 40px -10px #000, inset 0 1px 0 rgba(255,201,60,.25); padding: 10px max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.9,.3,1); touch-action: pan-y; text-align: right; }
+  .scr-pan.on { transform: none; }
+  .scr-pan .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 10px; }
+  .scr-pan h3 { margin: 12px 0 8px; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .scr-pan h3 small { margin-inline-start: auto; font-size: 12px; color: var(--dim); font-weight: 600; }
+  .scr-pan .pg { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+  .scr-pan .pg button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 4px; border-radius: 14px; background: var(--card2); font-size: 11.5px; font-weight: 700; color: #fff; }
+  .scr-pan .pg button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .scr-pan .pg button.open::after { content: ""; position: absolute; top: 6px; inset-inline-end: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .scr-pan .pg img, .scr-pan .pg .ph { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; }
+  .scr-pan .vrow { display: flex; align-items: center; gap: 10px; }
+  .scr-pan .vrow input { flex: 1; min-width: 0; accent-color: var(--red); height: 32px; }
+  .scr-pan .vrow b { min-width: 34px; text-align: center; font-family: Rajdhani, system-ui, sans-serif; font-size: 18px; }
+  .scr-pan .media { direction: ltr; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .scr-pan .media button { min-height: 46px; border-radius: 14px; background: var(--card2); color: #fff; display: grid; place-items: center; }
+  .scr-pan .media button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .scr-pan .media svg { width: 22px; height: 22px; }
+  .scr-pan .note { color: var(--dim); font-size: 12.5px; margin: 6px 0 0; }
   .scrx video.on { animation: scrIn .7s cubic-bezier(.2,.9,.3,1) both; }
   .scrx .top, .scrx .dock { position: absolute; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left)); transition: opacity .25s, transform .25s; }
   .scrx .top { top: 0; background: linear-gradient(rgba(0,0,0,.75), transparent); }
@@ -2242,7 +2268,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=6179697209";
+        sc.src = "jsqr.js?v=b794842ffb";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -8463,7 +8489,7 @@ async function loadScreens() {
     else setTimeout(() => tab === "screen" && !scrScreens.length && void loadScreens(), 3000);
     return;
   }
-  scrScreens = Array.isArray(r.data?.screens) ? r.data.screens : [];
+  scrScreens = (Array.isArray(r.data?.screens) ? r.data.screens : []).map((x) => ({ ...x, thumb: x.thumb || scrPics()[x.id] || null }));
   if (SCR.id && !scrScreens.some((s) => s.id === SCR.id)) SCR.id = null;
   paintScrMons();
 }
@@ -8489,13 +8515,22 @@ function openScreen() {
   buzz([12, 30, 12]);
   const el = document.createElement("div");
   el.className = "scrx";
-  el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div></div>
+  el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div><div class="back hidden"><i></i><span>نرجّعه…</span></div></div>
+    <div class="scr-pan" id="scrPan"><div class="grab"></div>
+      <h3>برامجك <small>اضغط عشان ينفتح بالبيسي</small></h3><div class="pg" id="scrApps"><p class="note">نجيب برامجك…</p></div>
+      <h3>الصوت</h3>
+      <div class="vrow"><button class="tool" data-pan="mute" style="min-width:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input type="range" min="0" max="100" step="1" id="scrVol" aria-label="صوت البيسي"><b id="scrVolN">–</b></div>
+      <div class="media"><button data-pan="media.prev" aria-label="اللي قبل"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14l-10-7z"/></svg></button><button data-pan="media.play" aria-label="شغّل أو وقّف"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14l9-7zM14 5h3v14h-3zM19.5 5h3v14h-3z"/></svg></button><button data-pan="media.next" aria-label="الجاية"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l10-7z"/></svg></button><button data-pan="screen.off" aria-label="طفّ الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
+      <p class="note">التحكم بالماوس والكيبورد من الجوال ما هو موجود. تقدر تفتح برامجك وتتحكم بالصوت من هنا.</p>
+    </div>
     <div class="top"><span class="live"><i></i>مباشر</span><span class="st"></span><button class="x" aria-label="سكّر">×</button></div>
     <div class="dock">
       <button class="tool snap" data-do="snap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>صوّر</button>
       <button class="tool" data-do="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>الصوت</button>
       <button class="tool" data-do="q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M7 15V9l3 3 3-3v6M16 9v6"/></svg><span class="qn"></span></button>
       <button class="tool" data-do="mon" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="9" rx="1.5"/><rect x="9" y="11" width="13" height="9" rx="1.5"/></svg><span class="mn"></span></button>
+      <button class="tool" data-do="pan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>لوحة</button>
+      <button class="tool" data-do="fill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 9l-3 3 3 3M17 9l3 3-3 3"/></svg><span class="fn">املأ</span></button>
       <button class="tool" data-do="full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>كبّر</button>
     </div>`;
   document.body.append(el);
@@ -8511,12 +8546,16 @@ function openScreen() {
     mon.hidden = scrScreens.length < 2;
     const cur = scrScreens.find((s) => s.id === SCR.id) ?? scrScreens[0];
     el.querySelector(".mn").textContent = cur ? `الشاشة ${cur.n}` : "";
+    el.classList.toggle("fill", Boolean(SCR.fill));
+    el.querySelector('[data-do="fill"]').classList.toggle("on", Boolean(SCR.fill));
+    el.querySelector(".fn").textContent = SCR.fill ? "كاملة" : "املأ";
   };
   const say = (t, bad = false) => {
     const st = el.querySelector(".st");
     st.textContent = t;
     st.classList.toggle("bad", bad);
   };
+  const backShow = (on) => el.querySelector(".back").classList.toggle("hidden", !on);
   const waitShow = (t) => {
     const w = el.querySelector(".wait");
     w.classList.toggle("hidden", !t);
@@ -8531,7 +8570,8 @@ function openScreen() {
       V.pc?.close();
     } catch {}
     V.live = false;
-    waitShow(V.tries ? "نرجّع الشاشة…" : "نشغّل الشاشة…");
+    if (V.seen) backShow(true);
+    else waitShow("نشغّل الشاشة…");
     try {
       const ir = await cmd("cam.ice", {}, 8000);
       const ice = ir.ok && Array.isArray(ir.data?.ice) ? ir.data.ice : [];
@@ -8548,7 +8588,13 @@ function openScreen() {
         if (pc !== V.pc) return;
         const s = pc.connectionState;
         if (s === "failed" || s === "closed") lost();
-        else if (s === "disconnected") V.timer = setTimeout(() => pc === V.pc && pc.connectionState !== "connected" && lost(), 7000);
+        else if (s === "disconnected") {
+          backShow(true);
+          V.timer = setTimeout(() => pc === V.pc && pc.connectionState !== "connected" && lost(), 10000);
+        } else if (s === "connected") {
+          clearTimeout(V.timer);
+          backShow(false);
+        }
       };
       const gathered = iceEnough(pc, [...RTC_ICE, ...ice]);
       await pc.setLocalDescription(await pc.createOffer());
@@ -8557,11 +8603,16 @@ function openScreen() {
       if (!r.ok) throw new Error(r.error || "fail");
       if (pc !== V.pc) return;
       await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
+      V.sid = r.data.id ?? V.sid;
       V.live = true;
       V.tries = 0;
-      v.classList.remove("on");
-      void v.offsetWidth;
-      v.classList.add("on");
+      backShow(false);
+      if (!V.seen) {
+        v.classList.remove("on");
+        void v.offsetWidth;
+        v.classList.add("on");
+      }
+      V.seen = true;
       // sound needs the phone's say-so: unmuted when allowed, else a button asks for one tap
       v.muted = !SCR.sound;
       v.play().catch(() => {
@@ -8604,6 +8655,7 @@ function openScreen() {
       return;
     }
     say("نرجّعه…", true);
+    backShow(true);
     V.timer = setTimeout(connect, [1, 2, 4, 8, 15][V.tries - 1] * 1000);
   }
   // how it travels, and «وقّف» pressed on the PC
@@ -8698,8 +8750,15 @@ function openScreen() {
       return;
     }
     tapAt = now;
+    if ($("scrPan").classList.contains("on")) return $("scrPan").classList.remove("on");
     V.tapT = setTimeout(() => el.classList.toggle("clean"), 300);
   };
+  const onTurn = () => {
+    V.z = { s: 1, x: 0, y: 0 };
+    apply();
+  };
+  addEventListener("resize", onTurn);
+  V.offTurn = () => removeEventListener("resize", onTurn);
   stage.addEventListener("pointerup", up);
   stage.addEventListener("pointercancel", up);
 
@@ -8711,6 +8770,13 @@ function openScreen() {
     buzz(8);
     const what = b.dataset.do;
     if (what === "snap") return snap();
+    if (what === "pan") return void openPan();
+    if (what === "fill") {
+      SCR.fill = !SCR.fill;
+      keepScr();
+      V.z = { s: 1, x: 0, y: 0 };
+      apply();
+    }
     if (what === "sound") {
       SCR.sound = !SCR.sound;
       keepScr();
@@ -8740,6 +8806,70 @@ function openScreen() {
     paintTools();
     paintScrPrefs();
   });
+  // «لوحة» (owner, 2026-10-30: «ابي لوحه تحكم… افتح تطبيقات منها»): the things the phone already does, in reach of the screen
+  async function openPan() {
+    const pan = el.querySelector("#scrPan");
+    pan.classList.add("on");
+    // the sound at once; the programs as soon as the PC has read its Start menu (a few seconds the first time)
+    void cmd("vol.get", {}, 6000).then((r) => r.ok && paintPanVol(r.data));
+    paintPanApps(true);
+    try {
+      if (!chosenApps.length && !allApps) await loadApps();
+    } catch {}
+    try {
+      await loadRunning();
+    } catch {}
+    paintPanApps();
+  }
+  function paintPanApps(loading = false) {
+    const box = el.querySelector("#scrApps");
+    const pinned = canAll && allApps ? pins().map((id) => allApps.find((a) => a.id === id)).filter(Boolean) : [];
+    let items = [...chosenApps.map((a) => ({ ...a, mine: true })), ...pinned.map((a) => ({ ...a, icon: appIcons.get(a.id) ?? null }))];
+    // nothing picked yet: the programs that are open now, then the first of the Start menu
+    if (!items.length && canAll && allApps?.length) {
+      const open = allApps.filter((a) => openIds.has(`a:${a.id}`));
+      items = [...open, ...allApps.filter((a) => !openIds.has(`a:${a.id}`))].slice(0, 16).map((a) => ({ ...a, icon: appIcons.get(a.id) ?? null }));
+      const missing = items.filter((a) => !appIcons.has(a.id)).map((a) => a.id);
+      if (missing.length) void iconsFor(missing).then(() => scrView && paintPanApps());
+    }
+    if (!items.length) {
+      box.innerHTML = loading ? '<p class="note">نجيب برامجك…</p>' : '<p class="note">ما اخترت برامج للحين. اختارها من تبويب «البيسي» ← «البرامج».</p>';
+      return;
+    }
+    box.innerHTML = items.map((a) => { const k = a.mine ? `m:${a.id}` : `a:${a.id}`; return `<button class="${openIds.has(k) ? "open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${appIcon(a)}<span dir="auto">${esc(a.name)}</span></button>`; }).join("");
+  }
+  el.querySelector("#scrApps").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-app],[data-run]");
+    if (!b) return;
+    const name = b.textContent.trim();
+    if (openIds.has(openKey(b))) {
+      if (await ask(`نسكّر ${name}؟`, "ينقفل على البيسي.", "سكّره")) await closeFlow("apps.close", b.dataset.app ? { id: b.dataset.app, mine: true } : { id: b.dataset.run }, name);
+    } else await openApp({ app: b.dataset.app, run: b.dataset.run }, name, b);
+    setTimeout(async () => (await loadRunning(), paintPanApps()), 1500);
+  });
+  const paintPanVol = (d) => {
+    if (!d) return;
+    el.querySelector("#scrVol").value = String(d.level ?? 0);
+    el.querySelector("#scrVolN").textContent = String(d.level ?? 0);
+    el.querySelector('[data-pan="mute"]').classList.toggle("on", Boolean(d.muted));
+  };
+  let volT = null;
+  el.querySelector("#scrVol").addEventListener("input", (e) => {
+    const level = Number(e.target.value);
+    el.querySelector("#scrVolN").textContent = String(level);
+    clearTimeout(volT);
+    volT = setTimeout(async () => paintPanVol((await cmd("vol.set", { level }, 6000)).data), 120);
+  });
+  el.querySelector("#scrPan").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-pan]");
+    if (!b) return;
+    buzz(8);
+    const a = b.dataset.pan;
+    if (a === "mute") return paintPanVol((await cmd("vol.mute", {}, 6000)).data);
+    const r = await cmd(a, {}, 8000);
+    if (!r.ok) return fail(r);
+    if (a === "screen.off") toast("طفّينا شاشة البيسي (حرّك الماوس وترجع)");
+  });
   // «صوّر»: the picture as the phone has it now, saved on this phone
   function snap() {
     if (!V.live || !v.videoWidth) return toast("لحظة، الشاشة ما وصلت للحين", true);
@@ -8760,6 +8890,7 @@ function openScreen() {
     }, "image/png");
   }
   V.close = () => {
+    V.offTurn?.();
     V.want = false;
     clearTimeout(V.timer);
     clearInterval(V.look);
@@ -8782,14 +8913,40 @@ function openScreen() {
   overlayOpen(el, () => closeScreen(true));
   void connect();
 }
+// each screen's picture on the tab = the last frame this phone saw of it (the PC sends no pictures: taking them crashed it)
+function scrPics() {
+  try {
+    return JSON.parse(localStorage.getItem("nk-scr-pics") || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+function keepScrPic(V) {
+  try {
+    const v = V.v;
+    const id = V.sid || SCR.id || scrScreens.find((x) => x.primary)?.id;
+    if (!id || !v?.videoWidth) return;
+    const c = document.createElement("canvas");
+    c.width = 480;
+    c.height = Math.round((480 * v.videoHeight) / v.videoWidth);
+    c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/jpeg", 0.7);
+    if (url.length < 200) return;
+    localStorage.setItem("nk-scr-pics", JSON.stringify({ ...scrPics(), [id]: url }));
+    const s = scrScreens.find((x) => x.id === id);
+    if (s) s.thumb = url;
+  } catch {}
+}
 function closeScreen(said, fromBack = false) {
   const V = scrView;
   if (!V) return;
+  if (V.live) keepScrPic(V);
   scrView = null;
   V.close();
   overlayDone(V.el, fromBack === true || said === true);
   if (typeof said === "string") toast(said, true);
   releaseScreenAwake();
+  if (tab === "screen") paintScrMons();
 }
 // the phone's screen stays on while the PC's screen is on it
 let scrLock = null;
@@ -8808,15 +8965,19 @@ function releaseScreenAwake() {
 document.addEventListener("visibilitychange", () => {
   const V = scrView;
   if (!V) return;
+  clearTimeout(V.awayT);
   if (document.hidden) {
-    clearTimeout(V.timer);
-    clearInterval(V.look);
-    if (V.live) void cmd("scr.stop", {}, 5000);
-    try {
-      V.pc?.close();
-    } catch {}
-    V.pc = null;
-    V.live = false;
+    V.awayT = setTimeout(() => {
+      if (scrView !== V || !document.hidden) return;
+      clearTimeout(V.timer);
+      clearInterval(V.look);
+      if (V.live) void cmd("scr.stop", {}, 5000);
+      try {
+        V.pc?.close();
+      } catch {}
+      V.pc = null;
+      V.live = false;
+    }, 8000);
   } else {
     void keepScreenAwake();
     V.el.dispatchEvent(new Event("scr-back"));
