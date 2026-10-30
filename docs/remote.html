@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-ovRdwiCh5NkCZPEJY/zNHP3Ev7820yC9ywsALUM3s2Y=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-czgQ71KOXpXhTxFspEuvWej0ifXJuUS3/q8uUmx4VCI=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=c1b9b3e830" defer></script>
+<script src="rx-game.js?v=6179697209" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1200,6 +1200,54 @@
   #billPrice input { flex: 1; min-width: 0; height: 44px; border-radius: 14px; border: 1px solid var(--line); background: #0c0909; color: #fff; padding: 0 12px; font: inherit; font-size: 16px; }
   .billempty { color: var(--ink2); text-align: center; padding: 12px 4px; }
   .paper .nb { font-family: Rajdhani, system-ui, sans-serif; direction: ltr; unicode-bidi: isolate; }
+  /* «الشاشة» (owner's picks, 2026-10-30): the PC's screen, view only — a little monitor to pick from, then the screen fills the phone */
+  nav .in:has(> button:nth-of-type(5)) { grid-template-columns: repeat(5, 1fr); }
+  .mon-hero { position: relative; margin: 4px auto 18px; width: min(100%, 420px); }
+  .mon-hero .bez { position: relative; aspect-ratio: 16/9; border-radius: 16px; padding: 7px; background: linear-gradient(#2a2122, #171112); box-shadow: inset 0 0 0 1.5px #3a2c2d, 0 18px 40px -20px rgba(239,59,45,.55); }
+  .mon-hero .glass { position: relative; width: 100%; height: 100%; border-radius: 10px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #241a1b, #0b0808); }
+  .mon-hero .glass img { width: 100%; height: 100%; object-fit: cover; display: block; animation: scrIn .6s cubic-bezier(.2,.9,.3,1) both; }
+  .mon-hero .glass::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px); pointer-events: none; }
+  .mon-hero .stand { width: 26%; height: 14px; margin: 0 auto; background: linear-gradient(#231a1b, #120d0d); clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%); }
+  .mon-hero .foot { width: 40%; height: 6px; margin: 0 auto; border-radius: 4px; background: #231a1b; }
+  .mon-hero .tag { position: absolute; top: 14px; inset-inline-start: 16px; z-index: 2; }
+  @keyframes scrIn { from { clip-path: inset(49% 0 49% 0); filter: brightness(3); } 60% { clip-path: inset(0 0 0 0); filter: brightness(1.6); } to { clip-path: inset(0); filter: none; } }
+  .scr-go { width: 100%; min-height: 56px; font-size: 17px; }
+  .scr-mons { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .scr-mons button { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 16px; background: var(--card2); text-align: right; box-shadow: inset 0 0 0 1.5px var(--line); }
+  .scr-mons button.on { box-shadow: inset 0 0 0 2px var(--gold); }
+  .scr-mons img, .scr-mons .ph { width: 100%; aspect-ratio: 16/9; border-radius: 10px; object-fit: cover; background: #0b0808; display: block; }
+  .scr-mons b { font-size: 14px; } .scr-mons small { color: var(--dim); font-size: 12px; font-family: Rajdhani, system-ui, sans-serif; }
+  .scr-q { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  /* the live view */
+  .scrx { position: fixed; inset: 0; z-index: 64; background: #000; display: flex; flex-direction: column; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .scrx .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; display: grid; place-items: center; }
+  .scrx video { width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; background: #000; }
+  .scrx video.on { animation: scrIn .7s cubic-bezier(.2,.9,.3,1) both; }
+  .scrx .top, .scrx .dock { position: absolute; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left)); transition: opacity .25s, transform .25s; }
+  .scrx .top { top: 0; background: linear-gradient(rgba(0,0,0,.75), transparent); }
+  .scrx .dock { bottom: 0; justify-content: center; padding-top: 14px; padding-bottom: max(12px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(0,0,0,.8)); }
+  .scrx.clean .top { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+  .scrx.clean .dock { opacity: 0; transform: translateY(12px); pointer-events: none; }
+  .scrx .live { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; }
+  .scrx .live i { width: 9px; height: 9px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 8px #ff3b30; animation: scrDot 1.6s ease-in-out infinite; }
+  @keyframes scrDot { 50% { opacity: .4; } }
+  .scrx .st { margin-inline-start: auto; font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); background: rgba(255,255,255,.08); border-radius: 10px; padding: 4px 9px; white-space: nowrap; }
+  .scrx .st.bad { color: var(--gold); }
+  .scrx .x { flex-shrink: 0; }
+  .scrx .tool { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 62px; padding: 8px 6px 6px; border-radius: 16px; background: rgba(30,22,23,.85); color: #fff; font-size: 11.5px; font-weight: 700; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .scrx .tool svg { width: 22px; height: 22px; }
+  .scrx .tool.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
+  .scrx .tool.snap { background: linear-gradient(#f2493a, #c92b21); }
+  .scrx .wait { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: rgba(255,255,255,.8); font-weight: 700; gap: 10px; align-content: center; z-index: 2; pointer-events: none; }
+  .scrx .wait.hidden { display: none; }
+  .scrx .wait .ring { width: 44px; height: 44px; border-radius: 50%; border: 4px solid rgba(255,255,255,.12); border-top-color: var(--red); animation: spin 1s linear infinite; margin: 0 auto; }
+  .scrx .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; }
+  .scrx .flash.go { animation: scrFlash .45s ease-out; }
+  @keyframes scrFlash { 0% { opacity: .85; } 100% { opacity: 0; } }
+  .scrx .zoomtag { position: absolute; z-index: 3; top: 50%; left: 50%; translate: -50% -50%; background: rgba(0,0,0,.65); border-radius: 12px; padding: 6px 12px; font-family: Rajdhani, system-ui, sans-serif; font-weight: 700; font-size: 20px; opacity: 0; transition: opacity .3s; pointer-events: none; direction: ltr; }
+  .scrx .zoomtag.show { opacity: 1; }
+  .scrx .unmute { width: auto; padding: 0 24px; position: absolute; z-index: 3; bottom: 96px; left: 50%; translate: -50% 0; }
+  @media (prefers-reduced-motion: reduce) { .mon-hero .glass img, .scrx video.on, .scrx .live i { animation: none; } }
 </style>
 </head>
 <body>
@@ -1466,6 +1514,21 @@
     </div>
 
     <!-- 📊 the PC's state -->
+    <div id="tab-screen" class="tab">
+      <div class="mon-hero"><div class="bez"><div class="glass" id="scrHero"></div><span class="tag chip" id="scrHeroTag" hidden></span></div><div class="stand"></div><div class="foot"></div></div>
+      <button id="scrGo" class="wide scr-go">شوف الشاشة</button>
+      <p class="hint" style="text-align:center;margin:8px 0 18px">تشوف شاشة البيسي حية بجوالك. تشوف بس، ما تتحكم فيها.</p>
+      <section id="scrPick" class="hidden">
+        <h2><span>أي شاشة؟</span></h2>
+        <div class="scr-mons" id="scrMons"></div>
+      </section>
+      <section>
+        <h2><span>الوضوح</span></h2>
+        <div class="seg scr-q" id="scrQ"><button data-q="auto">تلقائي</button><button data-q="sharp">واضح</button><button data-q="smooth">ناعم</button></div>
+        <p class="hint" id="scrQHint"></p>
+        <div class="setrow" style="padding:4px 2px;margin-top:6px"><div><b>صوت البيسي</b><small>تسمع صوت اللعبة أو الفيديو مع الصورة</small></div><button id="scrSound" class="sw" aria-label="صوت البيسي"></button></div>
+      </section>
+    </div>
     <div id="tab-stat" class="tab">
       <div class="tabhead"><img src="ban-stat.jpg" alt="" /><div><b>الحالة</b><small>كل شي عن جهازك</small></div></div>
       <div class="cats" role="tablist"><button role="tab" data-cat="now" data-empty="">الحين</button><button role="tab" data-cat="bill" data-empty="">الكهرباء</button><button role="tab" data-cat="net" data-empty="">النت</button><button role="tab" data-cat="device" data-empty="">الجهاز</button></div>
@@ -1586,6 +1649,7 @@
 <nav id="nav" class="hidden"><div class="in"><i class="ind" aria-hidden="true"></i>
   <button data-tab="games" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg>ألعابي</button>
   <button data-tab="pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>البيسي</button>
+  <button data-tab="screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="m10 7.5 4.5 2.5-4.5 2.5z"/><path d="M8 21h8M12 17v4"/></svg>الشاشة</button>
   <button data-tab="stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/></svg>الحالة</button>
   <button data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.6a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.6a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>الإعدادات</button>
 </div></nav>
@@ -2178,7 +2242,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=c1b9b3e830";
+        sc.src = "jsqr.js?v=6179697209";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -2915,7 +2979,8 @@ const ERR = {
   RUNTIME_FAILED: "مثبّت مايكروسوفت ما كمّل. أعد تشغيل البيسي وجرّب.",
 };
 // (only test copies of the app send a "detail")
-const fail = (r) => toast((ERR[r.error] || r.text || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
+// (a code needed: the PC's own words say why — «خلص اشتراكك…», «وصّل النت…» — so they come first)
+const fail = (r) => toast(((r.error === "CODE_NEEDED" && r.text) || ERR[r.error] || r.text || ERR.REMOTE_FAILED) + (r.detail ? ` [${r.detail}]` : ""), true);
 
 // ---- categories on top of a tab (one shows at a time; the pick is remembered per tab) ----
 const CAT_KEY = "nk-remote-cat";
@@ -3065,6 +3130,7 @@ function refresh() {
   if (tab === "pc") return Promise.all([loadVol(), loadAppVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard()]);
   if (tab === "stat") return Promise.all([loadBill(), loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
+  if (tab === "screen") return loadScreens();
   return Promise.resolve();
 }
 // ↻: the PC asked again, then everything on the open tab (the arrow turns until it's all in)
@@ -8328,7 +8394,436 @@ if (hash.get("p")) {
 pendingByes();
 setInterval(() => document.visibilityState === "visible" && pendingByes(), 60e3);
 // a notification tapped: the page opens on its tab («الحالة» for "the RAM is full"…)
-const TABS = ["games", "pc", "stat", "set"];
+
+// ---- «الشاشة»: the PC's screen on this phone, view only (owner's picks, 2026-10-30) ----
+// The tab: a little monitor showing the picked screen's latest picture, «شوف الشاشة», the screen to take (when there are
+// several), the quality and the PC's sound. The view: the screen fills the phone (it switches on like an old monitor), two
+// fingers zoom, a drag moves the zoomed picture, a double tap resets, a tap hides the tools; «صوّر» saves the picture on
+// this phone. Leaving the page stops it (no internet or PC work for a screen nobody looks at) and coming back starts it again.
+const SCR = (() => {
+  try {
+    return { q: "auto", sound: true, id: null, ...JSON.parse(localStorage.getItem("nk-scr") || "{}") };
+  } catch {
+    return { q: "auto", sound: true, id: null };
+  }
+})();
+const keepScr = () => {
+  try {
+    localStorage.setItem("nk-scr", JSON.stringify(SCR));
+  } catch {}
+};
+let scrScreens = [];
+const SCR_Q_HINT = { auto: "واضحة على واي فاي البيت، وأخف على نت الجوال.", sharp: "أوضح شي دايماً، وتاخذ نت أكثر.", smooth: "حركة أنعم، حلوة لو تتابع لعبة." };
+function paintScrPrefs() {
+  document.querySelectorAll("#scrQ button").forEach((b) => b.classList.toggle("on", b.dataset.q === SCR.q));
+  $("scrQHint").textContent = SCR_Q_HINT[SCR.q] ?? "";
+  $("scrSound").classList.toggle("on", SCR.sound);
+}
+function paintScrMons() {
+  const picked = scrScreens.find((s) => s.id === SCR.id) ?? scrScreens[0];
+  const hero = $("scrHero");
+  hero.textContent = "";
+  if (picked?.thumb) {
+    const img = new Image();
+    img.src = picked.thumb;
+    img.alt = "";
+    hero.append(img);
+  }
+  $("scrPick").classList.toggle("hidden", scrScreens.length < 2);
+  $("scrHeroTag").hidden = scrScreens.length < 2 || !picked;
+  if (picked) $("scrHeroTag").textContent = `الشاشة ${picked.n}`;
+  const box = $("scrMons");
+  box.textContent = "";
+  for (const s of scrScreens) {
+    const b = document.createElement("button");
+    b.className = s.id === picked?.id ? "on" : "";
+    if (s.thumb) {
+      const img = new Image();
+      img.src = s.thumb;
+      img.alt = "";
+      b.append(img);
+    } else b.append(Object.assign(document.createElement("span"), { className: "ph" }));
+    b.append(Object.assign(document.createElement("b"), { textContent: s.primary ? `الشاشة ${s.n} · الأساسية` : `الشاشة ${s.n}` }));
+    b.append(Object.assign(document.createElement("small"), { textContent: `${s.w}×${s.h}`, dir: "ltr" }));
+    b.addEventListener("click", () => {
+      buzz(8);
+      SCR.id = s.id;
+      keepScr();
+      paintScrMons();
+    });
+    box.append(b);
+  }
+}
+async function loadScreens() {
+  paintScrPrefs();
+  const r = await cmd("scr.list", {}, 9000);
+  if (!r.ok) {
+    if (r.error === "REMOTE_NOT_ALLOWED") $("scrQHint").textContent = "حدّث NUKE GG بالبيسي عشان تشوف الشاشة من جوالك.";
+    // (the link was still coming up: asked again a moment later, while the tab is open)
+    else setTimeout(() => tab === "screen" && !scrScreens.length && void loadScreens(), 3000);
+    return;
+  }
+  scrScreens = Array.isArray(r.data?.screens) ? r.data.screens : [];
+  if (SCR.id && !scrScreens.some((s) => s.id === SCR.id)) SCR.id = null;
+  paintScrMons();
+}
+$("scrQ").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  buzz(8);
+  SCR.q = b.dataset.q;
+  keepScr();
+  paintScrPrefs();
+});
+$("scrSound").addEventListener("click", () => {
+  buzz(8);
+  SCR.sound = !SCR.sound;
+  keepScr();
+  paintScrPrefs();
+});
+$("scrGo").addEventListener("click", () => openScreen());
+
+let scrView = null; // the open view's own parts
+function openScreen() {
+  if (scrView) return;
+  buzz([12, 30, 12]);
+  const el = document.createElement("div");
+  el.className = "scrx";
+  el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div></div>
+    <div class="top"><span class="live"><i></i>مباشر</span><span class="st"></span><button class="x" aria-label="سكّر">×</button></div>
+    <div class="dock">
+      <button class="tool snap" data-do="snap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>صوّر</button>
+      <button class="tool" data-do="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>الصوت</button>
+      <button class="tool" data-do="q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M7 15V9l3 3 3-3v6M16 9v6"/></svg><span class="qn"></span></button>
+      <button class="tool" data-do="mon" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="9" rx="1.5"/><rect x="9" y="11" width="13" height="9" rx="1.5"/></svg><span class="mn"></span></button>
+      <button class="tool" data-do="full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>كبّر</button>
+    </div>`;
+  document.body.append(el);
+  const v = el.querySelector("video");
+  const V = { el, v, pc: null, live: false, want: true, tries: 0, timer: null, look: null, z: { s: 1, x: 0, y: 0 } };
+  scrView = V;
+  const Q_NAME = { auto: "تلقائي", sharp: "واضح", smooth: "ناعم" };
+  const paintTools = () => {
+    el.querySelector('[data-do="sound"]').classList.toggle("on", SCR.sound);
+    el.querySelector('[data-do="sound"] .wave').style.opacity = SCR.sound ? "1" : ".2";
+    el.querySelector(".qn").textContent = Q_NAME[SCR.q];
+    const mon = el.querySelector('[data-do="mon"]');
+    mon.hidden = scrScreens.length < 2;
+    const cur = scrScreens.find((s) => s.id === SCR.id) ?? scrScreens[0];
+    el.querySelector(".mn").textContent = cur ? `الشاشة ${cur.n}` : "";
+  };
+  const say = (t, bad = false) => {
+    const st = el.querySelector(".st");
+    st.textContent = t;
+    st.classList.toggle("bad", bad);
+  };
+  const waitShow = (t) => {
+    const w = el.querySelector(".wait");
+    w.classList.toggle("hidden", !t);
+    if (t) w.querySelector("span").textContent = t;
+  };
+  paintTools();
+
+  async function connect() {
+    clearTimeout(V.timer);
+    if (!V.want || scrView !== V) return;
+    try {
+      V.pc?.close();
+    } catch {}
+    V.live = false;
+    waitShow(V.tries ? "نرجّع الشاشة…" : "نشغّل الشاشة…");
+    try {
+      const ir = await cmd("cam.ice", {}, 8000);
+      const ice = ir.ok && Array.isArray(ir.data?.ice) ? ir.data.ice : [];
+      const pc = new RTCPeerConnection({ iceServers: [...RTC_ICE, ...ice] });
+      V.pc = pc;
+      pc.addTransceiver("video", { direction: "recvonly" });
+      pc.addTransceiver("audio", { direction: "recvonly" });
+      const stream = new MediaStream();
+      pc.ontrack = (e) => {
+        stream.addTrack(e.track);
+        v.srcObject = stream;
+      };
+      pc.onconnectionstatechange = () => {
+        if (pc !== V.pc) return;
+        const s = pc.connectionState;
+        if (s === "failed" || s === "closed") lost();
+        else if (s === "disconnected") V.timer = setTimeout(() => pc === V.pc && pc.connectionState !== "connected" && lost(), 7000);
+      };
+      const gathered = iceEnough(pc, [...RTC_ICE, ...ice]);
+      await pc.setLocalDescription(await pc.createOffer());
+      await gathered;
+      const r = await cmd("scr.start", { sdp: pc.localDescription.sdp, id: SCR.id, q: SCR.q, sound: SCR.sound }, 25000);
+      if (!r.ok) throw new Error(r.error || "fail");
+      if (pc !== V.pc) return;
+      await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
+      V.live = true;
+      V.tries = 0;
+      v.classList.remove("on");
+      void v.offsetWidth;
+      v.classList.add("on");
+      // sound needs the phone's say-so: unmuted when allowed, else a button asks for one tap
+      v.muted = !SCR.sound;
+      v.play().catch(() => {
+        v.muted = true;
+        v.play().catch(() => {});
+        if (SCR.sound) askUnmute();
+      });
+      waitShow(null);
+      void keepScreenAwake();
+      clearInterval(V.look);
+      V.look = setInterval(look, 3000);
+      setTimeout(look, 1500);
+    } catch (err) {
+      try {
+        V.pc?.close();
+      } catch {}
+      V.pc = null;
+      const m = err?.message;
+      if (m === "REMOTE_NOT_ALLOWED") return closeScreen("حدّث NUKE GG بالبيسي عشان تشوف الشاشة من جوالك.");
+      if (m === "SCR_FULL") return closeScreen("فيه جوالين يشوفون الشاشة الحين. وقّف واحد وجرّب.");
+      if (m === "FEATURE_OFF") return closeScreen("شاشة البيسي موقفة مؤقتاً.");
+      if (m === "CODE_NEEDED") return closeScreen("هذي تحتاج كود. فعّل كودك بالبيسي.");
+      lost();
+    }
+  }
+  // the link went: back by itself (1, 2, 4, 8, 15 s), then it says so and waits for a tap
+  function lost() {
+    if (!V.want || scrView !== V) return;
+    V.live = false;
+    clearInterval(V.look);
+    V.tries++;
+    if (V.tries > 5) {
+      waitShow("ما قدرنا نوصل للشاشة. اضغط عشان نجرب مرة ثانية.");
+      el.querySelector(".wait").style.pointerEvents = "auto";
+      el.querySelector(".wait").onclick = () => {
+        el.querySelector(".wait").style.pointerEvents = "none";
+        V.tries = 1;
+        void connect();
+      };
+      return;
+    }
+    say("نرجّعه…", true);
+    V.timer = setTimeout(connect, [1, 2, 4, 8, 15][V.tries - 1] * 1000);
+  }
+  // how it travels, and «وقّف» pressed on the PC
+  async function look() {
+    if (!V.live || document.hidden) return;
+    const [st, sa] = await Promise.all([cmd("scr.stats", {}, 5000), cmd("scr.state", {}, 5000)]);
+    if (scrView !== V) return;
+    if (sa.ok && sa.data?.stoppedByPc) return closeScreen("وقّفوا المشاهدة من البيسي.");
+    if (sa.ok && sa.data && !sa.data.live && V.live) return lost();
+    const k = st.ok ? st.data?.kind : null;
+    const h = st.ok ? st.data?.h : 0;
+    say(k === "lan" ? `نفس الواي فاي ⚡${h ? ` · ${h}p` : ""}` : k === "relay" ? "عن طريق سيرفر نيوك" : k === "net" ? `عن طريق النت${h ? ` · ${h}p` : ""}` : "");
+  }
+  function askUnmute() {
+    if (el.querySelector(".unmute")) return;
+    const b = document.createElement("button");
+    b.className = "wide unmute";
+    b.textContent = "شغّل الصوت";
+    b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      v.muted = false;
+      v.play().catch(() => {});
+      b.remove();
+    });
+    el.querySelector(".stage").append(b);
+  }
+
+  // ---- zoom with two fingers, move with one while zoomed, double tap resets, a tap hides the tools ----
+  const stage = el.querySelector(".stage");
+  const pts = new Map();
+  let pinch = null, pan = null, tapAt = 0, moved = false;
+  const apply = () => {
+    const z = V.z;
+    const W = stage.clientWidth, H = stage.clientHeight;
+    z.s = Math.max(1, Math.min(5, z.s));
+    z.x = Math.min(0, Math.max(W - W * z.s, z.x));
+    z.y = Math.min(0, Math.max(H - H * z.s, z.y));
+    v.style.transform = `translate(${z.x}px, ${z.y}px) scale(${z.s})`;
+  };
+  const zoomTag = () => {
+    const t = el.querySelector(".zoomtag");
+    t.textContent = `${V.z.s.toFixed(1)}×`;
+    t.classList.add("show");
+    clearTimeout(t._h);
+    t._h = setTimeout(() => t.classList.remove("show"), 700);
+  };
+  stage.addEventListener("pointerdown", (e) => {
+    stage.setPointerCapture?.(e.pointerId);
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    moved = false;
+    if (pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: V.z.s, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, x: V.z.x, y: V.z.y };
+      pan = null;
+    } else if (pts.size === 1) pan = { x: e.clientX, y: e.clientY, zx: V.z.x, zy: V.z.y };
+  });
+  stage.addEventListener("pointermove", (e) => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      const s = Math.max(1, Math.min(5, (pinch.s * Math.hypot(a.x - b.x, a.y - b.y)) / pinch.d));
+      const r = stage.getBoundingClientRect();
+      const cx = pinch.cx - r.left, cy = pinch.cy - r.top;
+      V.z.x = cx - ((cx - pinch.x) * s) / pinch.s;
+      V.z.y = cy - ((cy - pinch.y) * s) / pinch.s;
+      V.z.s = s;
+      apply();
+      zoomTag();
+      moved = true;
+    } else if (pan && V.z.s > 1) {
+      V.z.x = pan.zx + (e.clientX - pan.x);
+      V.z.y = pan.zy + (e.clientY - pan.y);
+      if (Math.abs(e.clientX - pan.x) + Math.abs(e.clientY - pan.y) > 6) moved = true;
+      apply();
+    } else if (pan && Math.abs(e.clientX - pan.x) + Math.abs(e.clientY - pan.y) > 6) moved = true;
+  });
+  const up = (e) => {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinch = null;
+    if (pts.size) return;
+    pan = null;
+    if (moved || e.target.closest("button")) return;
+    const now = performance.now();
+    if (now - tapAt < 300) {
+      clearTimeout(V.tapT);
+      V.z = { s: 1, x: 0, y: 0 };
+      v.style.transition = "transform .25s";
+      apply();
+      setTimeout(() => (v.style.transition = ""), 260);
+      tapAt = 0;
+      return;
+    }
+    tapAt = now;
+    V.tapT = setTimeout(() => el.classList.toggle("clean"), 300);
+  };
+  stage.addEventListener("pointerup", up);
+  stage.addEventListener("pointercancel", up);
+
+  // ---- the tools ----
+  el.querySelector(".x").addEventListener("click", () => closeScreen());
+  el.querySelector(".dock").addEventListener("click", async (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    buzz(8);
+    const what = b.dataset.do;
+    if (what === "snap") return snap();
+    if (what === "sound") {
+      SCR.sound = !SCR.sound;
+      keepScr();
+      v.muted = !SCR.sound;
+      if (SCR.sound) v.play().catch(() => askUnmute());
+      void cmd("scr.set", { q: SCR.q, sound: SCR.sound }, 6000);
+    } else if (what === "q") {
+      SCR.q = { auto: "sharp", sharp: "smooth", smooth: "auto" }[SCR.q] ?? "auto";
+      keepScr();
+      void cmd("scr.set", { q: SCR.q, sound: SCR.sound }, 6000);
+      toast(`الوضوح: ${Q_NAME[SCR.q]}`);
+    } else if (what === "mon") {
+      const i = scrScreens.findIndex((s) => s.id === (SCR.id ?? scrScreens[0]?.id));
+      SCR.id = scrScreens[(i + 1) % scrScreens.length]?.id ?? null;
+      keepScr();
+      V.tries = 0;
+      void connect();
+    } else if (what === "full") {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await el.requestFullscreen({ navigationUI: "hide" });
+        await screen.orientation?.lock?.("landscape").catch(() => {});
+      } catch {
+        toast("لفّ جوالك بالعرض عشان تكبر الشاشة");
+      }
+    }
+    paintTools();
+    paintScrPrefs();
+  });
+  // «صوّر»: the picture as the phone has it now, saved on this phone
+  function snap() {
+    if (!V.live || !v.videoWidth) return toast("لحظة، الشاشة ما وصلت للحين", true);
+    const c = document.createElement("canvas");
+    c.width = v.videoWidth;
+    c.height = v.videoHeight;
+    c.getContext("2d").drawImage(v, 0, 0);
+    const f = el.querySelector(".flash");
+    f.classList.remove("go");
+    void f.offsetWidth;
+    f.classList.add("go");
+    buzz([10, 40, 10]);
+    c.toBlob((blob) => {
+      if (!blob) return toast("ما قدرنا ناخذ الصورة", true);
+      const d = new Date();
+      const file = new File([blob], `شاشة البيسي ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")}.png`, { type: "image/png" });
+      void saveFile(file).then((ok) => ok !== false && toast("صوّرنا الشاشة ✓"));
+    }, "image/png");
+  }
+  V.close = () => {
+    V.want = false;
+    clearTimeout(V.timer);
+    clearInterval(V.look);
+    try {
+      V.pc?.close();
+    } catch {}
+    V.pc = null;
+    v.srcObject = null;
+    if (V.live) void cmd("scr.stop", {}, 5000);
+    V.live = false;
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    el.remove();
+  };
+  // back on the page after it was hidden: a fresh link (the old one was let go)
+  el.addEventListener("scr-back", () => {
+    if (scrView !== V || V.live) return;
+    V.tries = 0;
+    void connect();
+  });
+  overlayOpen(el, () => closeScreen(true));
+  void connect();
+}
+function closeScreen(said, fromBack = false) {
+  const V = scrView;
+  if (!V) return;
+  scrView = null;
+  V.close();
+  overlayDone(V.el, fromBack === true || said === true);
+  if (typeof said === "string") toast(said, true);
+  releaseScreenAwake();
+}
+// the phone's screen stays on while the PC's screen is on it
+let scrLock = null;
+async function keepScreenAwake() {
+  try {
+    scrLock = await navigator.wakeLock?.request("screen");
+  } catch {}
+}
+function releaseScreenAwake() {
+  try {
+    scrLock?.release();
+  } catch {}
+  scrLock = null;
+}
+// a hidden page: the stream stops (nothing watched = no internet, no work on the PC); back: it starts again
+document.addEventListener("visibilitychange", () => {
+  const V = scrView;
+  if (!V) return;
+  if (document.hidden) {
+    clearTimeout(V.timer);
+    clearInterval(V.look);
+    if (V.live) void cmd("scr.stop", {}, 5000);
+    try {
+      V.pc?.close();
+    } catch {}
+    V.pc = null;
+    V.live = false;
+  } else {
+    void keepScreenAwake();
+    V.el.dispatchEvent(new Event("scr-back"));
+  }
+});
+
+const TABS = ["games", "pc", "screen", "stat", "set"];
 const goTab = (t) => {
   const [name, cat] = String(t ?? "").split(":");
   if (!TABS.includes(name)) return;
