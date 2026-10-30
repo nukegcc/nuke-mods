@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-pLBgerugbUc7mENMYGwE3WijaF7+8a27U4H+7h5NJHY=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-PUnEavPHsr9C02ruAxWispSYjEg5wZmV49c7QXBB/0k=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=1b8906d169" defer></script>
+<script src="rx-game.js?v=e281744e81" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1212,6 +1212,7 @@
   .mon-hero .tag { position: absolute; top: 14px; inset-inline-start: 16px; z-index: 2; }
   @keyframes scrIn { from { clip-path: inset(49% 0 49% 0); filter: brightness(3); } 60% { clip-path: inset(0 0 0 0); filter: brightness(1.6); } to { clip-path: inset(0); filter: none; } }
   .scr-go { width: 100%; min-height: 56px; font-size: 17px; }
+  .scr-go:disabled { background: var(--card2); color: var(--dim); box-shadow: inset 0 0 0 1.5px var(--line); }
   .scr-mons { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
   .scr-mons button { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 16px; background: var(--card2); text-align: right; box-shadow: inset 0 0 0 1.5px var(--line); }
   .scr-mons button.on { box-shadow: inset 0 0 0 2px var(--gold); }
@@ -1235,9 +1236,9 @@
   .scrx .dock { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
   .scrx .dock::-webkit-scrollbar { display: none; }
   .scrx .tool { flex-shrink: 0; }
-  .scr-pan { position: absolute; z-index: 5; inset-inline: 0; bottom: 0; max-height: 72%; overflow-y: auto; background: rgba(16,11,12,.97); border-radius: 22px 22px 0 0; box-shadow: 0 -10px 40px -10px #000, inset 0 1px 0 rgba(255,201,60,.25); padding: 10px max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.9,.3,1); touch-action: pan-y; text-align: right; }
+  .scr-pan { position: absolute; z-index: 5; inset-inline: 0; bottom: 0; max-height: 72%; overflow-y: auto; background: rgb(16,11,12); border-radius: 22px 22px 0 0; box-shadow: 0 -10px 40px -10px #000, inset 0 1px 0 rgba(255,201,60,.25); padding: 10px max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.9,.3,1); touch-action: pan-y; text-align: right; }
   .scr-pan.on { transform: none; }
-  .scr-pan .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 10px; }
+  .scr-pan .grab { width: 44px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 10px; cursor: grab; }
   .scr-pan h3 { margin: 12px 0 8px; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
   .scr-pan h3 small { margin-inline-start: auto; font-size: 12px; color: var(--dim); font-weight: 600; }
   .scr-pan .pg { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
@@ -1248,7 +1249,7 @@
   .scr-pan .vrow { display: flex; align-items: center; gap: 10px; }
   .scr-pan .vrow input { flex: 1; min-width: 0; accent-color: var(--red); height: 32px; }
   .scr-pan .vrow b { min-width: 34px; text-align: center; font-family: Rajdhani, system-ui, sans-serif; font-size: 18px; }
-  .scr-pan .media { direction: ltr; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .scr-pan .media { direction: ltr; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
   .scr-pan .media button { min-height: 46px; border-radius: 14px; background: var(--card2); color: #fff; display: grid; place-items: center; }
   .scr-pan .media button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   .scr-pan .media svg { width: 22px; height: 22px; }
@@ -1295,7 +1296,13 @@
   .scr-pan .acts button.bad { color: #ff8a80; }
   .scr-pan .acts button:active { transform: scale(.95); }
   .scr-pan .acts button[hidden] { display: none; }
-  .scr-pan.nowin .acts button:not(.bad):not(.show) { opacity: .38; }
+  .scr-pan.nowin .acts button:not(.bad):not(.show) { color: rgba(255,255,255,.3); }
+  .scr-pan.nowin .acts button:not(.bad):not(.show) svg { opacity: .45; }
+  .scr-pan .pg button.more { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line); justify-content: center; }
+  .scr-pan .pg button.more b { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: var(--gold); font-family: Rajdhani, system-ui, sans-serif; font-size: 16px; }
+  /* «سجّل» while it records: a stop square and the time (the word didn't fit an upright phone's button) */
+  .scrx .tool.rec.on svg { display: none; }
+  .scrx .tool.rec.on::before { content: ""; width: 16px; height: 16px; margin: 2px 0; border-radius: 4px; background: #fff; }
   .scr-pan .acts button.show { color: #fff; background: linear-gradient(#f2493a, #c92b21); }
   .scr-pan .acts button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   /* pressed: a spinner in place of the picture right away, the word says what's happening; done: a short green glow */
@@ -1314,14 +1321,30 @@
   .clipcard .no { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--card2); color: #fff; font-size: 18px; }
   /* a phone held upright: the buttons in two rows of four, none cut at the edges */
   @media (max-width: 560px) {
-    .scrx .dock { gap: 5px; justify-content: stretch; flex-wrap: wrap; }
-    .scrx .tool { flex: 1 1 calc(25% - 5px); min-width: 0; padding: 7px 2px 5px; font-size: 10.5px; border-radius: 14px; white-space: nowrap; }
-    .scrx .tool svg { width: 20px; height: 20px; }
-    .scrx .again { bottom: calc(150px + env(safe-area-inset-bottom)); }
-    .clipcard { bottom: calc(160px + env(safe-area-inset-bottom)); }
+    /* one row: the quality moved into «الشاشة», «كبّر» only where the phone can do it (never an iPhone) */
+    .scrx .dock { gap: 4px; justify-content: stretch; flex-wrap: nowrap; }
+    .scrx .dock .tool { flex: 1 1 0; min-width: 0; padding: 7px 1px 5px; font-size: 10.5px; border-radius: 14px; white-space: nowrap; }
+    .scrx .dock .tool svg { width: 20px; height: 20px; }
+  }
+  /* every press shows at once (an iPhone doesn't buzz) */
+  .scrx .tool:active, .scr-pan .media button:active, .scr-wins button:active, .scr-mons button:active, .scr-pan .seg button:active, .clipcard button:active { transform: translateY(2px) scale(.96); }
+  .scrx .st:empty, .scrx:not(.is-live) .live { display: none; }
+  /* a sheet's top can be pulled down to put it away */
+  .scr-pan .grab { position: relative; touch-action: none; }
+  .scr-pan .grab::after { content: ""; position: absolute; inset: -16px -80px; }
+  .scr-pan .seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .scr-pan .media button { gap: 3px; font-size: 11px; font-weight: 700; grid-auto-flow: row; }
+  .scr-pan .media svg { width: 20px; height: 20px; }
+  .scr-pan .vrow input:disabled { opacity: .4; }
+  /* sideways: the sheets sit at the side, the picture stays in sight */
+  @media (orientation: landscape) and (max-height: 560px) {
+    .scr-pan { inset-inline: auto 0; top: calc(58px + env(safe-area-inset-top)); bottom: calc(76px + env(safe-area-inset-bottom)); width: min(420px, 52%); max-height: none; border-radius: 22px 0 0 22px; transform: translateX(105%); }
+    [dir="rtl"] .scr-pan { transform: translateX(-105%); }
+    .scr-pan.on, [dir="rtl"] .scr-pan.on { transform: none; }
   }
   .scrx .wait { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: rgba(255,255,255,.8); font-weight: 700; gap: 10px; align-content: center; z-index: 2; pointer-events: none; }
   .scrx .wait.hidden { display: none; }
+  .scrx .wait span { white-space: pre-line; max-width: 320px; padding: 0 16px; line-height: 1.8; }
   .scrx .wait .ring { width: 44px; height: 44px; border-radius: 50%; border: 4px solid rgba(255,255,255,.12); border-top-color: var(--red); animation: spin 1s linear infinite; margin: 0 auto; }
   .scrx .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 4; }
   .scrx .flash.go { animation: scrFlash .45s ease-out; }
@@ -2329,7 +2352,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=1b8906d169";
+        sc.src = "jsqr.js?v=e281744e81";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -3005,10 +3028,12 @@ function cmd(action, args, wait = 9000) {
   // (no answer over a direct link that didn't say it closed: it's dropped, the next ask goes over the relay — never the
   // same ask twice: it may have been done already)
   const wasDirect = direct();
+  const usedRtc = rtc;
   return new Promise((resolve) => {
     const giveUp = () => {
       pending.delete(id);
-      if (wasDirect) closeRtc();
+      // (only the direct link this ask went on: a newer one, opened meanwhile, is kept — 2026-10-30, a lost ask closed the fresh link)
+      if (wasDirect && rtc === usedRtc) closeRtc();
       suspect(); // no answer: is the PC still there?
       resolve({ ok: false, error: "TIMEOUT" });
     };
@@ -8556,7 +8581,11 @@ async function loadScreens() {
   paintScrPrefs();
   const r = await cmd("scr.list", {}, 9000);
   if (!r.ok) {
-    if (r.error === "REMOTE_NOT_ALLOWED") $("scrQHint").textContent = "حدّث NUKE GG بالبيسي عشان تشوف الشاشة من جوالك.";
+    // (an old NUKE GG on the PC: the big button says what to do instead of opening and shutting)
+    if (r.error === "REMOTE_NOT_ALLOWED") {
+      $("scrGo").disabled = true;
+      $("scrGo").textContent = "حدّث NUKE GG بالبيسي أول";
+    }
     // (the link was still coming up: asked again a moment later, while the tab is open)
     else setTimeout(() => tab === "screen" && !scrScreens.length && void loadScreens(), 3000);
     return;
@@ -8590,7 +8619,7 @@ function winListHtml() {
     const pic = ic ? `<img class="ic" src="${esc(ic)}" alt="" />` : `<span class="ic" dir="auto">${esc(String(w.title || "?").trim().charAt(0))}</span>`;
     return `<button data-win="${esc(w.id)}" class="${scrWin?.id === w.id ? "on" : ""}">${pic}<span class="t"><b dir="auto">${esc(w.title)}</b>${w.small ? "<small>مصغّر، نكبّره لك أول ما تختاره</small>" : ""}</span></button>`;
   });
-  const empty = scrWinsWhy === "old" ? '<p class="note muted">حدّث NUKE GG بالبيسي عشان تختار برنامج واحد.</p>' : !scrWins.length ? '<p class="note muted">ما فيه برامج مفتوحة على الشاشة الحين.</p>' : "";
+  const empty = scrWinsWhy === "old" ? '<p class="note muted">حدّث NUKE GG بالبيسي عشان تختار برنامج واحد.</p>' : scrWinsWhy === "fail" ? '<p class="note muted">ما قدرنا نجيب البرامج. تأكد إن البيسي متصل.</p>' : !scrWins.length ? '<p class="note muted">ما فيه برامج مفتوحة على الشاشة الحين.</p>' : "";
   return `<button data-win="" class="${scrWin ? "" : "on"}"><span class="ic">${MON_SVG}</span><span class="t"><b>الشاشة كاملة</b></span></button>${rows.join("")}${empty}`;
 }
 function paintWins() {
@@ -8632,28 +8661,31 @@ function openScreen() {
   el.className = "scrx";
   el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div><img class="still" alt="" hidden /><div class="again hidden"><i class="spin"></i><span>نرجّع الصورة…</span></div></div>
     <div class="scr-pan" id="scrPan"><div class="grab"></div>
-      <h3>الصوت</h3>
-      <div class="vrow"><button class="tool" data-pan="mute" style="min-width:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input type="range" min="0" max="100" step="1" id="scrVol" aria-label="صوت البيسي"><b id="scrVolN">–</b></div>
-      <div class="media"><button data-pan="media.prev" aria-label="اللي قبل"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14l-10-7z"/></svg></button><button data-pan="media.play" aria-label="شغّل أو وقّف"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14l9-7zM14 5h3v14h-3zM19.5 5h3v14h-3z"/></svg></button><button data-pan="media.next" aria-label="الجاية"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l10-7z"/></svg></button><button data-pan="screen.off" aria-label="طفّ الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
-      <h3>صوت كل برنامج</h3>
-      <div class="avs" id="scrAv"><p class="note">نجيب البرامج اللي فيها صوت…</p></div>
-      <h3>برامجك <small>اضغط المفتوح عشان تجيبه قدام أو تصغّره</small></h3>
+      <h3>برامجك <small>اضغط المفتوح وتشوف وش تسوي فيه</small></h3>
       <input id="scrAppQ" class="search" placeholder="دوّر برنامج…" dir="auto" autocomplete="off" />
       <div class="pg" id="scrApps"><p class="note">نجيب برامجك…</p></div>
+      <h3>الصوت</h3>
+      <div class="vrow"><button class="tool" data-pan="mute" style="min-width:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input type="range" min="0" max="100" step="1" id="scrVol" aria-label="صوت البيسي" dir="ltr" disabled><b id="scrVolN">–</b></div>
+      <div class="media"><button data-pan="media.prev"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14l-10-7z"/></svg>اللي قبل</button><button data-pan="media.play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14l9-7zM14 5h3v14h-3zM19.5 5h3v14h-3z"/></svg>شغّل ووقّف</button><button data-pan="media.next"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l10-7z"/></svg>الجاية</button></div>
+      <h3>صوت كل برنامج</h3>
+      <div class="avs" id="scrAv"><p class="note">نجيب البرامج اللي فيها صوت…</p></div>
       <p class="note">التحكم بالماوس والكيبورد من الجوال ما هو موجود. تقدر تفتح برامجك وتتحكم بالصوت من هنا.</p>
     </div>
     <div class="scr-pan" id="scrSrc"><div class="grab"></div>
-      <div class="srcmons"><h3>الشاشات</h3><div class="scr-mons" id="scrSrcMons"></div></div>
-      <h3>برنامج واحد <small>تشوفه هو بس</small></h3>
+      <h3>وش تبي تشوف؟</h3>
+      <div class="srcmons"><div class="scr-mons" id="scrSrcMons"></div></div>
       <div class="scr-wins" id="scrSrcWins"><p class="note">نشوف البرامج المفتوحة…</p></div>
+      <h3>الوضوح</h3>
+      <div class="seg" id="scrSrcQ"><button data-q="auto">تلقائي</button><button data-q="sharp">واضح</button><button data-q="max">الأعلى</button><button data-q="smooth">ناعم</button></div>
+      <p class="note" id="scrSrcQHint"></p>
     </div>
     <div class="scr-pan" id="scrAct"><div class="grab"></div>
       <h3 id="scrActName" dir="auto"></h3>
       <p class="actsub">اختر وش تبي نسوي فيه بالبيسي</p>
       <div class="acts">
         <button data-act="show" class="show" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M12 15V8M9 11l3-3 3 3"/></svg><span>طلّعه</span></button>
-        <button data-act="front"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="13" height="12" rx="2"/><path d="M8 4h11a2 2 0 0 1 2 2v9"/></svg><span>قدّام</span></button>
-        <button data-act="watch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>شوفه بس</span></button>
+        <button data-act="front"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="13" height="12" rx="2"/><path d="M8 4h11a2 2 0 0 1 2 2v9"/></svg><span>جيبه قدّام</span></button>
+        <button data-act="watch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>شوفه لحاله</span></button>
         <button data-act="max"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span>كبّره</span></button>
         <button data-act="restore" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg><span>رجّع حجمه</span></button>
         <button data-act="min"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19h14"/></svg><span>صغّره</span></button>
@@ -8665,7 +8697,6 @@ function openScreen() {
       <button class="tool snap" data-do="snap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>صوّر</button>
       <button class="tool rec" data-do="rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/><circle cx="9" cy="12" r="2.2" fill="currentColor"/></svg><span class="rn">سجّل</span></button>
       <button class="tool" data-do="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>الصوت</button>
-      <button class="tool" data-do="q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M7 15V9l3 3 3-3v6M16 9v6"/></svg><span class="qn"></span></button>
       <button class="tool" data-do="mon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="9" rx="1.5"/><rect x="9" y="11" width="13" height="9" rx="1.5"/></svg><span class="mn"></span></button>
       <button class="tool" data-do="pan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>لوحة</button>
       <button class="tool" data-do="fill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 9l-3 3 3 3M17 9l3 3-3 3"/></svg><span class="fn">املأ</span></button>
@@ -8679,7 +8710,6 @@ function openScreen() {
   const paintTools = () => {
     el.querySelector('[data-do="sound"]').classList.toggle("on", SCR.sound);
     el.querySelector('[data-do="sound"] .wave').style.opacity = SCR.sound ? "1" : ".2";
-    el.querySelector(".qn").textContent = Q_NAME[SCR.q];
     // (what you watch: a screen, or one program — the panel picks)
     const cur = scrScreens.find((s) => s.id === SCR.id) ?? scrScreens[0];
     el.querySelector(".mn").textContent = scrWin ? "برنامج" : cur && scrScreens.length > 1 ? `الشاشة ${cur.n}` : "الشاشة";
@@ -8726,39 +8756,81 @@ function openScreen() {
     if (t) w.querySelector("span").textContent = t;
   };
   paintTools();
+  el.querySelector('[data-do="full"]').hidden = !document.fullscreenEnabled;
+  // live or not: «مباشر» only while the picture really comes
+  // (the class — «مباشر» on screen — only once a picture really arrived: a link the PC answered can still bring nothing)
+  const setLive = (on) => {
+    V.live = on;
+    if (!on) el.classList.remove("is-live");
+  };
+  V.setLive = setLive;
+  // no PC / no internet: said at once with the app's own words, and a tap tries again (no minutes of retrying)
+  const waitTap = (text) => {
+    waitShow(text);
+    const w = el.querySelector(".wait");
+    w.style.pointerEvents = "auto";
+    w.onclick = () => {
+      w.style.pointerEvents = "none";
+      w.onclick = null;
+      V.tries = 0;
+      void connect();
+    };
+  };
 
   async function connect() {
     clearTimeout(V.timer);
     if (!V.want || scrView !== V) return;
+    // (reviewer, 2026-10-30: two tries at once — a fast second pick, «شوفه لحاله» during a reconnect — used to close the newer,
+    // live link from the older one's error path; only the newest try counts, an older one closes its own peer and stops)
+    const gen = (V.gen = (V.gen ?? 0) + 1);
+    const stale = () => gen !== V.gen || !V.want || scrView !== V;
     if (V.seen) freeze(); // (before the old link closes: its picture is still there)
     // (a recording ends with its link: what was taken is kept and offered)
     if (V.rec) recStop("again");
     try {
       V.pc?.close();
     } catch {}
-    V.live = false;
+    V.pc = null;
+    setLive(false);
     if (V.seen) backShow(true);
     else waitShow("نشغّل الشاشة…");
+    // (a slow PC: said, so the wait isn't a mystery)
+    clearTimeout(V.slowT);
+    V.slowT = setTimeout(() => !V.live && !V.seen && scrView === V && waitShow("البيسي ياخذ وقت… لحظات"), 6000);
+    let pc = null;
     try {
       const ir = await cmd("cam.ice", {}, 8000);
+      if (stale()) return;
+      // no PC / no internet: said at once, a tap tries again
+      if (!ir.ok && (ir.error === "PC_OFF" || ir.error === "PHONE_OFFLINE")) {
+        clearTimeout(V.slowT);
+        backShow(false);
+        return waitTap(`${ERR[ir.error]}\nاضغط هنا وجرّب مرة ثانية.`);
+      }
+      // (the first try and the PC didn't answer at all: said now, not after minutes of quiet retries)
+      if (!ir.ok && ir.error === "TIMEOUT" && !V.seen) {
+        clearTimeout(V.slowT);
+        return waitTap("البيسي ما رد. تأكد إنه شغّال وإن NUKE GG مفتوح عليه.\nاضغط هنا وجرّب مرة ثانية.");
+      }
       const ice = ir.ok && Array.isArray(ir.data?.ice) ? ir.data.ice : [];
-      const pc = new RTCPeerConnection({ iceServers: [...RTC_ICE, ...ice] });
+      pc = new RTCPeerConnection({ iceServers: [...RTC_ICE, ...ice] });
       V.pc = pc;
       pc.addTransceiver("video", { direction: "recvonly" });
       pc.addTransceiver("audio", { direction: "recvonly" });
       const stream = new MediaStream();
       pc.ontrack = (e) => {
+        if (pc !== V.pc) return;
         stream.addTrack(e.track);
         v.srcObject = stream;
       };
       pc.onconnectionstatechange = () => {
         if (pc !== V.pc) return;
-        const s = pc.connectionState;
-        if (s === "failed" || s === "closed") lost();
-        else if (s === "disconnected") {
+        const st = pc.connectionState;
+        if (st === "failed" || st === "closed") lost();
+        else if (st === "disconnected") {
           backShow(true);
           V.timer = setTimeout(() => pc === V.pc && pc.connectionState !== "connected" && lost(), 10000);
-        } else if (s === "connected") {
+        } else if (st === "connected") {
           clearTimeout(V.timer);
           backShow(false);
         }
@@ -8766,12 +8838,20 @@ function openScreen() {
       const gathered = iceEnough(pc, [...RTC_ICE, ...ice]);
       await pc.setLocalDescription(await pc.createOffer());
       await gathered;
+      if (stale()) return void pc.close();
       const r = await cmd("scr.start", { sdp: pc.localDescription.sdp, id: SCR.id, win: scrWin?.id ?? null, q: SCR.q, sound: SCR.sound }, 25000);
+      if (stale()) {
+        pc.close();
+        // (the view closed meanwhile: the PC must not keep streaming to nobody; a newer try replaces this one by itself)
+        if (r.ok && (!V.want || scrView !== V)) void cmd("scr.stop", {}, 5000);
+        return;
+      }
       if (!r.ok) throw new Error(r.error || "fail");
-      if (pc !== V.pc) return;
       await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
+      if (stale()) return void pc.close();
       V.sid = r.data.id ?? V.sid;
-      V.live = true;
+      setLive(true);
+      clearTimeout(V.slowT);
       V.tries = 0;
       backShow(false);
       if (!V.seen) {
@@ -8787,16 +8867,34 @@ function openScreen() {
         v.play().catch(() => {});
         if (SCR.sound) askUnmute();
       });
-      waitShow(null);
+      // the first picture of this link: «مباشر», the wait goes; none in 10 s → said, a tap tries again
+      const shown = () => {
+        if (gen !== V.gen) return;
+        clearTimeout(V.noPicT);
+        el.classList.add("is-live");
+        waitShow(null);
+      };
+      // (any of these: the frame callback doesn't fire on a page the phone isn't drawing)
+      v.requestVideoFrameCallback?.(shown);
+      v.addEventListener("loadeddata", shown, { once: true });
+      v.addEventListener("playing", shown, { once: true });
+      if (v.readyState >= 2) setTimeout(shown, 0);
+      clearTimeout(V.noPicT);
+      V.noPicT = setTimeout(() => {
+        if (gen !== V.gen || el.classList.contains("is-live")) return;
+        if (V.seen && !still.hidden) return void say("نرجّعه…", true);
+        waitTap("الصورة ما وصلت. اضغط هنا وجرّب مرة ثانية.");
+      }, 10000);
       void keepScreenAwake();
       clearInterval(V.look);
       V.look = setInterval(look, 3000);
       setTimeout(look, 1500);
     } catch (err) {
       try {
-        V.pc?.close();
+        pc?.close();
       } catch {}
-      V.pc = null;
+      if (V.pc === pc) V.pc = null;
+      if (stale()) return;
       const m = err?.message;
       if (m === "REMOTE_NOT_ALLOWED") return closeScreen("حدّث NUKE GG بالبيسي عشان تشوف الشاشة من جوالك.");
       if (m === "SCR_FULL") return closeScreen("فيه جوالين يشوفون الشاشة الحين. وقّف واحد وجرّب.");
@@ -8816,33 +8914,45 @@ function openScreen() {
   // the link went: back by itself (1, 2, 4, 8, 15 s), then it says so and waits for a tap
   function lost() {
     if (!V.want || scrView !== V) return;
-    V.live = false;
+    setLive(false);
     clearInterval(V.look);
     V.tries++;
     if (V.tries > 5) {
-      waitShow("ما قدرنا نوصل للشاشة. اضغط عشان نجرب مرة ثانية.");
-      el.querySelector(".wait").style.pointerEvents = "auto";
-      el.querySelector(".wait").onclick = () => {
-        el.querySelector(".wait").style.pointerEvents = "none";
-        V.tries = 1;
-        void connect();
-      };
+      backShow(false);
+      waitTap("ما قدرنا نوصل للشاشة. اضغط هنا وجرّب مرة ثانية.");
       return;
     }
-    say("نرجّعه…", true);
-    backShow(true);
+    // (the picture never came yet: the middle says it; the «نرجّع الصورة» pill is for a picture that was there)
+    if (V.seen) say("نرجّعه…", true), backShow(true);
     V.timer = setTimeout(connect, [1, 2, 4, 8, 15][V.tries - 1] * 1000);
   }
   // how it travels, and «وقّف» pressed on the PC
   async function look() {
-    if (!V.live || document.hidden) return;
-    const [st, sa] = await Promise.all([cmd("scr.stats", {}, 5000), cmd("scr.state", {}, 5000)]);
-    if (scrView !== V) return;
+    // (one look at a time: on a slow link they used to pile up)
+    if (!V.live || document.hidden || V.looking) return;
+    V.looking = true;
+    const gen = V.gen;
+    let st, sa;
+    try {
+      [st, sa] = await Promise.all([cmd("scr.stats", {}, 5000), cmd("scr.state", {}, 5000)]);
+    } finally {
+      V.looking = false;
+    }
+    if (scrView !== V || gen !== V.gen) return;
+    // (the PC stopped answering — its app closed, it slept: the frozen picture is said, «مباشر» goes, the link's own checks
+    // take it from there)
+    if (!st.ok && !sa.ok) {
+      V.noAnswer = true;
+      el.classList.remove("is-live");
+      backShow(true);
+      return say("البيسي ما يرد…", true);
+    }
+    // (it answers again)
+    if (V.noAnswer) (V.noAnswer = false), el.classList.add("is-live"), backShow(false);
     if (sa.ok && sa.data?.stoppedByPc) return closeScreen("وقّفوا المشاهدة من البيسي.");
     if (sa.ok && sa.data && !sa.data.live && V.live) return lost();
     const k = st.ok ? st.data?.kind : null;
-    const h = st.ok ? st.data?.h : 0;
-    say(k === "lan" ? `نفس الواي فاي ⚡${h ? ` · ${h}p` : ""}` : k === "relay" ? "عن طريق سيرفر نيوك" : k === "net" ? `عن طريق النت${h ? ` · ${h}p` : ""}` : "");
+    say(k === "lan" ? "واي فاي البيت" : k === "relay" || k === "net" ? "من برّا البيت" : "");
   }
   function askUnmute() {
     if (el.querySelector(".unmute")) return;
@@ -8866,8 +8976,15 @@ function openScreen() {
     const z = V.z;
     const W = stage.clientWidth, H = stage.clientHeight;
     z.s = Math.max(1, Math.min(5, z.s));
-    z.x = Math.min(0, Math.max(W - W * z.s, z.x));
-    z.y = Math.min(0, Math.max(H - H * z.s, z.y));
+    // kept to the picture itself, not the whole view (upright, a wide picture is a strip in the middle: it could be dragged
+    // fully off, all black — tester 2026-10-30). Smaller than the view on a side: centred on it.
+    const vw = v.videoWidth || W, vh = v.videoHeight || H;
+    const k = SCR.fill ? Math.max(W / vw, H / vh) : Math.min(W / vw, H / vh);
+    const pw = vw * k, ph = vh * k, ox = (W - pw) / 2, oy = (H - ph) / 2;
+    const fit = (pos, view, size, off) => (size * z.s <= view ? (view - size * z.s) / 2 - off * z.s : Math.min(-off * z.s, Math.max(view - (off + size) * z.s, pos)));
+    z.x = fit(z.x, W, pw, ox);
+    z.y = fit(z.y, H, ph, oy);
+    if (z.s === 1) z.x = z.y = 0;
     v.style.transform = `translate(${z.x}px, ${z.y}px) scale(${z.s})`;
   };
   const zoomTag = () => {
@@ -8882,6 +8999,8 @@ function openScreen() {
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     moved = false;
     if (pts.size === 2) {
+      el.style.transform = "";
+      el.style.opacity = "";
       const [a, b] = [...pts.values()];
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: V.z.s, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, x: V.z.x, y: V.z.y };
       pan = null;
@@ -8945,7 +9064,7 @@ function openScreen() {
     }
     tapAt = now;
     const openPanel = el.querySelector(".scr-pan.on");
-    if (openPanel) return openPanel.classList.remove("on");
+    if (openPanel) return panShut(openPanel);
     V.tapT = setTimeout(() => el.classList.toggle("clean"), 300);
   };
   const onTurn = () => {
@@ -8965,7 +9084,7 @@ function openScreen() {
   vv?.addEventListener("scroll", glue);
   glue();
   // (the keyboard closed: the page put back where it was)
-  const unpan = () => setTimeout(() => (window.scrollTo(window.scrollX, window.scrollY), glue()), 60);
+  const unpan = () => (setTimeout(glue, 60), setTimeout(glue, 400));
   el.addEventListener("focusout", unpan);
   V.offTurn = () => {
     removeEventListener("resize", onTurn);
@@ -8974,6 +9093,44 @@ function openScreen() {
   };
   stage.addEventListener("pointerup", up);
   stage.addEventListener("pointercancel", up);
+
+  // ---- the sheets («لوحة», «الشاشة», a program's): one open at a time, the phone's back shuts it first ----
+  // (no history step of their own: opening / shutting sheets fast mixed the page's back steps up and closed the whole view;
+  // the phone's back reaches the view's own step, which shuts an open sheet first — see overlayOpen below)
+  const panShut = (p) => {
+    if (!p?.classList.contains("on")) return;
+    p.classList.remove("on");
+    p.style.transform = "";
+  };
+  const panShow = (p) => {
+    el.querySelectorAll(".scr-pan.on").forEach((x) => x !== p && panShut(x));
+    p.classList.add("on");
+  };
+  V.panShutAll = () => el.querySelectorAll(".scr-pan.on").forEach((x) => panShut(x));
+  // a sheet's grab pulled down puts it away (sideways: pulled to its side)
+  el.querySelectorAll(".scr-pan .grab").forEach((g) => {
+    const sheet = g.closest(".scr-pan");
+    let y0 = null;
+    g.addEventListener("pointerdown", (e) => {
+      y0 = e.clientY;
+      g.setPointerCapture?.(e.pointerId);
+      sheet.style.transition = "none";
+    });
+    g.addEventListener("pointermove", (e) => {
+      if (y0 == null) return;
+      sheet.style.transform = `translateY(${Math.max(0, e.clientY - y0)}px)`;
+    });
+    const done = (e) => {
+      if (y0 == null) return;
+      const dy = e.clientY - y0;
+      y0 = null;
+      sheet.style.transition = "";
+      sheet.style.transform = "";
+      if (dy > 50 || Math.abs(dy) < 6) panShut(sheet);
+    };
+    g.addEventListener("pointerup", done);
+    g.addEventListener("pointercancel", (e) => ((y0 = null), (sheet.style.transition = ""), (sheet.style.transform = "")));
+  });
 
   // ---- the tools ----
   el.querySelector(".x").addEventListener("click", () => closeScreen());
@@ -9018,8 +9175,7 @@ function openScreen() {
   // «لوحة» (owner, 2026-10-30: «ابي لوحه تحكم… افتح تطبيقات منها»): the things the phone already does, in reach of the screen
   async function openPan() {
     const pan = el.querySelector("#scrPan");
-    el.querySelectorAll(".scr-pan.on").forEach((p) => p !== pan && p.classList.remove("on"));
-    pan.classList.add("on");
+    panShow(pan);
     // the sound at once; the programs as soon as the PC has read its Start menu (a few seconds the first time)
     void cmd("vol.get", {}, 6000).then((r) => r.ok && paintPanVol(r.data));
     void loadPanAv();
@@ -9047,6 +9203,7 @@ function openScreen() {
   // every program on the PC (owner, 2026-10-30: «مافي الا برنامج واحد، ابي كل البرامج»): the ones he picked, the starred,
   // the open ones, then the whole Start menu; a search on top; the pictures fetched as they scroll into sight
   let panQ = "";
+  let panAll = false;
   const panSeen = new IntersectionObserver(
     (es) => {
       const ids = es.filter((e) => e.isIntersecting).map((e) => (panSeen.unobserve(e.target), e.target.dataset.icon)).filter((id) => !appIcons.has(id));
@@ -9067,13 +9224,17 @@ function openScreen() {
       box.innerHTML = `<p class="note">${q ? "ما فيه برنامج بهالاسم على البيسي." : loading || (canAll && !allApps) ? "نجيب برامجك…" : canAll ? "ما لقينا برامج على البيسي." : "فتح أي برنامج مطفي من إعدادات البيسي. شغّله عشان تطلع كل برامجك هنا."}</p>`;
       return;
     }
-    box.innerHTML = items
-      .map((a) => {
-        const k = a.mine ? `m:${a.id}` : `a:${a.id}`;
-        const pic = a.mine || appIcons.has(a.id) ? appIcon(a.mine ? a : { ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(String(a.name || "?").trim().charAt(0))}</span>`;
-        return `<button class="${openIds.has(k) ? "open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${pic}<span dir="auto">${esc(a.name)}</span></button>`;
-      })
-      .join("");
+    // (the first 12 — his own, the starred, the open ones come first — and the rest behind «كل البرامج», so the sound below
+    // isn't under 118 programs; a search looks through all of them)
+    const few = !q && !panAll && items.length > 12;
+    box.innerHTML =
+      (few ? items.slice(0, 12) : items)
+        .map((a) => {
+          const k = a.mine ? `m:${a.id}` : `a:${a.id}`;
+          const pic = a.mine || appIcons.has(a.id) ? appIcon(a.mine ? a : { ...a, icon: appIcons.get(a.id) }) : `<span class="ph" data-icon="${esc(a.id)}">${esc(String(a.name || "?").trim().charAt(0))}</span>`;
+          return `<button class="${openIds.has(k) ? "open" : ""}" ${a.mine ? "data-app" : "data-run"}="${esc(a.id)}">${pic}<span dir="auto">${esc(a.name)}</span></button>`;
+        })
+        .join("") + (few ? `<button class="more" data-more="1"><b>+${items.length - 12}</b><span>كل البرامج</span></button>` : "");
     box.querySelectorAll("[data-icon]").forEach((x) => panSeen.observe(x));
   }
   el.querySelector("#scrAppQ").addEventListener("input", (e) => {
@@ -9081,8 +9242,10 @@ function openScreen() {
     paintPanApps();
   });
   el.querySelector("#scrApps").addEventListener("click", async (e) => {
+    if (e.target.closest("[data-more]")) return void (buzz(8), (panAll = true), paintPanApps());
     const b = e.target.closest("[data-app],[data-run]");
-    if (!b) return;
+    // (a program already being opened: a second tap opened it twice, and read «نفتحه…» as its name)
+    if (!b || b.classList.contains("going") || b.getAttribute("aria-busy") === "true") return;
     const name = (b.querySelector("span[dir]") ?? b).textContent.trim();
     if (openIds.has(openKey(b))) {
       // an open one: its own things (up front, small, big, watch it alone, close)
@@ -9095,13 +9258,14 @@ function openScreen() {
       if (ok) {
         openIds.add(openKey(b));
         b.classList.add("open");
-        setTimeout(() => el.querySelector("#scrPan").classList.remove("on"), 250);
+        setTimeout(() => panShut(el.querySelector("#scrPan")), 250);
       }
     }
     setTimeout(async () => (await loadRunning(), paintPanApps()), 1500);
   });
   const paintPanVol = (d) => {
     if (!d) return;
+    el.querySelector("#scrVol").disabled = false;
     el.querySelector("#scrVol").value = String(d.level ?? 0);
     el.querySelector("#scrVolN").textContent = String(d.level ?? 0);
     el.querySelector('[data-pan="mute"]').classList.toggle("on", Boolean(d.muted));
@@ -9137,9 +9301,9 @@ function openScreen() {
     actSheet.querySelector('[data-act="max"]').hidden = state === "max";
     actSheet.querySelector('[data-act="restore"]').hidden = state !== "max";
     actSheet.querySelector('[data-act="min"]').classList.toggle("on", state === "min");
-    actSheet.querySelector(".actsub").textContent = { min: "مصغّر الحين بالبيسي", max: "مكبّر الحين بالبيسي", normal: "مفتوح بحجمه العادي بالبيسي", none: "شغّال بالخلفية بس. اضغط «طلّعه» عشان تنفتح نافذته." }[state] ?? "اختر وش تبي نسوي فيه بالبيسي";
+    actSheet.querySelector(".actsub").textContent = { min: "مصغّر الحين بالبيسي", max: "مكبّر الحين بالبيسي", normal: "مفتوح بحجمه العادي بالبيسي", none: "شغّال بالخلفية بس. اضغط «طلّعه» عشان تنفتح نافذته.", closed: "مو مفتوح الحين بالبيسي." }[state] ?? "نشوف حالته بالبيسي…";
     // (no window — gone to the tray: «طلّعه» opens it again the way Start does, which brings its window back)
-    actSheet.classList.toggle("nowin", state === "none");
+    actSheet.classList.toggle("nowin", state === "none" || state === "closed");
     actSheet.querySelector('[data-act="show"]').hidden = state !== "none";
   }
   // (a PC from before the state look: the older way to ask)
@@ -9147,16 +9311,25 @@ function openScreen() {
     const r = await cmd("apps.winGet", who, 8000);
     return !r.ok && r.error === "REMOTE_NOT_ALLOWED" ? cmd("apps.win", { ...who, act: "find" }, 8000) : r;
   };
+  const ACT_LABEL = { show: "طلّعه", front: "جيبه قدّام", watch: "شوفه لحاله", max: "كبّره", restore: "رجّع حجمه", min: "صغّره", close: "سكّره" };
+  // (each visit of the sheet starts clean: no spinner or word left from another program's press)
+  const actReset = () =>
+    actSheet.querySelectorAll("[data-act]").forEach((x) => {
+      x.classList.remove("busy", "done");
+      x.querySelector("span").textContent = ACT_LABEL[x.dataset.act];
+    });
   async function showAct(who, name) {
     const mine = { who, name, busy: false };
     actFor = mine;
+    actReset();
     el.querySelector("#scrActName").textContent = name;
-    el.querySelectorAll(".scr-pan.on").forEach((p) => p.classList.remove("on"));
     paintActState(null);
-    actSheet.classList.add("on");
+    panShow(actSheet);
     const r = await winGet(who);
-    if (actFor === mine && r.ok) paintActState(r.data?.hwnd ? r.data.state : "none");
+    if (actFor === mine && r.ok) paintActState(stateOf(r.data));
   }
+  // (not running any more → «مو مفتوح»; running with no window → in the tray)
+  const stateOf = (d) => (d?.hwnd ? d.state : d?.count === 0 ? "closed" : "none");
   const ACT_DONE = { front: (n) => `جبنا ${n} قدّام ✓`, max: (n) => `كبّرنا ${n} ✓`, restore: (n) => `رجّعنا ${n} لحجمه ✓`, min: (n) => `صغّرنا ${n} ✓` };
   const ACT_DOING = { front: "نجيبه…", max: "نكبّره…", restore: "نرجّعه…", min: "نصغّره…", watch: "لحظة…", show: "نطلّعه…" };
   // «طلّعه»: opened again, then its window looked for a few times (a program takes a moment to show it)
@@ -9167,9 +9340,10 @@ function openScreen() {
     for (let i = 0; i < 6 && actFor === F; i++) {
       await new Promise((r) => setTimeout(r, 700));
       const r = await winGet(who);
+      if (actFor !== F) return;
       if (r.ok && r.data?.hwnd) return void (paintActState(r.data.state), toast(`طلّعنا ${name} ✓`));
     }
-    toast(`فتحنا ${name}، بس نافذته ما طلعت`, true);
+    if (actFor === F) toast(`فتحنا ${name}، بس نافذته ما طلعت`, true);
   }
   actSheet.addEventListener("click", async (e) => {
     const b = e.target.closest("[data-act]");
@@ -9178,44 +9352,50 @@ function openScreen() {
     buzz(8);
     const { who, name } = F;
     const act = b.dataset.act;
+    const label = b.querySelector("span");
+    // (the button is put back only while the sheet still shows this program)
+    const unbusy = () => {
+      F.busy = false;
+      if (actFor !== F) return;
+      b.classList.remove("busy");
+      label.textContent = ACT_LABEL[act];
+    };
     if (act === "close") {
       if (!(await ask(`نسكّر ${name}؟`, "ينقفل على البيسي.", "سكّره"))) return;
       F.busy = true;
       b.classList.add("busy");
       const ok = await closeFlow("apps.close", who, name);
-      b.classList.remove("busy");
-      F.busy = false;
-      if (ok && actFor === F) actSheet.classList.remove("on");
+      unbusy();
+      if (ok && actFor === F) panShut(actSheet);
       return void setTimeout(async () => (await loadRunning(), paintPanApps()), 1200);
     }
     F.busy = true;
-    const label = b.querySelector("span");
-    const was = label.textContent;
     b.classList.add("busy");
     label.textContent = ACT_DOING[act];
     if (act === "show") {
       await showAgain(F, b);
-      b.classList.remove("busy");
-      label.textContent = was;
-      F.busy = false;
-      return;
+      return unbusy();
     }
     const r = act === "watch" ? await winGet(who) : await cmd("apps.win", { ...who, act }, 9000);
-    b.classList.remove("busy");
-    label.textContent = was;
-    F.busy = false;
+    unbusy();
+    if (actFor !== F) return;
     if (!r.ok) return fail(r);
-    if (!r.data?.hwnd) return paintActState("none"), toast(`${name} شغّال بالخلفية بس، ما له نافذة`, true);
+    if (!r.data?.hwnd) {
+      const st = stateOf(r.data);
+      paintActState(st);
+      if (st === "closed") void loadRunning().then(() => paintPanApps());
+      return toast(st === "closed" ? `${name} مو مفتوح الحين` : `${name} شغّال بالخلفية بس، ما له نافذة`, true);
+    }
     if (act === "watch") {
       // watch that program alone (and its window comes back up first if it was small)
-      actSheet.classList.remove("on");
+      panShut(actSheet);
       scrWin = { id: `window:${r.data.hwnd}:0`, title: r.data.title || name, key: "" };
       paintTools();
       V.tries = 0;
       toast(`نوريك ${name} بس`);
       return void connect();
     }
-    if (actFor === F) paintActState(r.data.state);
+    paintActState(r.data.state);
     b.classList.add("done");
     setTimeout(() => b.classList.remove("done"), 700);
     buzz([8, 30, 8]);
@@ -9270,9 +9450,8 @@ function openScreen() {
 
   // ---- what to watch: a screen, or one program's window ----
   function openSrc() {
-    el.querySelectorAll(".scr-pan.on").forEach((p) => p.classList.remove("on"));
     paintSrc();
-    el.querySelector("#scrSrc").classList.add("on");
+    panShow(el.querySelector("#scrSrc"));
     void loadWins();
   }
   function paintSrc() {
@@ -9280,9 +9459,21 @@ function openScreen() {
     el.querySelector(".srcmons").hidden = scrScreens.length < 2;
     mons.innerHTML = scrScreens.map((s) => `<button data-mon="${esc(s.id)}" class="${!scrWin && s.id === (SCR.id ?? scrScreens[0]?.id) ? "on" : ""}"><b>${s.primary ? `الشاشة ${s.n} · الأساسية` : `الشاشة ${s.n}`}</b><small dir="ltr">${s.w}×${s.h}</small></button>`).join("");
     el.querySelector("#scrSrcWins").innerHTML = winListHtml();
+    el.querySelectorAll("#scrSrcQ button").forEach((b) => b.classList.toggle("on", b.dataset.q === SCR.q));
+    el.querySelector("#scrSrcQHint").textContent = SCR_Q_HINT[SCR.q] ?? "";
   }
   el.addEventListener("scr-wins", () => el.querySelector("#scrSrc").classList.contains("on") && paintSrc());
   el.querySelector("#scrSrc").addEventListener("click", (e) => {
+    const qb = e.target.closest("#scrSrcQ [data-q]");
+    if (qb) {
+      buzz(8);
+      SCR.q = qb.dataset.q;
+      keepScr();
+      paintSrc();
+      paintScrPrefs();
+      void cmd("scr.set", { q: SCR.q, sound: SCR.sound }, 6000);
+      return toast(`الوضوح: ${Q_NAME[SCR.q]}`);
+    }
     const m = e.target.closest("[data-mon]");
     const w = e.target.closest("[data-win]");
     if (!m && !w) return;
@@ -9292,7 +9483,7 @@ function openScreen() {
       keepScr();
       scrWin = null;
     } else pickWin(w.dataset.win);
-    el.querySelector("#scrSrc").classList.remove("on");
+    panShut(el.querySelector("#scrSrc"));
     paintTools();
     paintWins();
     V.tries = 0;
@@ -9355,7 +9546,7 @@ function openScreen() {
     const d = new Date();
     const ext = /webm/.test(type) ? "webm" : "mp4";
     const file = new File([blob], `مقطع شاشة البيسي ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")}.${ext}`, { type: blob.type });
-    document.querySelector(".clipcard")?.remove();
+    document.querySelector(".clipcard")?.dispatchEvent(new Event("gone"));
     const card = document.createElement("div");
     card.className = "clipcard";
     const url = URL.createObjectURL(blob);
@@ -9367,10 +9558,11 @@ function openScreen() {
     };
     card.querySelector(".go").addEventListener("click", async () => {
       const ok = await saveFile(file);
-      if (ok !== false) toast("حفظنا المقطع ✓");
+      if (ok !== false) toast("اختر «حفظ الفيديو» عشان ينحفظ بجوالك");
       done();
     });
     card.querySelector(".no").addEventListener("click", () => (buzz(8), done()));
+    card.addEventListener("gone", done);
     document.body.append(card);
   }
 
@@ -9386,18 +9578,27 @@ function openScreen() {
     void f.offsetWidth;
     f.classList.add("go");
     buzz([10, 40, 10]);
-    c.toBlob((blob) => {
-      if (!blob) return toast("ما قدرنا ناخذ الصورة", true);
-      const d = new Date();
-      const file = new File([blob], `شاشة البيسي ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")}.png`, { type: "image/png" });
-      void saveFile(file).then((ok) => ok !== false && toast("صوّرنا الشاشة ✓"));
-    }, "image/png");
+    // made inside the press itself (toBlob answers later, and an iPhone opens its save sheet only inside a press)
+    let blob = null;
+    try {
+      const bin = atob(c.toDataURL("image/jpeg", 0.92).split(",")[1]);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      blob = new Blob([bytes], { type: "image/jpeg" });
+    } catch {}
+    if (!blob?.size) return toast("ما قدرنا ناخذ الصورة", true);
+    const d = new Date();
+    const file = new File([blob], `شاشة البيسي ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")}.jpg`, { type: "image/jpeg" });
+    void saveFile(file).then((ok) => ok !== false && toast("صوّرنا الشاشة ✓ اختر «حفظ الصورة»"));
   }
   V.close = () => {
     V.offTurn?.();
     V.want = false;
     // (a clip still recording is kept: its card shows over the page)
     if (V.rec) recStop("closed");
+    clearTimeout(V.slowT);
+    clearTimeout(V.noPicT);
+    V.panShutAll?.();
     clearTimeout(V.timer);
     clearInterval(V.look);
     try {
@@ -9405,7 +9606,7 @@ function openScreen() {
     } catch {}
     V.pc = null;
     v.srcObject = null;
-    if (V.live) void cmd("scr.stop", {}, 5000);
+    void cmd("scr.stop", {}, 5000);
     V.live = false;
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     el.remove();
@@ -9416,13 +9617,20 @@ function openScreen() {
     V.tries = 0;
     void connect();
   });
-  overlayOpen(el, () => closeScreen(true));
+  // the phone's back: an open sheet is shut first (and the view keeps a back step of its own again), else the view closes
+  const onBack = () => {
+    const open = el.querySelector(".scr-pan.on");
+    if (!open || scrView !== V) return closeScreen(true);
+    panShut(open);
+    el._layer = openLayer(onBack);
+  };
+  overlayOpen(el, onBack);
   void connect();
   // (said once on this phone: the way out without the «×»)
   try {
     if (!localStorage.getItem("nk-scr-swipe")) {
       localStorage.setItem("nk-scr-swipe", "1");
-      setTimeout(() => scrView === V && toast("تقدر تسحب لتحت عشان تطلع"), 2500);
+      setTimeout(() => scrView === V && toast("اسحب لتحت عشان تسكّر الشاشة"), 2500);
     }
   } catch {}
 }
@@ -9484,16 +9692,20 @@ document.addEventListener("visibilitychange", () => {
       if (scrView !== V || !document.hidden) return;
       clearTimeout(V.timer);
       clearInterval(V.look);
-      if (V.live) void cmd("scr.stop", {}, 5000);
+      V.gen = (V.gen ?? 0) + 1;
+      if (V.rec) V.recStop?.("again");
+      void cmd("scr.stop", {}, 5000);
       try {
         V.pc?.close();
       } catch {}
       V.pc = null;
-      V.live = false;
+      V.setLive?.(false);
     }, 8000);
   } else {
     void keepScreenAwake();
-    V.el.dispatchEvent(new Event("scr-back"));
+    // (after the page's own link check: back from a long hide it starts the direct link fresh — the screen asked on the old
+    // one and its answer was lost, ~12 s, tester 2026-10-30)
+    setTimeout(() => scrView === V && V.el.dispatchEvent(new Event("scr-back")), 0);
   }
 });
 
