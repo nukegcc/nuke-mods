@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-hU6QYHRFxkI+UTU4RRbSKDhUMBRfsOYux0UKxGU8j3o=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-pLBgerugbUc7mENMYGwE3WijaF7+8a27U4H+7h5NJHY=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=8777e3d7c5" defer></script>
+<script src="rx-game.js?v=1b8906d169" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1223,7 +1223,9 @@
   .scrx .stage { position: relative; flex: 1; min-height: 0; overflow: hidden; display: grid; place-items: center; }
   .scrx video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; background: #000; }
   .scrx.fill video { object-fit: cover; }
-  body:has(.scrx) .toast { z-index: 67; }
+  /* while the PC's screen is open the messages sit at the top, never over the buttons (owner's iPhone, 2026-10-30) */
+  body:has(.scrx) .toast { z-index: 67; bottom: auto; top: calc(64px + env(safe-area-inset-top)); transform: translateY(-12px); pointer-events: none; }
+  body:has(.scrx) .toast.show { transform: none; }
   .scrx .again { position: absolute; z-index: 3; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); translate: -50% 0; display: flex; align-items: center; gap: 9px; padding: 9px 16px 9px 14px; border-radius: 999px; background: rgba(14,10,10,.72); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); box-shadow: inset 0 0 0 1px rgba(255,201,60,.28), 0 8px 24px -8px #000; color: #fff; font-weight: 800; font-size: 13.5px; line-height: 1.6; white-space: nowrap; pointer-events: none; animation: scrAgainIn .25s ease-out both; }
   .scrx .again.hidden { display: none; }
   .scrx .again .spin { width: 16px; height: 16px; flex-shrink: 0; border-radius: 50%; border: 2.5px solid rgba(255,201,60,.22); border-top-color: var(--gold); animation: spin .9s linear infinite; }
@@ -1293,6 +1295,8 @@
   .scr-pan .acts button.bad { color: #ff8a80; }
   .scr-pan .acts button:active { transform: scale(.95); }
   .scr-pan .acts button[hidden] { display: none; }
+  .scr-pan.nowin .acts button:not(.bad):not(.show) { opacity: .38; }
+  .scr-pan .acts button.show { color: #fff; background: linear-gradient(#f2493a, #c92b21); }
   .scr-pan .acts button.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   /* pressed: a spinner in place of the picture right away, the word says what's happening; done: a short green glow */
   .scr-pan .acts button.busy svg, .scr-pan .media button.busy svg { display: none; }
@@ -2325,7 +2329,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=8777e3d7c5";
+        sc.src = "jsqr.js?v=1b8906d169";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -8647,6 +8651,7 @@ function openScreen() {
       <h3 id="scrActName" dir="auto"></h3>
       <p class="actsub">اختر وش تبي نسوي فيه بالبيسي</p>
       <div class="acts">
+        <button data-act="show" class="show" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M12 15V8M9 11l3-3 3 3"/></svg><span>طلّعه</span></button>
         <button data-act="front"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="13" height="12" rx="2"/><path d="M8 4h11a2 2 0 0 1 2 2v9"/></svg><span>قدّام</span></button>
         <button data-act="watch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>شوفه بس</span></button>
         <button data-act="max"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span>كبّره</span></button>
@@ -9132,7 +9137,10 @@ function openScreen() {
     actSheet.querySelector('[data-act="max"]').hidden = state === "max";
     actSheet.querySelector('[data-act="restore"]').hidden = state !== "max";
     actSheet.querySelector('[data-act="min"]').classList.toggle("on", state === "min");
-    actSheet.querySelector(".actsub").textContent = { min: "مصغّر الحين بالبيسي", max: "مكبّر الحين بالبيسي", normal: "مفتوح بحجمه العادي بالبيسي", none: "ما له نافذة على الشاشة الحين" }[state] ?? "اختر وش تبي نسوي فيه بالبيسي";
+    actSheet.querySelector(".actsub").textContent = { min: "مصغّر الحين بالبيسي", max: "مكبّر الحين بالبيسي", normal: "مفتوح بحجمه العادي بالبيسي", none: "شغّال بالخلفية بس. اضغط «طلّعه» عشان تنفتح نافذته." }[state] ?? "اختر وش تبي نسوي فيه بالبيسي";
+    // (no window — gone to the tray: «طلّعه» opens it again the way Start does, which brings its window back)
+    actSheet.classList.toggle("nowin", state === "none");
+    actSheet.querySelector('[data-act="show"]').hidden = state !== "none";
   }
   // (a PC from before the state look: the older way to ask)
   const winGet = async (who) => {
@@ -9150,7 +9158,19 @@ function openScreen() {
     if (actFor === mine && r.ok) paintActState(r.data?.hwnd ? r.data.state : "none");
   }
   const ACT_DONE = { front: (n) => `جبنا ${n} قدّام ✓`, max: (n) => `كبّرنا ${n} ✓`, restore: (n) => `رجّعنا ${n} لحجمه ✓`, min: (n) => `صغّرنا ${n} ✓` };
-  const ACT_DOING = { front: "نجيبه…", max: "نكبّره…", restore: "نرجّعه…", min: "نصغّره…", watch: "لحظة…" };
+  const ACT_DOING = { front: "نجيبه…", max: "نكبّره…", restore: "نرجّعه…", min: "نصغّره…", watch: "لحظة…", show: "نطلّعه…" };
+  // «طلّعه»: opened again, then its window looked for a few times (a program takes a moment to show it)
+  async function showAgain(F, b) {
+    const { who, name } = F;
+    const ok = await openApp(who.mine ? { app: who.id } : { run: who.id }, name, b);
+    if (!ok) return;
+    for (let i = 0; i < 6 && actFor === F; i++) {
+      await new Promise((r) => setTimeout(r, 700));
+      const r = await winGet(who);
+      if (r.ok && r.data?.hwnd) return void (paintActState(r.data.state), toast(`طلّعنا ${name} ✓`));
+    }
+    toast(`فتحنا ${name}، بس نافذته ما طلعت`, true);
+  }
   actSheet.addEventListener("click", async (e) => {
     const b = e.target.closest("[data-act]");
     const F = actFor;
@@ -9173,12 +9193,19 @@ function openScreen() {
     const was = label.textContent;
     b.classList.add("busy");
     label.textContent = ACT_DOING[act];
+    if (act === "show") {
+      await showAgain(F, b);
+      b.classList.remove("busy");
+      label.textContent = was;
+      F.busy = false;
+      return;
+    }
     const r = act === "watch" ? await winGet(who) : await cmd("apps.win", { ...who, act }, 9000);
     b.classList.remove("busy");
     label.textContent = was;
     F.busy = false;
     if (!r.ok) return fail(r);
-    if (!r.data?.hwnd) return paintActState("none"), toast(`ما لقينا نافذة ${name} على الشاشة`, true);
+    if (!r.data?.hwnd) return paintActState("none"), toast(`${name} شغّال بالخلفية بس، ما له نافذة`, true);
     if (act === "watch") {
       // watch that program alone (and its window comes back up first if it was small)
       actSheet.classList.remove("on");
