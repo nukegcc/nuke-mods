@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-4VbJhRD5k2F74na7CorGKF9eW7O9VLqXoHe1baLAFkQ=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-Wo/j52Bzu05FLNsO8KpsySGoA1t0h1L8h5yAK+iPCoc=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=f232c80cf5" defer></script>
+<script src="rx-game.js?v=07f8700530" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1224,9 +1224,12 @@
   .scrx video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; background: #000; }
   .scrx.fill video { object-fit: cover; }
   body:has(.scrx) .toast { z-index: 67; }
-  .scrx .back { position: absolute; z-index: 3; top: 50%; left: 50%; translate: -50% -50%; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.7); border-radius: 14px; padding: 8px 14px; font-weight: 700; font-size: 13px; pointer-events: none; }
-  .scrx .back.hidden { display: none; }
-  .scrx .back i { width: 16px; height: 16px; border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: var(--red); animation: spin 1s linear infinite; }
+  .scrx .again { position: absolute; z-index: 3; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); translate: -50% 0; display: flex; align-items: center; gap: 9px; padding: 9px 16px 9px 14px; border-radius: 999px; background: rgba(14,10,10,.72); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); box-shadow: inset 0 0 0 1px rgba(255,201,60,.28), 0 8px 24px -8px #000; color: #fff; font-weight: 800; font-size: 13.5px; line-height: 1.6; white-space: nowrap; pointer-events: none; animation: scrAgainIn .25s ease-out both; }
+  .scrx .again.hidden { display: none; }
+  .scrx .again .spin { width: 16px; height: 16px; flex-shrink: 0; border-radius: 50%; border: 2.5px solid rgba(255,201,60,.22); border-top-color: var(--gold); animation: spin .9s linear infinite; }
+  @keyframes scrAgainIn { from { opacity: 0; translate: -50% 6px; } }
+  .scrx .still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; pointer-events: none; filter: saturate(.85) brightness(.9); }
+  .scrx.fill .still { object-fit: cover; }
   .scrx .dock { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: safe center; }
   .scrx .dock::-webkit-scrollbar { display: none; }
   .scrx .tool { flex-shrink: 0; }
@@ -1267,6 +1270,12 @@
   .scrx .tool svg { width: 22px; height: 22px; }
   .scrx .tool.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   .scrx .tool.snap { background: linear-gradient(#f2493a, #c92b21); }
+  /* a phone held upright: every button fits on one row, none cut at the edges */
+  @media (max-width: 560px) {
+    .scrx .dock { gap: 5px; justify-content: stretch; }
+    .scrx .tool { flex: 1 1 0; min-width: 0; padding: 8px 2px 6px; font-size: 10.5px; border-radius: 14px; white-space: nowrap; }
+    .scrx .tool svg { width: 20px; height: 20px; }
+  }
   .scrx .wait { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: rgba(255,255,255,.8); font-weight: 700; gap: 10px; align-content: center; z-index: 2; pointer-events: none; }
   .scrx .wait.hidden { display: none; }
   .scrx .wait .ring { width: 44px; height: 44px; border-radius: 50%; border: 4px solid rgba(255,255,255,.12); border-top-color: var(--red); animation: spin 1s linear infinite; margin: 0 auto; }
@@ -2271,7 +2280,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=f232c80cf5";
+        sc.src = "jsqr.js?v=07f8700530";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -4197,16 +4206,20 @@ function working(b, text) {
 // (maybe "save changes?") only after the player says yes
 async function closeFlow(action, args, name) {
   buzz();
-  let r = await cmd(action, args);
+  let r = await cmd(action, args, 20000);
   if (!r.ok) return fail(r), false;
+  // started as administrator: Windows lets nothing of ours close it — said, never "it isn't open"
+  if (r.data?.admin) return toast(`${name} شغّال كمسؤول، وويندوز ما يخلّينا نسكّره. سكّره من البيسي`, true), false;
   // (only that program's own file is closed: another one with the same name stays open)
   if (r.data && r.data.count === 0) return toast(`ما لقينا ${name} مفتوح على البيسي`), true;
   if (r.data && r.data.closed === false) {
     if (!(await ask(`نسكّر ${name} غصب؟`, "فاتح نافذة، يمكن فيه شي مو محفوظ.", "سكّره"))) return toast("خلّيناه مفتوح"), false;
-    r = await cmd(action, { ...args, force: true });
+    r = await cmd(action, { ...args, force: true }, 20000);
     if (!r.ok) return fail(r), false;
     if (r.data && r.data.closed === false) return toast(`${name} ما رضى يتسكّر`, true), false;
   }
+  // (its own service / launcher starts it again: that one's settings, not ours)
+  if (r.data?.back) return toast(`سكّرنا ${name} بس رجع فتح نفسه، شي ثاني بالبيسي يشغّله`, true), false;
   toast(`سكّرنا ${name} ✓`);
   return true;
 }
@@ -8518,7 +8531,7 @@ function openScreen() {
   buzz([12, 30, 12]);
   const el = document.createElement("div");
   el.className = "scrx";
-  el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div><div class="back hidden"><i></i><span>نرجّعه…</span></div></div>
+  el.innerHTML = `<div class="stage"><video playsinline autoplay muted></video><div class="wait"><div class="ring"></div><span>نشغّل الشاشة…</span></div><div class="flash"></div><div class="zoomtag"></div><img class="still" alt="" hidden /><div class="again hidden"><i class="spin"></i><span>نرجّع الصورة…</span></div></div>
     <div class="scr-pan" id="scrPan"><div class="grab"></div>
       <h3>الصوت</h3>
       <div class="vrow"><button class="tool" data-pan="mute" style="min-width:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input type="range" min="0" max="100" step="1" id="scrVol" aria-label="صوت البيسي"><b id="scrVolN">–</b></div>
@@ -8560,7 +8573,33 @@ function openScreen() {
     st.textContent = t;
     st.classList.toggle("bad", bad);
   };
-  const backShow = (on) => el.querySelector(".back").classList.toggle("hidden", !on);
+  // a short break: the last picture stays (frozen, a little dimmed) with the pill, never a black screen
+  const still = el.querySelector(".still");
+  const freeze = () => {
+    if (!still.hidden || !v.videoWidth) return;
+    try {
+      const c = document.createElement("canvas");
+      const k = Math.min(1, 1280 / v.videoWidth);
+      c.width = Math.round(v.videoWidth * k);
+      c.height = Math.round(v.videoHeight * k);
+      c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+      still.src = c.toDataURL("image/jpeg", 0.8);
+      still.style.transform = v.style.transform;
+      still.style.transformOrigin = "0 0";
+      still.hidden = false;
+    } catch {}
+  };
+  const thaw = () => {
+    if (still.hidden) return;
+    const go = () => (still.hidden = true);
+    if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(go);
+    else setTimeout(go, 400);
+  };
+  const backShow = (on) => {
+    el.querySelector(".again").classList.toggle("hidden", !on);
+    if (on) freeze();
+    else thaw();
+  };
   const waitShow = (t) => {
     const w = el.querySelector(".wait");
     w.classList.toggle("hidden", !t);
@@ -8571,6 +8610,7 @@ function openScreen() {
   async function connect() {
     clearTimeout(V.timer);
     if (!V.want || scrView !== V) return;
+    if (V.seen) freeze(); // (before the old link closes: its picture is still there)
     try {
       V.pc?.close();
     } catch {}
