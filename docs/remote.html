@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-Wo/j52Bzu05FLNsO8KpsySGoA1t0h1L8h5yAK+iPCoc=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-Xg1SL2E7Z2qabV5/cYeAVlWvipfRsn9//yNFpcV53VE=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=07f8700530" defer></script>
+<script src="rx-game.js?v=c391d4344e" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1270,11 +1270,44 @@
   .scrx .tool svg { width: 22px; height: 22px; }
   .scrx .tool.on { color: var(--gold); box-shadow: inset 0 0 0 1.5px var(--gold); }
   .scrx .tool.snap { background: linear-gradient(#f2493a, #c92b21); }
-  /* a phone held upright: every button fits on one row, none cut at the edges */
+  /* «سجّل»: while it records, red with the time running on it */
+  .scrx .tool.rec.on { color: #fff; background: linear-gradient(#f2493a, #c92b21); box-shadow: 0 0 0 2px rgba(255,59,48,.35); animation: scrRec 1.4s ease-in-out infinite; }
+  .scrx .tool.rec .rn { font-family: Rajdhani, system-ui, sans-serif; font-size: 13px; line-height: 1.2; }
+  .scrx .tool.rec:not(.on) .rn { font-family: inherit; font-size: inherit; }
+  @keyframes scrRec { 50% { box-shadow: 0 0 0 5px rgba(255,59,48,.15); } }
+  /* what to watch: the screens, then one program's window */
+  .scr-wins { display: flex; flex-direction: column; gap: 6px; }
+  .scr-wins button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 14px; background: var(--card2); color: #fff; text-align: right; box-shadow: inset 0 0 0 1.5px var(--line); }
+  .scr-wins button.on { box-shadow: inset 0 0 0 2px var(--gold); }
+  .scr-wins .ic { width: 34px; height: 34px; flex-shrink: 0; border-radius: 9px; object-fit: contain; display: grid; place-items: center; background: #0b0808; font-weight: 800; color: var(--gold); }
+  .scr-wins .ic svg { width: 20px; height: 20px; }
+  .scr-wins .t { display: flex; flex-direction: column; min-width: 0; line-height: 1.5; }
+  .scr-wins .t b { font-size: 13.5px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .scr-wins .t small { color: var(--dim); font-size: 11.5px; }
+  .scr-pan .scr-mons { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .scr-pan .scr-mons button { color: #fff; }
+  /* an open program's own things: up front, small, big, watch it alone, close */
+  .scr-pan .acts { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+  .scr-pan .acts button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: 14px; background: var(--card2); color: #fff; font-size: 12.5px; font-weight: 800; }
+  .scr-pan .acts button svg { width: 24px; height: 24px; }
+  .scr-pan .acts button.bad { color: #ff8a80; }
+  .scr-pan .acts button:active { transform: scale(.95); }
+  .scr-pan .actsub { color: var(--dim); font-size: 12.5px; margin: -4px 0 10px; }
+  .scr-pan .avs .av { padding: 5px 0; }
+  /* a finished clip: a little preview, saved with one press (the phone's own share sheet) */
+  .clipcard { position: fixed; z-index: 67; inset-inline: 16px; bottom: calc(110px + env(safe-area-inset-bottom)); margin: 0 auto; max-width: 440px; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: rgba(16,11,12,.97); box-shadow: inset 0 0 0 1px rgba(255,201,60,.3), 0 14px 36px -10px #000; animation: scrAgainIn .25s ease-out both; text-align: right; }
+  .clipcard video { width: 78px; height: 46px; flex-shrink: 0; border-radius: 9px; object-fit: cover; background: #000; }
+  .clipcard .t { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.5; }
+  .clipcard .t b { font-size: 14px; } .clipcard .t small { color: var(--dim); font-size: 12px; font-family: Rajdhani, system-ui, sans-serif; }
+  .clipcard .go { flex-shrink: 0; min-height: 40px; padding: 0 16px; border-radius: 12px; font-weight: 800; color: #fff; background: linear-gradient(#f2493a, #c92b21); box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+  .clipcard .no { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--card2); color: #fff; font-size: 18px; }
+  /* a phone held upright: the buttons in two rows of four, none cut at the edges */
   @media (max-width: 560px) {
-    .scrx .dock { gap: 5px; justify-content: stretch; }
-    .scrx .tool { flex: 1 1 0; min-width: 0; padding: 8px 2px 6px; font-size: 10.5px; border-radius: 14px; white-space: nowrap; }
+    .scrx .dock { gap: 5px; justify-content: stretch; flex-wrap: wrap; }
+    .scrx .tool { flex: 1 1 calc(25% - 5px); min-width: 0; padding: 7px 2px 5px; font-size: 10.5px; border-radius: 14px; white-space: nowrap; }
     .scrx .tool svg { width: 20px; height: 20px; }
+    .scrx .again { bottom: calc(150px + env(safe-area-inset-bottom)); }
+    .clipcard { bottom: calc(160px + env(safe-area-inset-bottom)); }
   }
   .scrx .wait { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: rgba(255,255,255,.8); font-weight: 700; gap: 10px; align-content: center; z-index: 2; pointer-events: none; }
   .scrx .wait.hidden { display: none; }
@@ -1559,6 +1592,11 @@
       <section id="scrPick" class="hidden">
         <h2><span>أي شاشة؟</span></h2>
         <div class="scr-mons" id="scrMons"></div>
+      </section>
+      <section>
+        <h2><span>أو برنامج واحد</span></h2>
+        <div class="scr-wins" id="scrWins"><p class="muted">نشوف البرامج المفتوحة…</p></div>
+        <p class="hint">تشوف برنامج واحد بس، يطلع أوضح على الجوال.</p>
       </section>
       <section>
         <h2><span>الوضوح</span></h2>
@@ -2280,7 +2318,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=07f8700530";
+        sc.src = "jsqr.js?v=c391d4344e";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -4619,7 +4657,11 @@ function paintAppVol(list) {
   $("appVolBox").classList.toggle("hidden", !list.length);
   // (not while a finger is on a slider: the row would jump under it)
   if (avDrag) return void (avNext = list);
-  $("appVols").innerHTML = list
+  $("appVols").innerHTML = avRowsHtml(list);
+}
+// (the same rows in «الشاشة»'s «لوحة»)
+function avRowsHtml(list) {
+  return list
     .map((a) => {
       const ic = avIcons.get(a.id), lv = a.level ?? 0;
       // (Windows' own sounds have no file: a speaker instead of letters)
@@ -8472,8 +8514,9 @@ function paintScrMons() {
     hero.append(img);
   }
   $("scrPick").classList.toggle("hidden", scrScreens.length < 2);
-  $("scrHeroTag").hidden = scrScreens.length < 2 || !picked;
-  if (picked) $("scrHeroTag").textContent = `الشاشة ${picked.n}`;
+  $("scrHeroTag").hidden = !scrWin && (scrScreens.length < 2 || !picked);
+  if (scrWin) $("scrHeroTag").textContent = scrWin.title;
+  else if (picked) $("scrHeroTag").textContent = `الشاشة ${picked.n}`;
   const box = $("scrMons");
   box.textContent = "";
   for (const s of scrScreens) {
@@ -8490,8 +8533,10 @@ function paintScrMons() {
     b.addEventListener("click", () => {
       buzz(8);
       SCR.id = s.id;
+      scrWin = null;
       keepScr();
       paintScrMons();
+      paintWins();
     });
     box.append(b);
   }
@@ -8508,7 +8553,50 @@ async function loadScreens() {
   scrScreens = (Array.isArray(r.data?.screens) ? r.data.screens : []).map((x) => ({ ...x, thumb: x.thumb || scrPics()[x.id] || null }));
   if (SCR.id && !scrScreens.some((s) => s.id === SCR.id)) SCR.id = null;
   paintScrMons();
+  void loadWins();
 }
+// «برنامج واحد» (owner, 2026-10-30: «خليني اقدر احدد البرنامج الي ابي اشوفه»): one program's window instead of the whole screen.
+// For this visit only: a window's id is new each time its program opens.
+let scrWin = null; // { id: "window:<hwnd>:0", title, key }
+let scrWins = [];
+let scrWinsWhy = "";
+const winIcons = new Map(); // a program's file → its picture (sent once)
+const MON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
+async function loadWins() {
+  const r = await cmd("scr.windows", { known: [...winIcons.keys()] }, 9000);
+  scrWinsWhy = r.ok ? "" : r.error === "REMOTE_NOT_ALLOWED" ? "old" : "fail";
+  if (r.ok) {
+    scrWins = Array.isArray(r.data) ? r.data : [];
+    for (const w of scrWins) if (w.icon && w.key) winIcons.set(w.key, w.icon);
+    if (scrWin && !scrWins.some((w) => w.id === scrWin.id)) scrWin = null;
+  }
+  paintWins();
+  scrView?.el.dispatchEvent(new Event("scr-wins"));
+}
+function winListHtml() {
+  const rows = scrWins.map((w) => {
+    const ic = winIcons.get(w.key);
+    const pic = ic ? `<img class="ic" src="${esc(ic)}" alt="" />` : `<span class="ic" dir="auto">${esc(String(w.title || "?").trim().charAt(0))}</span>`;
+    return `<button data-win="${esc(w.id)}" class="${scrWin?.id === w.id ? "on" : ""}">${pic}<span class="t"><b dir="auto">${esc(w.title)}</b>${w.small ? "<small>مصغّر، نكبّره لك أول ما تختاره</small>" : ""}</span></button>`;
+  });
+  const empty = scrWinsWhy === "old" ? '<p class="note muted">حدّث NUKE GG بالبيسي عشان تختار برنامج واحد.</p>' : !scrWins.length ? '<p class="note muted">ما فيه برامج مفتوحة على الشاشة الحين.</p>' : "";
+  return `<button data-win="" class="${scrWin ? "" : "on"}"><span class="ic">${MON_SVG}</span><span class="t"><b>الشاشة كاملة</b></span></button>${rows.join("")}${empty}`;
+}
+function paintWins() {
+  $("scrWins").innerHTML = winListHtml();
+  paintScrMons();
+}
+const pickWin = (id) => {
+  const w = scrWins.find((x) => x.id === id);
+  scrWin = w ? { id: w.id, title: w.title, key: w.key } : null;
+};
+$("scrWins").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-win]");
+  if (!b) return;
+  buzz(8);
+  pickWin(b.dataset.win);
+  paintWins();
+});
 $("scrQ").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
@@ -8536,17 +8624,36 @@ function openScreen() {
       <h3>الصوت</h3>
       <div class="vrow"><button class="tool" data-pan="mute" style="min-width:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input type="range" min="0" max="100" step="1" id="scrVol" aria-label="صوت البيسي"><b id="scrVolN">–</b></div>
       <div class="media"><button data-pan="media.prev" aria-label="اللي قبل"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14l-10-7z"/></svg></button><button data-pan="media.play" aria-label="شغّل أو وقّف"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5v14l9-7zM14 5h3v14h-3zM19.5 5h3v14h-3z"/></svg></button><button data-pan="media.next" aria-label="الجاية"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l10-7z"/></svg></button><button data-pan="screen.off" aria-label="طفّ الشاشة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0"/></svg></button></div>
-      <h3>برامجك <small>اضغط عشان ينفتح بالبيسي</small></h3>
+      <h3>صوت كل برنامج</h3>
+      <div class="avs" id="scrAv"><p class="note">نجيب البرامج اللي فيها صوت…</p></div>
+      <h3>برامجك <small>اضغط المفتوح عشان تجيبه قدام أو تصغّره</small></h3>
       <input id="scrAppQ" class="search" placeholder="دوّر برنامج…" dir="auto" autocomplete="off" />
       <div class="pg" id="scrApps"><p class="note">نجيب برامجك…</p></div>
       <p class="note">التحكم بالماوس والكيبورد من الجوال ما هو موجود. تقدر تفتح برامجك وتتحكم بالصوت من هنا.</p>
     </div>
+    <div class="scr-pan" id="scrSrc"><div class="grab"></div>
+      <div class="srcmons"><h3>الشاشات</h3><div class="scr-mons" id="scrSrcMons"></div></div>
+      <h3>برنامج واحد <small>تشوفه هو بس</small></h3>
+      <div class="scr-wins" id="scrSrcWins"><p class="note">نشوف البرامج المفتوحة…</p></div>
+    </div>
+    <div class="scr-pan" id="scrAct"><div class="grab"></div>
+      <h3 id="scrActName" dir="auto"></h3>
+      <p class="actsub">اختر وش تبي نسوي فيه بالبيسي</p>
+      <div class="acts">
+        <button data-act="front"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="13" height="12" rx="2"/><path d="M8 4h11a2 2 0 0 1 2 2v9"/></svg>قدّام</button>
+        <button data-act="watch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>شوفه بس</button>
+        <button data-act="max"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>كبّره</button>
+        <button data-act="min"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19h14"/></svg>صغّره</button>
+        <button data-act="close" class="bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>سكّره</button>
+      </div>
+    </div>
     <div class="top"><span class="live"><i></i>مباشر</span><span class="st"></span><button class="x" aria-label="سكّر">×</button></div>
     <div class="dock">
       <button class="tool snap" data-do="snap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>صوّر</button>
+      <button class="tool rec" data-do="rec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/><circle cx="9" cy="12" r="2.2" fill="currentColor"/></svg><span class="rn">سجّل</span></button>
       <button class="tool" data-do="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>الصوت</button>
       <button class="tool" data-do="q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M7 15V9l3 3 3-3v6M16 9v6"/></svg><span class="qn"></span></button>
-      <button class="tool" data-do="mon" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="9" rx="1.5"/><rect x="9" y="11" width="13" height="9" rx="1.5"/></svg><span class="mn"></span></button>
+      <button class="tool" data-do="mon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="13" height="9" rx="1.5"/><rect x="9" y="11" width="13" height="9" rx="1.5"/></svg><span class="mn"></span></button>
       <button class="tool" data-do="pan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>لوحة</button>
       <button class="tool" data-do="fill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 9l-3 3 3 3M17 9l3 3-3 3"/></svg><span class="fn">املأ</span></button>
       <button class="tool" data-do="full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>كبّر</button>
@@ -8560,10 +8667,10 @@ function openScreen() {
     el.querySelector('[data-do="sound"]').classList.toggle("on", SCR.sound);
     el.querySelector('[data-do="sound"] .wave').style.opacity = SCR.sound ? "1" : ".2";
     el.querySelector(".qn").textContent = Q_NAME[SCR.q];
-    const mon = el.querySelector('[data-do="mon"]');
-    mon.hidden = scrScreens.length < 2;
+    // (what you watch: a screen, or one program — the panel picks)
     const cur = scrScreens.find((s) => s.id === SCR.id) ?? scrScreens[0];
-    el.querySelector(".mn").textContent = cur ? `الشاشة ${cur.n}` : "";
+    el.querySelector(".mn").textContent = scrWin ? "برنامج" : cur && scrScreens.length > 1 ? `الشاشة ${cur.n}` : "الشاشة";
+    el.querySelector('[data-do="mon"]').classList.toggle("on", Boolean(scrWin));
     el.classList.toggle("fill", Boolean(SCR.fill));
     el.querySelector('[data-do="fill"]').classList.toggle("on", Boolean(SCR.fill));
     el.querySelector(".fn").textContent = SCR.fill ? "كاملة" : "املأ";
@@ -8611,6 +8718,8 @@ function openScreen() {
     clearTimeout(V.timer);
     if (!V.want || scrView !== V) return;
     if (V.seen) freeze(); // (before the old link closes: its picture is still there)
+    // (a recording ends with its link: what was taken is kept and offered)
+    if (V.rec) recStop("again");
     try {
       V.pc?.close();
     } catch {}
@@ -8644,7 +8753,7 @@ function openScreen() {
       const gathered = iceEnough(pc, [...RTC_ICE, ...ice]);
       await pc.setLocalDescription(await pc.createOffer());
       await gathered;
-      const r = await cmd("scr.start", { sdp: pc.localDescription.sdp, id: SCR.id, q: SCR.q, sound: SCR.sound }, 25000);
+      const r = await cmd("scr.start", { sdp: pc.localDescription.sdp, id: SCR.id, win: scrWin?.id ?? null, q: SCR.q, sound: SCR.sound }, 25000);
       if (!r.ok) throw new Error(r.error || "fail");
       if (pc !== V.pc) return;
       await pc.setRemoteDescription({ type: "answer", sdp: r.data.sdp });
@@ -8678,6 +8787,14 @@ function openScreen() {
       const m = err?.message;
       if (m === "REMOTE_NOT_ALLOWED") return closeScreen("حدّث NUKE GG بالبيسي عشان تشوف الشاشة من جوالك.");
       if (m === "SCR_FULL") return closeScreen("فيه جوالين يشوفون الشاشة الحين. وقّف واحد وجرّب.");
+      // the program you watched closed: the whole screen instead
+      if (m === "SCR_GONE" && scrWin) {
+        toast(`${scrWin.title} تسكّر، رجعنا للشاشة كاملة`, true);
+        scrWin = null;
+        paintTools();
+        V.tries = 0;
+        return void connect();
+      }
       if (m === "FEATURE_OFF") return closeScreen("شاشة البيسي موقفة مؤقتاً.");
       if (m === "CODE_NEEDED") return closeScreen("هذي تحتاج كود. فعّل كودك بالبيسي.");
       lost();
@@ -8795,7 +8912,8 @@ function openScreen() {
       return;
     }
     tapAt = now;
-    if ($("scrPan").classList.contains("on")) return $("scrPan").classList.remove("on");
+    const openPanel = el.querySelector(".scr-pan.on");
+    if (openPanel) return openPanel.classList.remove("on");
     V.tapT = setTimeout(() => el.classList.toggle("clean"), 300);
   };
   const onTurn = () => {
@@ -8815,7 +8933,9 @@ function openScreen() {
     buzz(8);
     const what = b.dataset.do;
     if (what === "snap") return snap();
+    if (what === "rec") return V.rec ? recStop() : recStart();
     if (what === "pan") return void openPan();
+    if (what === "mon") return void openSrc();
     if (what === "fill") {
       SCR.fill = !SCR.fill;
       keepScr();
@@ -8833,12 +8953,6 @@ function openScreen() {
       keepScr();
       void cmd("scr.set", { q: SCR.q, sound: SCR.sound }, 6000);
       toast(`الوضوح: ${Q_NAME[SCR.q]}`);
-    } else if (what === "mon") {
-      const i = scrScreens.findIndex((s) => s.id === (SCR.id ?? scrScreens[0]?.id));
-      SCR.id = scrScreens[(i + 1) % scrScreens.length]?.id ?? null;
-      keepScr();
-      V.tries = 0;
-      void connect();
     } else if (what === "full") {
       try {
         if (document.fullscreenElement) await document.exitFullscreen();
@@ -8854,9 +8968,11 @@ function openScreen() {
   // «لوحة» (owner, 2026-10-30: «ابي لوحه تحكم… افتح تطبيقات منها»): the things the phone already does, in reach of the screen
   async function openPan() {
     const pan = el.querySelector("#scrPan");
+    el.querySelectorAll(".scr-pan.on").forEach((p) => p !== pan && p.classList.remove("on"));
     pan.classList.add("on");
     // the sound at once; the programs as soon as the PC has read its Start menu (a few seconds the first time)
     void cmd("vol.get", {}, 6000).then((r) => r.ok && paintPanVol(r.data));
+    void loadPanAv();
     paintPanApps(true);
     await panApps();
     try {
@@ -8919,7 +9035,9 @@ function openScreen() {
     if (!b) return;
     const name = (b.querySelector("span[dir]") ?? b).textContent.trim();
     if (openIds.has(openKey(b))) {
-      if (await ask(`نسكّر ${name}؟`, "ينقفل على البيسي.", "سكّره")) await closeFlow("apps.close", b.dataset.app ? { id: b.dataset.app, mine: true } : { id: b.dataset.run }, name);
+      // an open one: its own things (up front, small, big, watch it alone, close)
+      buzz(8);
+      return showAct(b.dataset.app ? { id: b.dataset.app, mine: true } : { id: b.dataset.run }, name);
     } else {
       b.classList.add("going");
       const ok = await openApp({ app: b.dataset.app, run: b.dataset.run }, name, b);
@@ -8955,6 +9073,195 @@ function openScreen() {
     if (!r.ok) return fail(r);
     if (a === "screen.off") toast("طفّينا شاشة البيسي (حرّك الماوس وترجع)");
   });
+  // ---- an open program's own things (owner, 2026-10-30: «جيب برنامج قدام أو صغّره أو كبّره»): window states only ----
+  let actFor = null;
+  function showAct(who, name) {
+    actFor = { who, name };
+    el.querySelector("#scrActName").textContent = name;
+    el.querySelectorAll(".scr-pan.on").forEach((p) => p.classList.remove("on"));
+    el.querySelector("#scrAct").classList.add("on");
+  }
+  const ACT_DONE = { front: (n) => `جبنا ${n} قدّام ✓`, max: (n) => `كبّرنا ${n} ✓`, min: (n) => `صغّرنا ${n} ✓` };
+  el.querySelector("#scrAct").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-act]");
+    if (!b || !actFor) return;
+    buzz(8);
+    const { who, name } = actFor;
+    const act = b.dataset.act;
+    if (act === "close") {
+      el.querySelector("#scrAct").classList.remove("on");
+      if (await ask(`نسكّر ${name}؟`, "ينقفل على البيسي.", "سكّره")) await closeFlow("apps.close", who, name);
+      return void setTimeout(async () => (await loadRunning(), paintPanApps()), 1500);
+    }
+    b.classList.add("going");
+    const r = await cmd("apps.win", { ...who, act: act === "watch" ? "find" : act }, 9000);
+    b.classList.remove("going");
+    if (!r.ok) return fail(r);
+    if (!r.data?.hwnd) return toast(`ما لقينا نافذة ${name} على الشاشة`, true);
+    el.querySelector("#scrAct").classList.remove("on");
+    if (act === "watch") {
+      // watch that program alone (and its window comes back up first if it was small)
+      scrWin = { id: `window:${r.data.hwnd}:0`, title: r.data.title || name, key: "" };
+      paintTools();
+      V.tries = 0;
+      toast(`نوريك ${name} بس`);
+      return void connect();
+    }
+    toast(ACT_DONE[act](name));
+  });
+
+  // ---- «صوت كل برنامج» in the panel: the same rows as the PC tab's ----
+  let panAvDrag = false, panAvLast = 0, panAvT = null;
+  async function loadPanAv() {
+    const r = await cmd("vol.apps", { known: [...avIcons.keys()] }, 8000);
+    if (scrView !== V) return;
+    if (!r.ok) return void (el.querySelector("#scrAv").innerHTML = `<p class="note">${r.error === "REMOTE_NOT_ALLOWED" ? "حدّث NUKE GG بالبيسي عشان تتحكم بصوت كل برنامج." : "ما قدرنا نجيب صوت البرامج."}</p>`);
+    paintPanAv(r.data);
+  }
+  function paintPanAv(list) {
+    if (!Array.isArray(list) || panAvDrag) return;
+    for (const a of list) if (a.icon) avIcons.set(a.id, a.icon);
+    el.querySelector("#scrAv").innerHTML = list.length ? avRowsHtml(list) : '<p class="note">ما فيه برنامج يطلّع صوت الحين.</p>';
+  }
+  const sendPanAv = async (row) => {
+    panAvLast = Date.now();
+    const r = await cmd("vol.appSet", { id: row.dataset.av, level: Number(row.querySelector("input").value) }, 6000);
+    return r;
+  };
+  el.querySelector("#scrAv").addEventListener("input", (e) => {
+    const row = e.target.closest("[data-av]");
+    if (!row || e.target.type !== "range") return;
+    panAvDrag = true;
+    e.target.style.setProperty("--p", `${e.target.value}%`);
+    clearTimeout(panAvT);
+    if (Date.now() - panAvLast > 160) void sendPanAv(row);
+    else panAvT = setTimeout(() => void sendPanAv(row), 160);
+  });
+  el.querySelector("#scrAv").addEventListener("change", async (e) => {
+    const row = e.target.closest("[data-av]");
+    if (!row || e.target.type !== "range") return;
+    clearTimeout(panAvT);
+    buzz(10);
+    const r = await sendPanAv(row);
+    panAvDrag = false;
+    if (!r.ok) return r.error === "REMOTE_GONE" ? loadPanAv() : fail(r);
+    paintPanAv(r.data);
+  });
+  el.querySelector("#scrAv").addEventListener("click", async (e) => {
+    const b = e.target.closest(".mt");
+    if (!b) return;
+    buzz(12);
+    const r = await cmd("vol.appMute", { id: b.closest("[data-av]").dataset.av }, 6000);
+    if (r.ok) return paintPanAv(r.data);
+    r.error === "REMOTE_GONE" ? loadPanAv() : fail(r);
+  });
+
+  // ---- what to watch: a screen, or one program's window ----
+  function openSrc() {
+    el.querySelectorAll(".scr-pan.on").forEach((p) => p.classList.remove("on"));
+    paintSrc();
+    el.querySelector("#scrSrc").classList.add("on");
+    void loadWins();
+  }
+  function paintSrc() {
+    const mons = el.querySelector("#scrSrcMons");
+    el.querySelector(".srcmons").hidden = scrScreens.length < 2;
+    mons.innerHTML = scrScreens.map((s) => `<button data-mon="${esc(s.id)}" class="${!scrWin && s.id === (SCR.id ?? scrScreens[0]?.id) ? "on" : ""}"><b>${s.primary ? `الشاشة ${s.n} · الأساسية` : `الشاشة ${s.n}`}</b><small dir="ltr">${s.w}×${s.h}</small></button>`).join("");
+    el.querySelector("#scrSrcWins").innerHTML = winListHtml();
+  }
+  el.addEventListener("scr-wins", () => el.querySelector("#scrSrc").classList.contains("on") && paintSrc());
+  el.querySelector("#scrSrc").addEventListener("click", (e) => {
+    const m = e.target.closest("[data-mon]");
+    const w = e.target.closest("[data-win]");
+    if (!m && !w) return;
+    buzz(8);
+    if (m) {
+      SCR.id = m.dataset.mon;
+      keepScr();
+      scrWin = null;
+    } else pickWin(w.dataset.win);
+    el.querySelector("#scrSrc").classList.remove("on");
+    paintTools();
+    paintWins();
+    V.tries = 0;
+    void connect();
+  });
+
+  // ---- «سجّل» (owner, 2026-10-30): a clip of what the phone sees, with the PC's sound when it's on; kept on this phone ----
+  const REC_MAX = 180;
+  const recType = () => ["video/mp4;codecs=avc1,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find((t) => window.MediaRecorder?.isTypeSupported?.(t)) ?? "";
+  function recPaint() {
+    const b = el.querySelector('[data-do="rec"]');
+    const R = V.rec;
+    b.classList.toggle("on", Boolean(R));
+    if (!R) return void (b.querySelector(".rn").textContent = "سجّل");
+    const s = Math.floor((Date.now() - R.at) / 1000);
+    b.querySelector(".rn").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    if (s >= REC_MAX) recStop("long");
+  }
+  function recStart() {
+    if (!V.live || !v.srcObject || !v.videoWidth) return toast("لحظة، الشاشة ما وصلت للحين", true);
+    if (!window.MediaRecorder) return toast("جوالك ما يقدر يسجّل من هنا. استخدم «صوّر»", true);
+    const type = recType();
+    let mr;
+    try {
+      mr = new MediaRecorder(v.srcObject, { ...(type ? { mimeType: type } : {}), videoBitsPerSecond: 6e6 });
+    } catch {
+      return toast("ما قدرنا نبدأ التسجيل", true);
+    }
+    const parts = [];
+    const R = { mr, at: Date.now(), t: null, why: "" };
+    mr.ondataavailable = (e) => e.data?.size && parts.push(e.data);
+    mr.onstop = () => recDone(parts, mr.mimeType || type, Math.round((Date.now() - R.at) / 1000), R.why);
+    try {
+      mr.start(1000);
+    } catch {
+      return toast("ما قدرنا نبدأ التسجيل", true);
+    }
+    buzz([10, 40, 10]);
+    R.t = setInterval(recPaint, 500);
+    V.rec = R;
+    recPaint();
+    toast("نسجّل… اضغط مرة ثانية عشان توقف");
+  }
+  function recStop(why = "") {
+    const R = V.rec;
+    if (!R) return;
+    V.rec = null;
+    clearInterval(R.t);
+    R.why = why;
+    try {
+      if (R.mr.state !== "inactive") R.mr.stop();
+    } catch {}
+    recPaint();
+  }
+  V.recStop = recStop;
+  // ready: a small card with a preview; «احفظه» opens the phone's share sheet (it needs the press itself)
+  function recDone(parts, type, secs, why) {
+    const blob = new Blob(parts, { type: type || "video/mp4" });
+    if (!blob.size) return toast("ما انسجّل شي، جرّب مرة ثانية", true);
+    const d = new Date();
+    const ext = /webm/.test(type) ? "webm" : "mp4";
+    const file = new File([blob], `مقطع شاشة البيسي ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")}.${ext}`, { type: blob.type });
+    document.querySelector(".clipcard")?.remove();
+    const card = document.createElement("div");
+    card.className = "clipcard";
+    const url = URL.createObjectURL(blob);
+    card.innerHTML = `<video muted playsinline autoplay loop></video><span class="t"><b>${why === "again" ? "وقف التسجيل والصورة ترجع" : why === "long" ? "خلص التسجيل (3 دقايق)" : "المقطع جاهز"}</b><small dir="ltr">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}</small></span><button class="go">احفظه</button><button class="no" aria-label="لا تحفظه">×</button>`;
+    card.querySelector("video").src = url;
+    const done = () => {
+      card.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60e3);
+    };
+    card.querySelector(".go").addEventListener("click", async () => {
+      const ok = await saveFile(file);
+      if (ok !== false) toast("حفظنا المقطع ✓");
+      done();
+    });
+    card.querySelector(".no").addEventListener("click", () => (buzz(8), done()));
+    document.body.append(card);
+  }
+
   // «صوّر»: the picture as the phone has it now, saved on this phone
   function snap() {
     if (!V.live || !v.videoWidth) return toast("لحظة، الشاشة ما وصلت للحين", true);
@@ -8977,6 +9284,8 @@ function openScreen() {
   V.close = () => {
     V.offTurn?.();
     V.want = false;
+    // (a clip still recording is kept: its card shows over the page)
+    if (V.rec) recStop("closed");
     clearTimeout(V.timer);
     clearInterval(V.look);
     try {
