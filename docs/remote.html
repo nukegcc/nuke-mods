@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-PUnEavPHsr9C02ruAxWispSYjEg5wZmV49c7QXBB/0k=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-NbdQG3qD+NLslzY5ViOx1JiRt7s2WHjAPwtrQXIMtqE=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=e281744e81" defer></script>
+<script src="rx-game.js?v=b85c1d7f4b" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1525,6 +1525,15 @@
         <div id="clipBox" class="clip hidden"><p id="clipText" dir="auto"></p><div class="linkrow"><button id="clipCopy">انسخه بجوالك</button><a id="clipOpen" class="hidden" target="_blank" rel="noopener noreferrer">افتحه</a></div><div id="clipMore" class="cliplist hidden"></div></div>
         <p class="hint">الرابط ينفتح بمتصفح البيسي، والكلام تقدر تلصقه بالبيسي. الصور والملفات تنحفظ بالتنزيلات ← «من الجوال».</p>
       </section>
+      <section data-cat="send" id="sbBox">
+        <h2><span>للساوند بورد</span></h2>
+        <p class="hint">الصق رابط (يوتيوب، تيك توك، إنستقرام…) أو اختر مقطع أو صوت من جوالك، ويصير صوت بالساوند بورد على البيسي.</p>
+        <textarea id="sbIn" class="search sendbox" rows="2" dir="auto" placeholder="الصق الرابط هنا…" autocomplete="off"></textarea>
+        <div class="linkrow"><button id="sbPaste" class="ghost">الصق</button><button id="sbGo" disabled>حوّله صوت</button></div>
+        <div class="linkrow"><button id="sbPick" class="calm">اختر مقطع أو صوت</button></div>
+        <input id="sbFileIn" type="file" accept="audio/*,video/*" multiple hidden />
+        <p id="sbState" class="hint hidden"></p>
+      </section>
       <section data-cat="send">
         <h2><span>رسالة على شاشة البيسي</span></h2>
         <textarea id="msgIn" class="search sendbox" rows="2" dir="auto" maxlength="300" placeholder="مثلاً: تعال العشا" autocomplete="off"></textarea>
@@ -2352,7 +2361,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=e281744e81";
+        sc.src = "jsqr.js?v=b85c1d7f4b";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -3055,6 +3064,9 @@ const ERR = {
   REMOTE_OFF: "التحكم من الجوال طافي. شغّله من NUKE GG ← «جوالك» بالبيسي.",
   REMOTE_NOT_ALLOWED: "هذا الأمر يحتاج تحديث NUKE GG على البيسي.",
   REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
+  SB_OLD: "الساوند بورد اللي بالبيسي قديم. حدّث NUKE GG على البيسي.",
+  SB_MISSING: "الساوند بورد مو موجود بنسخة NUKE GG اللي بالبيسي. حدّثه.",
+  SB_BAD_URL: "الرابط مو صحيح. الصق رابط يبدأ بـ https://",
   CODE_NEEDED: "هذا يحتاج كود. فتحنا لك شاشة الكود على البيسي، اكتبه هناك.",
   REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا. خلّ جوالك على نفس واي فاي البيسي ويصير يوصل لين 4 جيجا.",
   REMOTE_BUSY: "فيه ملفات قاعد تنرسل. انتظرها تخلص.",
@@ -3441,7 +3453,7 @@ async function sendRaw(file, tag, piece, list, onSent) {
   }
   return dc.readyState === "open" && !sendStopped;
 }
-async function sendFile(file) {
+async function sendFile(file, to = null) {
   if (sendStopped) return false;
   if (file.size > (direct() ? MAX_DIRECT : MAX_RELAY)) {
     toast(direct() ? `${file.name} أكبر من 4 جيجا` : `${file.name} أكبر من 50 ميجا. يحتاج «متصل مباشرة»: افتح الصفحة وأنت على نفس واي فاي البيسي`, true);
@@ -3451,7 +3463,7 @@ async function sendFile(file) {
   sendWay = null;
   paintSending(file.name, 0);
   if (direct()) {
-    const rb = await cmd("file.begin", { name: file.name, size: file.size, raw: true });
+    const rb = await cmd("file.begin", { name: file.name, size: file.size, raw: true, ...(to ? { to } : {}) });
     if (!rb.ok) return fail(rb), false;
     // a PC from before this way answers without a tag: the old way below
     if (rb.data?.tag != null) {
@@ -3480,7 +3492,8 @@ async function sendFile(file) {
         const e = await cmd("file.end", { fid }, 20000);
         if (!e.ok) return fail(e), false;
         if (!e.data?.missing) {
-          toast(`وصل «${e.data?.name ?? file.name}» للبيسي ✓`);
+          if (e.data?.sb?.id) sbWatch(e.data.sb.id, file.name);
+          else toast(`وصل «${e.data?.name ?? file.name}» للبيسي ✓`);
           return true;
         }
         list = e.data.missing; // (a piece lost on the way: sent again)
@@ -3491,7 +3504,7 @@ async function sendFile(file) {
     }
     if (rb.data?.fid) cmd("file.cancel", { fid: rb.data.fid });
   }
-  const b = await cmd("file.begin", { name: file.name, size: file.size });
+  const b = await cmd("file.begin", { name: file.name, size: file.size, ...(to ? { to } : {}) });
   if (!b.ok) return fail(b), false;
   const { fid, part } = b.data;
   const parts = Math.max(1, Math.ceil(file.size / part));
@@ -3518,7 +3531,8 @@ async function sendFile(file) {
   }
   const e = await cmd("file.end", { fid });
   if (!e.ok) return fail(e), false;
-  toast(`وصل «${e.data?.name ?? file.name}» للبيسي ✓`);
+  if (e.data?.sb?.id) sbWatch(e.data.sb.id, file.name);
+  else toast(`وصل «${e.data?.name ?? file.name}» للبيسي ✓`);
   return true;
 }
 async function sendFiles(list) {
@@ -3528,7 +3542,10 @@ async function sendFiles(list) {
   sendStopped = false;
   $("sendStop").disabled = false;
   $("sendStop").textContent = "وقّف الإرسال";
-  while (queue.length) if (!(await sendFile(queue.shift()))) queue.length = 0;
+  while (queue.length) {
+    const next = queue.shift();
+    if (!(await sendFile(next.file ?? next, next.to ?? null))) queue.length = 0;
+  }
   sendingFiles = false;
   sendStopped = false;
   $("sending").classList.add("hidden");
@@ -3541,6 +3558,58 @@ for (const [btn, input] of [["pickPhoto", "photoIn"], ["pickFile", "fileIn"]]) {
     if (list.length) sendFiles(list);
   });
 }
+
+// «للساوند بورد» (owner, 2026-11-03: «ارسل للساوند بورد رابط او مقطع او اي شي… ويحوله صوت بالبيسي»): a link or a file becomes a
+// sound on the PC's soundboard (its own «صوت من رابط» / add files there); the line under says how it goes until it's in
+const sbState = (text, bad = false) => {
+  const el = $("sbState");
+  el.textContent = text;
+  el.classList.toggle("hidden", !text);
+  el.classList.toggle("bad", bad);
+};
+async function sbWatch(id, label) {
+  sbState(`«${label}» وصل للبيسي، نحوّله صوت…`);
+  for (let i = 0; i < 200; i++) {
+    await new Promise((r) => setTimeout(r, i < 10 ? 1500 : 3000));
+    const r = await cmd("sb.job", { id });
+    if (!r.ok) return sbState(ERR[r.error] ?? ERR.REMOTE_FAILED, true);
+    if (r.data?.state === "done") {
+      buzz(20);
+      sbState(`انضاف للساوند بورد ✓ ${r.data.name ?? label}`);
+      return toast(`انضاف للساوند بورد ✓ ${r.data.name ?? label}`);
+    }
+    if (r.data?.state === "fail") return sbState(r.data.error ? `ما انضاف: ${r.data.error}` : "ما انضاف. جرّب مرة ثانية.", true);
+  }
+  sbState("ما رد البيسي. شوف الساوند بورد عليه.", true);
+}
+$("sbIn").addEventListener("input", () => ($("sbGo").disabled = !/^https?:\/\/\S{4,}/i.test($("sbIn").value.trim())));
+$("sbPaste").addEventListener("click", async () => {
+  buzz(6);
+  try {
+    $("sbIn").value = (await navigator.clipboard.readText()).trim();
+    $("sbIn").dispatchEvent(new Event("input"));
+  } catch {
+    toast("ما قدرنا نقرأ المنسوخ. الصقه بنفسك بالمربع", true);
+  }
+});
+$("sbGo").addEventListener("click", async () => {
+  const url = $("sbIn").value.trim();
+  if (!url) return;
+  buzz();
+  const done = working($("sbGo"), "نرسله…");
+  const r = await cmd("sb.link", { url });
+  done();
+  if (!r.ok) return fail(r);
+  $("sbIn").value = "";
+  $("sbGo").disabled = true;
+  sbWatch(r.data.id, url.replace(/^https?:\/\/(www\.)?/i, "").slice(0, 40));
+});
+$("sbPick").addEventListener("click", () => (buzz(8), $("sbFileIn").click()));
+$("sbFileIn").addEventListener("change", () => {
+  const list = [...$("sbFileIn").files];
+  $("sbFileIn").value = "";
+  if (list.length) sendFiles(list.map((file) => ({ file, to: "sb" })));
+});
 
 // the PC's clipboard → here (copying needs a tap on the phone, so it waits in a box)
 $("getClip").addEventListener("click", async () => {
