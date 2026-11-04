@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-NbdQG3qD+NLslzY5ViOx1JiRt7s2WHjAPwtrQXIMtqE=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-0kCTcQniFHjB9RBUx299EcTMEfnLDmgt/f1FABjutS8=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,7 +16,7 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=b85c1d7f4b" defer></script>
+<script src="rx-game.js?v=a9ab9244d5" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
@@ -1202,6 +1202,28 @@
   .paper .nb { font-family: Rajdhani, system-ui, sans-serif; direction: ltr; unicode-bidi: isolate; }
   /* «الشاشة» (owner's picks, 2026-10-30): the PC's screen, view only — a little monitor to pick from, then the screen fills the phone */
   nav .in:has(> button:nth-of-type(5)) { grid-template-columns: repeat(5, 1fr); }
+  nav .in:has(> button:nth-of-type(6)) { grid-template-columns: repeat(6, 1fr); gap: 2px; }
+  nav .in:has(> button:nth-of-type(6)) button { font-size: 10.5px; }
+  /* «الأصوات» (owner, 2026-11-04, his picks: its own tab, three small pads a row, a big «وقّف» that stays, favourites first, a
+     search, a buzz, what's playing): the PC's soundboard, each sound in the colour it has there */
+  .tabhead.sbp-head { background: radial-gradient(120% 140% at 0% 100%, rgba(239,59,45,.55), transparent 60%), radial-gradient(90% 120% at 100% 0%, rgba(142,68,173,.45), transparent 60%), var(--card); }
+  .tabhead.sbp-head svg { position: absolute; inset-inline-end: 14px; top: 50%; translate: 0 -50%; width: 96px; height: 96px; color: rgba(255,255,255,.14); }
+  .sbp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .sbp { position: relative; min-height: 78px; border-radius: 16px; padding: 8px 9px; display: flex; flex-direction: column; justify-content: flex-end; text-align: start; color: #fff;
+    font-weight: 800; font-size: 13px; line-height: 1.5; overflow: hidden; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.18), inset 0 -4px 0 rgba(0,0,0,.35); transition: transform .08s; }
+  .sbp span { overflow-wrap: anywhere; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+  .sbp:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.35); }
+  .sbp.fav::before { content: ""; position: absolute; top: 7px; inset-inline-start: 8px; width: 13px; height: 13px; background: var(--gold);
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+  .sbp.play { box-shadow: inset 0 0 0 2.5px #fff, inset 0 3px 0 rgba(255,255,255,.18); }
+  .sbp.play::after { content: ""; position: absolute; top: 9px; inset-inline-end: 9px; width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: sbpPulse 1s ease-in-out infinite; }
+  @keyframes sbpPulse { 50% { opacity: .25; } }
+  .sbp-sec { font-size: 13px; color: var(--dim); font-weight: 700; margin: 4px 4px 8px; }
+  .sbp-empty { text-align: center; padding: 26px 10px; color: var(--dim); line-height: 1.8; }
+  .sbp-stop { position: sticky; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 5; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .sbp-stop i.sq { width: 14px; height: 14px; border-radius: 3px; background: #fff; flex: none; position: relative; }
+  :root[data-motion="reduce"] .sbp.play::after { animation: none; }
   .mon-hero { position: relative; margin: 4px auto 18px; width: min(100%, 420px); }
   .mon-hero .bez { position: relative; aspect-ratio: 16/9; border-radius: 16px; padding: 7px; background: linear-gradient(#2a2122, #171112); box-shadow: inset 0 0 0 1.5px #3a2c2d, 0 18px 40px -20px rgba(239,59,45,.55); }
   .mon-hero .glass { position: relative; width: 100%; height: 100%; border-radius: 10px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #241a1b, #0b0808); }
@@ -1648,6 +1670,14 @@
         <div class="setrow" style="padding:4px 2px;margin-top:6px"><div><b>صوت البيسي</b><small>تسمع صوت اللعبة أو الفيديو مع الصورة</small></div><button id="scrSound" class="sw" aria-label="صوت البيسي"></button></div>
       </section>
     </div>
+    <div id="tab-sounds" class="tab">
+      <div class="tabhead sbp-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><div><b>الأصوات</b><small>الساوند بورد اللي بالبيسي، من جوالك</small></div></div>
+      <input id="sbpSearch" class="search" type="search" placeholder="دوّر على صوت…" dir="auto" autocomplete="off" />
+      <div id="sbpCats" class="chips scrollx"></div>
+      <div id="sbpBody"><p class="sbp-empty">نجيب أصواتك…</p></div>
+      <p class="hint">اضغط مطوّل على أي صوت عشان يصير بالمفضلة ويطلع أول.</p>
+      <button id="sbpStop" class="wide sbp-stop"><i class="sq" aria-hidden="true"></i>وقّف الكل</button>
+    </div>
     <div id="tab-stat" class="tab">
       <div class="tabhead"><img src="ban-stat.jpg" alt="" /><div><b>الحالة</b><small>كل شي عن جهازك</small></div></div>
       <div class="cats" role="tablist"><button role="tab" data-cat="now" data-empty="">الحين</button><button role="tab" data-cat="bill" data-empty="">الكهرباء</button><button role="tab" data-cat="net" data-empty="">النت</button><button role="tab" data-cat="device" data-empty="">الجهاز</button></div>
@@ -1769,6 +1799,7 @@
   <button data-tab="games" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-4 3.6l-.6 6.1A2.7 2.7 0 0 0 4.8 17.7c1 0 1.8-.6 2.2-1.4L8 14h8l1 2.3c.4.8 1.2 1.4 2.2 1.4a2.7 2.7 0 0 0 2.7-3l-.6-6.1A4 4 0 0 0 17.3 5Z"/></svg>ألعابي</button>
   <button data-tab="pc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>البيسي</button>
   <button data-tab="screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="m10 7.5 4.5 2.5-4.5 2.5z"/><path d="M8 21h8M12 17v4"/></svg>الشاشة</button>
+  <button data-tab="sounds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>الأصوات</button>
   <button data-tab="stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/></svg>الحالة</button>
   <button data-tab="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.6a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.6a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>الإعدادات</button>
 </div></nav>
@@ -2361,7 +2392,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=b85c1d7f4b";
+        sc.src = "jsqr.js?v=a9ab9244d5";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -3066,6 +3097,7 @@ const ERR = {
   REMOTE_FAILED: "ما زبط على البيسي. جرّب مرة ثانية.",
   SB_OLD: "الساوند بورد اللي بالبيسي قديم. حدّث NUKE GG على البيسي.",
   SB_MISSING: "الساوند بورد مو موجود بنسخة NUKE GG اللي بالبيسي. حدّثه.",
+  SB_NO_SOUND: "هالصوت انشال من الساوند بورد. جبنا لك الأصوات من جديد.",
   SB_BAD_URL: "الرابط مو صحيح. الصق رابط يبدأ بـ https://",
   CODE_NEEDED: "هذا يحتاج كود. فتحنا لك شاشة الكود على البيسي، اكتبه هناك.",
   REMOTE_TOO_BIG: "الملف أكبر من 50 ميجا. خلّ جوالك على نفس واي فاي البيسي ويصير يوصل لين 4 جيجا.",
@@ -3255,6 +3287,7 @@ function refresh() {
   if (tab === "stat") return Promise.all([loadBill(), loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
   if (tab === "screen") return loadScreens();
+  if (tab === "sounds") return loadSounds();
   return Promise.resolve();
 }
 // ↻: the PC asked again, then everything on the open tab (the arrow turns until it's all in)
@@ -3609,6 +3642,118 @@ $("sbFileIn").addEventListener("change", () => {
   const list = [...$("sbFileIn").files];
   $("sbFileIn").value = "";
   if (list.length) sendFiles(list.map((file) => ({ file, to: "sb" })));
+});
+
+// ---- «الأصوات»: the PC's soundboard from here (owner, 2026-11-04, his picks: its own tab, small pads, a big «وقّف»,
+// favourites first, a search, a buzz, what's playing; playing needs the code like the soundboard itself). A press plays it on
+// the PC exactly like a click there. Favourites live on this phone (a long press); what's playing comes from the PC when the
+// soundboard says so, else the pressed one glows a moment.
+const SBP_FAV = "nk-sbp-fav";
+let sbp = null, sbpCat = "all", sbpQ = "", sbpPoll = null;
+const sbpPlaying = new Set();
+const sbpFav = new Set((() => { try { return JSON.parse(localStorage.getItem(SBP_FAV) || "[]"); } catch { return []; } })());
+const sbpSaveFav = () => { try { localStorage.setItem(SBP_FAV, JSON.stringify([...sbpFav].slice(0, 300))); } catch {} };
+const sbpColor = (c) => (/^#[0-9a-f]{3,8}$/i.test(String(c ?? "")) ? c : "#c0392b");
+async function loadSounds() {
+  const r = await cmd("sb.list", {}, 15000);
+  if (!r.ok) {
+    if (!sbp) $("sbpBody").innerHTML = `<p class="sbp-empty">${esc(ERR[r.error] ?? ERR.REMOTE_FAILED)}</p>`;
+    return;
+  }
+  sbp = { sounds: r.data?.sounds ?? [], cats: r.data?.cats ?? [] };
+  sbpSetPlaying(r.data?.playing);
+  drawSounds();
+}
+function sbpSetPlaying(list) {
+  if (!Array.isArray(list)) return;
+  sbpPlaying.clear();
+  for (const id of list) sbpPlaying.add(String(id));
+  // (something is playing: looked at again every 2 s while this tab is open, then it stops by itself)
+  clearTimeout(sbpPoll);
+  if (sbpPlaying.size && tab === "sounds" && !document.hidden) sbpPoll = setTimeout(async () => {
+    const r = await cmd("sb.list", {}, 8000);
+    if (r.ok) sbpSetPlaying(r.data?.playing), sbpMark();
+  }, 2000);
+}
+function sbpMark() {
+  for (const b of $("sbpBody").querySelectorAll(".sbp")) b.classList.toggle("play", sbpPlaying.has(b.dataset.id));
+}
+function drawSounds() {
+  if (!sbp) return;
+  const cats = [{ id: "all", name: "الكل" }, ...sbp.cats.filter((c) => sbp.sounds.some((s) => s.cat === c.id))];
+  if (!cats.some((c) => c.id === sbpCat)) sbpCat = "all";
+  $("sbpCats").innerHTML = cats.length > 2 ? cats.map((c) => `<button class="chip${c.id === sbpCat ? " on" : ""}" data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join("") : "";
+  const q = sbpQ.trim().toLowerCase();
+  const list = sbp.sounds.filter((s) => (sbpCat === "all" || s.cat === sbpCat) && (!q || String(s.name).toLowerCase().includes(q)));
+  if (!sbp.sounds.length) {
+    $("sbpBody").innerHTML = `<p class="sbp-empty">ما فيه أصوات بالساوند بورد للحين.<br>ضيف أصوات من البيسي، أو من «البيسي» ← «للساوند بورد» هنا.</p>`;
+    return;
+  }
+  if (!list.length) {
+    $("sbpBody").innerHTML = `<p class="sbp-empty">ما لقينا صوت بهالاسم.</p>`;
+    return;
+  }
+  const pad = (s) => `<button class="sbp${sbpFav.has(s.id) ? " fav" : ""}${sbpPlaying.has(s.id) ? " play" : ""}" data-id="${esc(s.id)}" style="background:${sbpColor(s.color)}"><span dir="auto">${esc(s.name)}</span></button>`;
+  const favs = list.filter((s) => sbpFav.has(s.id));
+  const rest = list.filter((s) => !sbpFav.has(s.id));
+  $("sbpBody").innerHTML = (favs.length ? `<p class="sbp-sec">المفضلة</p><div class="sbp-grid">${favs.map(pad).join("")}</div>${rest.length ? `<p class="sbp-sec" style="margin-top:14px">الباقي</p>` : ""}` : "") + (rest.length ? `<div class="sbp-grid">${rest.map(pad).join("")}</div>` : "");
+}
+$("sbpCats").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-cat]");
+  if (!b) return;
+  buzz(6);
+  sbpCat = b.dataset.cat;
+  drawSounds();
+});
+$("sbpSearch").addEventListener("input", () => ((sbpQ = $("sbpSearch").value), drawSounds()));
+// a press plays; a long press (half a second) makes it a favourite (or not)
+let sbpHold = null, sbpHeld = false;
+$("sbpBody").addEventListener("pointerdown", (e) => {
+  const b = e.target.closest(".sbp");
+  if (!b) return;
+  sbpHeld = false;
+  clearTimeout(sbpHold);
+  sbpHold = setTimeout(() => {
+    sbpHeld = true;
+    const id = b.dataset.id;
+    if (sbpFav.has(id)) sbpFav.delete(id);
+    else sbpFav.add(id);
+    sbpSaveFav();
+    buzz([10, 40, 10]);
+    toast(sbpFav.has(id) ? "انضاف للمفضلة" : "انشال من المفضلة");
+    drawSounds();
+  }, 500);
+});
+for (const ev of ["pointerup", "pointercancel", "pointerleave"]) $("sbpBody").addEventListener(ev, () => clearTimeout(sbpHold));
+$("sbpBody").addEventListener("contextmenu", (e) => e.target.closest(".sbp") && e.preventDefault());
+$("sbpBody").addEventListener("click", async (e) => {
+  const b = e.target.closest(".sbp");
+  if (!b || sbpHeld) return;
+  buzz(15);
+  b.classList.add("play");
+  const r = await cmd("sb.play", { id: b.dataset.id });
+  if (!r.ok) {
+    b.classList.remove("play");
+    if (r.error === "SB_NO_SOUND") loadSounds();
+    return fail(r);
+  }
+  // (the PC says what's playing when its soundboard can tell; else the press glows a moment)
+  if (Array.isArray(r.data?.playing) && r.data.playing.length) sbpSetPlaying(r.data.playing), sbpMark();
+  else setTimeout(() => !sbpPlaying.has(b.dataset.id) && b.classList.remove("play"), 1200);
+  setTimeout(async () => {
+    const again = await cmd("sb.list", {}, 8000);
+    if (again.ok && Array.isArray(again.data?.playing)) sbpSetPlaying(again.data.playing), sbpMark();
+  }, 600);
+});
+$("sbpStop").addEventListener("click", async () => {
+  buzz([20, 30, 20]);
+  const done = working($("sbpStop"), "نوقّف…");
+  const r = await cmd("sb.stop", {});
+  done();
+  if (!r.ok) return fail(r);
+  sbpPlaying.clear();
+  sbpMark();
+  toast("وقّفنا كل الأصوات");
 });
 
 // the PC's clipboard → here (copying needs a tap on the phone, so it waits in a box)
