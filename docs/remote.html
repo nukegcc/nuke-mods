@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <!-- only this page's own scripts run (scripts/remote-page.mjs fills in the policy with their hashes) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-0kCTcQniFHjB9RBUx299EcTMEfnLDmgt/f1FABjutS8=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TC1nR8coV5g1Xsg0ZJC2LD54vN7objVUN7nsV3cCfUw=' 'sha256-wClVgBepER6UaUvSxEpULgQjcjoSqdrUNRIbRyZLUxg=' 'sha256-gNnFJkSbuoMdq3a6eqFqjI8twyidlmO+CyIllUMABRk=' 'sha256-YUs0juvL6DiC5JqUT5wcaz+y09ZPG8TzwN6tSJDL92U='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' wss://nuke-relay.nuke-gcc.workers.dev https://www.wikidata.org https://en.wikipedia.org https://ar.wikipedia.org; worker-src 'self'; manifest-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0e0a0a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,12 +16,12 @@
 <link rel="icon" href="remote-icon.png" />
 <link rel="apple-touch-icon" href="remote-app.png" />
 <title>NUKE GG</title>
-<script src="rx-game.js?v=a9ab9244d5" defer></script>
+<script src="rx-game.js?v=f6bba663e2" defer></script>
 <!-- opens fast: the font never holds the first paint back (the phone's own font shows first; remote-sw.js keeps it on
      the phone for next time). No inline handler (the page's CSP): the script under it turns the sheet on once it loaded -->
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link id="nkFont" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet" media="print" crossorigin />
+<link id="nkFont" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&family=Monoton&display=swap" rel="stylesheet" media="print" crossorigin />
 <script>
 (() => {
   const l = document.getElementById("nkFont");
@@ -452,6 +452,22 @@
   .priv.live .ic { animation: knob .8s ease-in-out infinite alternate; }
   /* «أزرارك»: one button, several things on the PC (like a Stream Deck) */
   .deck { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  /* «الإضاءة» (owner, 2026-11-05: his pick «من جوالك» + «لوحات نيون»): the app's neon signs on a brick wall */
+  .ltwall { border-radius: 16px; padding: 18px 8px; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; justify-content: center; min-height: 150px;
+    background: repeating-linear-gradient(0deg, transparent 0 22px, rgba(0,0,0,.38) 22px 24px), repeating-linear-gradient(90deg, transparent 0 48px, rgba(0,0,0,.3) 48px 50px), radial-gradient(120% 100% at 50% 0%, #2a1719, #160d0f); }
+  .ltsign { --c: #ff2d55; background: none; border: 0; padding: 6px 10px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: inherit; font: inherit; }
+  .ltsign b { font-family: "Monoton", "Rajdhani", sans-serif; font-weight: 400; font-size: 26px; letter-spacing: .05em; line-height: 1.15; color: #fff; direction: ltr;
+    text-shadow: 0 0 3px #fff, 0 0 9px var(--c), 0 0 20px var(--c), 0 0 38px var(--c); transition: text-shadow .35s; }
+  .ltsign.dark b { color: #3b2c2e; text-shadow: none; }
+  .ltsign small { font-size: 11px; color: var(--dim); font-weight: 600; }
+  .ltsign.sel { box-shadow: inset 0 0 0 2px var(--gold); background: rgba(255,255,255,.04); }
+  .ltsign.sel small { color: var(--gold); }
+  .ltsign.on b { animation: ltOn .5s steps(1, end); }
+  @keyframes ltOn { 0% { opacity: .25 } 15% { opacity: 1 } 30% { opacity: .35 } 45% { opacity: 1 } 60% { opacity: .6 } 100% { opacity: 1 } }
+  .ltsw { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-top: 12px; }
+  .ltsw button { width: 34px; height: 34px; border-radius: 50%; border: 0; box-shadow: 0 0 0 2px var(--card), 0 0 0 3px rgba(255,255,255,.18); }
+  .ltsw button.on { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--gold); }
+  .ltfx { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 92px; border-radius: 18px; background: linear-gradient(160deg, rgba(239,59,45,.18), rgba(255,138,31,.06)); border: 1px solid rgba(239,59,45,.35); font-weight: 700; font-size: 13px; padding: 8px 4px; text-align: center; line-height: 1.3; transition: transform .12s; }
   .scene i { font-style: normal; font-size: 30px; line-height: 1; }
   .scene:active { transform: scale(.94); }
@@ -1528,6 +1544,13 @@
         <p id="errState" class="hint hidden"></p>
         <div id="errOut" class="errres hidden"></div>
       </section>
+      <section data-cat="quick" id="ltBox" class="hidden">
+        <h2><span>الإضاءة</span><span id="ltFor" class="muted"></span></h2>
+        <div class="ltfx chips" id="ltFx"></div>
+        <div class="ltwall" id="ltWall"></div>
+        <div class="ltsw" id="ltSw"></div>
+        <p id="ltNote" class="hint" style="text-align:center;margin-top:8px"></p>
+      </section>
       <section data-cat="quick" id="deckBox">
         <h2><span>أزرارك</span><button id="deckEdit" class="more">عدّل</button></h2>
         <div id="deck" class="deck"><p class="muted">نجيب أزرارك…</p></div>
@@ -2392,7 +2415,7 @@ const loadJsQR = () =>
     : new Promise((resolve, reject) => {
         const sc = document.createElement("script");
         // our own copy (jsQR 1.4.0, Apache-2.0, jsqr-LICENSE.txt next to it): nothing from another site runs on this page
-        sc.src = "jsqr.js?v=a9ab9244d5";
+        sc.src = "jsqr.js?v=f6bba663e2";
         sc.onload = () => resolve(window.jsQR);
         sc.onerror = reject;
         document.head.appendChild(sc);
@@ -3283,7 +3306,7 @@ document.querySelectorAll("nav [data-tab]").forEach((b) =>
 );
 function refresh() {
   if (tab === "games") return Promise.all([loadGames(), loadShots(), loadLimit(), loadSteam(), loadFriends()]);
-  if (tab === "pc") return Promise.all([loadVol(), loadAppVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard()]);
+  if (tab === "pc") return Promise.all([loadVol(), loadAppVol(), loadApps(), loadRunning(), loadSound(), loadScreen(), loadBt(), loadDeck(), loadComing(), loadGuard(), loadLights()]);
   if (tab === "stat") return Promise.all([loadBill(), loadStatus(), loadHeavy(), loadDrives(), loadSpecs(), loadPriv(), loadSpeed(), loadServers(true)]);
   if (tab === "set") return Promise.all([loadAlerts(), loadLimit(), loadStatus()]);
   if (tab === "screen") return loadScreens();
@@ -5930,6 +5953,96 @@ function stepWordRaw(s) {
   }
 }
 let deckList = [], deckTemplates = [], editing = null;
+// ---- «الإضاءة» (owner, 2026-11-05: his pick «من جوالك»): the PC's neon signs — tap a sign for its own colour, a colour for all
+// switches them on one after another (like the app); shown only once the lights engine is set up on the PC ----
+const LT_FX = [["static", "ثابت"], ["breathing", "تنفّس"], ["rainbow", "قوس قزح"], ["game", "لون لعبتك"], ["off", "طفّي"]];
+const LT_COLORS = ["#ff2d55", "#ff8a1f", "#ffc93c", "#00ff66", "#00e5ff", "#3d7bff", "#a855f7", "#ffffff"];
+const LT_KIND = { keyboard: "كيبورد", mouse: "ماوس", gpu: "كرت الشاشة", dram: "رامات", headset: "سماعة", cooler: "مروحة", motherboard: "اللوحة الأم", ledstrip: "شريط إضاءة" };
+let lt = null, ltSel = null, ltLit = 99;
+const ltSign = (p) => (p.kind === "gpu" ? (/\b(RTX|GTX)\b/i.exec(p.label || p.name)?.[1]?.toUpperCase() ?? "GPU") : ({ keyboard: "KEYBOARD", mouse: "MOUSE", dram: "RAM", headset: "HEADSET", cooler: "FAN", motherboard: "BOARD", ledstrip: "LIGHTS" })[p.kind] ?? "RGB");
+// (one sign per real part: the same mouse through its receiver and its cable is one)
+function ltParts() {
+  const by = new Map();
+  for (const d of lt?.parts ?? []) {
+    const label = d.label === "" || (!d.label && d.kind === "mouse" && /zet/i.test(d.name)) ? LT_KIND[d.kind] ?? d.name : d.label ?? d.name;
+    const id = `${d.kind}|${label}`;
+    const g = by.get(id);
+    if (g) (g.names.push(d.name), (g.deaf = g.deaf && d.deaf));
+    else by.set(id, { id, kind: d.kind, names: [d.name], label, deaf: d.deaf });
+  }
+  return [...by.values()];
+}
+async function loadLights() {
+  const r = await cmd("lt.get", {}, 12000);
+  if (!r.ok || !r.data?.installed || !r.data.parts?.length) return $("ltBox").classList.add("hidden");
+  lt = r.data;
+  $("ltBox").classList.remove("hidden");
+  drawLights();
+}
+function drawLights() {
+  if (!lt) return;
+  const parts = ltParts();
+  const sel = parts.find((p) => p.id === ltSel) ?? null;
+  $("ltFx").innerHTML = LT_FX.map(([id, n]) => `<button class="chip${lt.effect === id ? " on" : ""}" data-fx="${id}">${n}</button>`).join("");
+  $("ltWall").innerHTML = parts.map((p, i) => {
+    const on = !p.deaf && lt.effect !== "off" && i < ltLit;
+    const c = lt.colors?.[p.names[0]] ?? lt.color;
+    return `<button class="ltsign${on ? "" : " dark"}${p.id === ltSel ? " sel" : ""}${on && i === ltLit - 1 ? " on" : ""}" data-id="${esc(p.id)}" style="--c:${lt.effect === "rainbow" ? "#ff2d55" : esc(c)}"><b>${esc(ltSign(p))}</b><small dir="auto">${esc(p.label)}</small></button>`;
+  }).join("");
+  const showSw = lt.effect === "static" || lt.effect === "breathing";
+  const cur = sel ? lt.colors?.[sel.names[0]] ?? lt.color : lt.color;
+  $("ltSw").innerHTML = showSw ? LT_COLORS.map((c) => `<button data-c="${c}" class="${c === cur ? "on" : ""}" style="background:${c}" aria-label="${c}"></button>`).join("") : "";
+  $("ltFor").textContent = showSw ? (sel ? `لون ${sel.label}` : "لون كل القطع") : "";
+  $("ltNote").textContent = showSw ? (sel ? "اضغطها مرة ثانية ترجع لكل القطع" : "اضغط لوحة وتلوّنها لحالها") : lt.effect === "game" ? "قطعك تاخذ لون اللعبة اللي تلعبها" : "";
+}
+// a colour for all: the signs switch on one after another, each with a small buzz
+function ltWave() {
+  const n = ltParts().length;
+  ltLit = 0;
+  drawLights();
+  for (let i = 1; i <= n; i++) setTimeout(() => { ltLit = i; buzz(4); drawLights(); }, 140 + (i - 1) * 220);
+  setTimeout(() => { ltLit = 99; drawLights(); }, 200 + n * 220);
+}
+async function ltSet(args, wave) {
+  if (wave) ltWave();
+  else drawLights();
+  const r = await cmd("lt.set", args, 20000);
+  if (!r.ok) return fail(r), loadLights();
+}
+$("ltFx").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-fx]");
+  if (!b || !lt || lt.effect === b.dataset.fx) return;
+  lt.effect = b.dataset.fx;
+  ltSel = null;
+  buzz(6);
+  void ltSet({ effect: lt.effect }, lt.effect !== "off");
+});
+$("ltWall").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-id]");
+  if (!b || !(lt?.effect === "static" || lt?.effect === "breathing")) return;
+  ltSel = ltSel === b.dataset.id ? null : b.dataset.id;
+  buzz(4);
+  drawLights();
+});
+$("ltSw").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-c]");
+  if (!b || !lt) return;
+  const c = b.dataset.c;
+  const sel = ltParts().find((p) => p.id === ltSel);
+  if (sel) {
+    lt.colors = { ...(lt.colors ?? {}), ...Object.fromEntries(sel.names.map((n) => [n, c])) };
+    drawLights();
+    for (const n of sel.names) {
+      const r = await cmd("lt.set", { color: c, part: n }, 20000);
+      if (!r.ok) return fail(r), loadLights();
+    }
+    return;
+  }
+  lt.color = c;
+  lt.colors = {};
+  void ltSet({ color: c }, true);
+});
+
 async function loadDeck() {
   const r = await cmd("scenes.get");
   if (!r.ok) return $("deckBox").classList.toggle("hidden", r.error === "REMOTE_NOT_ALLOWED");
